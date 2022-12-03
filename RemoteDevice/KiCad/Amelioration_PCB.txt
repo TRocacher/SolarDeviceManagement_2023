@@ -1,0 +1,44 @@
+ROUTAGE
+
+pads apparents, option...
+
+
+
+
+
+
+
+-----------
+ROUTAGE
+Revoir la masse, ilot central
+Revoir limites, et pads externes : augmenter le rayon de courbure
+pads apparents, option...
+OK- erreur switch
+pb alignement module HF
+NON- élargir empreinte SOIC ? I2C 
+OK- Superposer Xbee + RT606 ?
+OK- pas de pull up sur nRST
+
+OK alim 3V3 - !! mettre du gain pour saturer AOP LED IR de manière à avoir 5V max et pas 3.
+
+OK-  !! anti inversion à PMOS sur les piles !!
+OK-!! pull up du l'I2C 10k
+
+NON- !! pb 32768 externe, RC interne très peu précis !!
+
+OK voir doc conception - Passer le capteur de température en 3V en le connectant sur le SW du boost (en amont).
+Ou en aval en permanence ?
+Mettre un jump ? -> pour l'abricotier !
+
+NON - Filtrer VDDA
+
+Debugger SW
+OK- Ajouter nReset sur le connecteur SWD
+NON - Ajouter les résistances de 22 Ohm ? -> refaire la manip Nucleo-Nucleo pour voir
+OK - Enlever la pull up reset ? 
+
+NON - RS485 ?
+
+OK- AJOUTER 1k et 10u pour filtre alime 5V vers micro et Temp sensor et AOP (étudier impact).
+
+PB 38 kHz et même 110 kHz sur bruit découpage, partout sur le masse etc...

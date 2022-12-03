@@ -1,0 +1,20 @@
+
+*** Historique :  ****
+./PVLoadsManagementSyst_Old/RemoteDevice
+Toute la partie de conception mal structurée qui a été mise sur github. On trouve tous les tatônnements, lowpower, LL, Kicad 
+Reéalisations PCB V1 et V2.
+
+./PVLoadsManagementSyst_Old/RemoteDevice_040722
+Remise à plat provisoire en été 2022, avec nouveau départ logiciel. Non suivi sur github.
+
+
+
+*** Nouveau départ  ***
+Inspiré du contenu soft /PVLoadsManagementSyst_Old/RemoteDevice_040722 et hard ./PVLoadsManagementSyst_Old/RemoteDevice
+
+Les répertoires:
+/ PVLoadsMgtSysWorkSpace (le workspace de l'ensemble des developpement CubeIDE)
+/ System : contiendra le SysML
+/ RemoteDevice : contiendra hard et soft des remote Device
+/ CentralUnit: contiendra hard et soft des remote Device
+/ Power Meter : contiendra hard et soft des remote Device
