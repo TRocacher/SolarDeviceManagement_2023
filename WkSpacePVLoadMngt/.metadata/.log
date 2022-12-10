@@ -157,3 +157,25 @@ java.lang.Exception: The project description file (.project) for 'RemoteDevice' 
 
 !ENTRY org.eclipse.cdt.core 1 0 2022-12-03 18:19:17.009
 !MESSAGE Indexed 'RemoteDevice_L031' (18 sources, 101 headers) in 5,19 sec: 8 642 declarations; 26 587 references; 5 unresolved inclusions; 1 429 syntax errors; 4 655 unresolved names (12 %)
+!SESSION 2022-12-09 10:50:12.937 -----------------------------------------------
+eclipse.buildId=Version 1.6.1
+java.version=11.0.9.1
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=fr_FR
+Framework arguments:  C:\Users\trocache\Documents\Thierry\2013_2016\Projets_perso\2022_AutoConsoPerso\PVLoadsManagementSyst\RemoteDevice\Dev_Soft_RemoteDevice_L031\.cproject
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Users\trocache\Documents\Thierry\2013_2016\Projets_perso\2022_AutoConsoPerso\PVLoadsManagementSyst\RemoteDevice\Dev_Soft_RemoteDevice_L031\.cproject
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2022-12-09 10:50:58.583
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2022-12-09 10:50:58.956
+!MESSAGE Log4j initialized with config file C:\Users\trocache\Documents\Thierry\2013_2016\Projets_perso\2022_AutoConsoPerso\PVLoadsManagementSyst\WkSpacePVLoadMngt\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2022-12-09 10:51:15.803
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 4 4 2022-12-09 10:51:17.702
+!MESSAGE com.st.stm32cube.ide.mcu.ide/META-INF/version/build_ref file not found, build reference will not be reported into properties
+
+!ENTRY org.eclipse.cdt.core 1 0 2022-12-09 10:51:21.819
+!MESSAGE Indexed 'RemoteDevice_L031' (18 sources, 102 headers) in 4,48 sec: 8 640 declarations; 32 478 references; 2 unresolved inclusions; 33 syntax errors; 188 unresolved names (0,46 %)
