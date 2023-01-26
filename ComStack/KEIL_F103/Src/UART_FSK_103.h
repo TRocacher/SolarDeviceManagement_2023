@@ -4,7 +4,7 @@
 
 #include "stm32f10x.h"
 
-#define UART_FSK USART2
+#define UART_FSK USART1
 #define Rx_Cmde_GPIO GPIOA 
 #define Rx_Cmde_Pin  4
 #define Tx_Cmde_GPIO GPIOA

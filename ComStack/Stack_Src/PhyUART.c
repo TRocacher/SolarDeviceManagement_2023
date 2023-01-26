@@ -218,8 +218,9 @@ switch (PhyUART_FSM_State)
 		
 		case ReadingFrame:
 		{	
-			//if (PhyUART_GetTimeOut_Status()==0) // Traitement si on n'est pas en time out !
-			//{
+			PhyUART_Mssg.Error=NoError;
+			if (PhyUART_GetTimeOut_Status()==0) // Traitement si on n'est pas en time out !
+			{
 			
 				PhyUART_Mssg.Status=ReceivingMssg;
 				// Frame : Len||My@|Dest@|ID|Type_LenData|Data|Trial|CheckSum| 
@@ -252,12 +253,12 @@ switch (PhyUART_FSM_State)
 						}
 					}
 				}	
-			//}
-//			else // timeout
-//			{
-//				PhyUART_Mssg.Error=TimeOutError;			
-//				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
-//			}
+			}
+			else // timeout
+			{
+				PhyUART_Mssg.Error=TimeOutError;			
+				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
+			}
 			break;
 			
 			
