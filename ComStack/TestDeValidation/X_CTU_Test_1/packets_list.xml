@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+  <loop>false</loop>
+  <repeat_times>1</repeat_times>
+  <repeat_period>500</repeat_period>
+  <packets_list>
+    <packet name="packet_0">
+      <payload>232323232307546F746F</payload>
+    </packet>
+    <packet name="packet_1">
+      <payload>232323232308546F746F</payload>
+    </packet>
+    <packet name="packet_1 - Copy">
+      <payload>232323232308546F746F54697469</payload>
+    </packet>
+    <packet name="packet_2">
+      <payload>23232323230831323334353670</payload>
+    </packet>
+    <packet name="packet_2 - Copy">
+      <payload>2323232323083132333435363D</payload>
+    </packet>
+  </packets_list>
+</data>
