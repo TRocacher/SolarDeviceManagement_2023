@@ -20,5 +20,8 @@
     <packet name="packet_2 - Copy">
       <payload>2323232323083132333435363D</payload>
     </packet>
+    <packet name="packet_3">
+      <payload>232323232312436F75636F75204269656E205265E77551</payload>
+    </packet>
   </packets_list>
 </data>

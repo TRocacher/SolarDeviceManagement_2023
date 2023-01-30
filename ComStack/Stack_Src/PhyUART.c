@@ -11,9 +11,6 @@
 // GESTION FSM PhyUART (réception)
 //******************************************
 
-// longueur max des chaïnes
-#define StringLenMax 30
-#define StringLenMin 8
 
 // Baudrate
 #define PhyUART_BdRate 9600
@@ -72,26 +69,12 @@ int PhyUART_TimeOut;  	  // la durée à partir du start
 //******************************************
 
 
-// les valeurs possibles de Status
-typedef enum {
-	Ready,
-	Listening,
-	ReceivingMssg,
-}PhyUART_StatusType;
-
-// les valeurs possibles de Status
-typedef enum {
-	NoError,
-	CheckSumError,
-	LenError,
-	TimeOutError,
-	OverRunError
-}PhyUART_ErrorType;
 
 // la structure d'échange PhyUART-MAC
 struct PhyUART_Mssg_type
 {
 	char StrReceived[StringLenMax];
+	char LenStrReceived;
 	char NewStrReceived;
 	char StrToSend[StringLenMax];
 	char NewStrToSend;
@@ -169,13 +152,20 @@ Param :
 void PhyUART_Init(void)
 {
 	USART_FSK_Init(PhyUART_BdRate,0,UART_Callback);
+	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
 	PhyUART_FSM_State=Init;
+	PhyUART_Mssg.Status=Ready;
 	// calcul time Out on prévoit la durée d'une chaîne maximale +10% 
 	// calcul en ms : T = NbBit*NbMaxOctet*1.1*Tbit = NbBit*NbMaxOctet*1.1/R 
 	//			            = 1000*10*NbMaxOctet*1.1/R = (1100*NbBit*NbMaxOctet1)/R
 	
 	PhyUART_TimeOut=(11000*StringLenMax)/PhyUART_BdRate;
 	
+	
+	// dbuggage
+	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
+	GPIOC->CRH&=~(0xF<<(10%8)*4); // output ppull 2MHz
+	GPIOC->CRH|=(0x1<<(10%8)*4);
 	
 }
 
@@ -200,6 +190,11 @@ void PhyUART_FSM_Progress(void)
 {
 int Sum,i;
 char CRC_Val;
+	
+if (PhyUART_Mssg.Status!=SendingMssg) // si la couche est en train d'émettre, on bloque le FSM de réception
+{
+
+
 switch (PhyUART_FSM_State)
 	{
 		case Init:
@@ -219,6 +214,7 @@ switch (PhyUART_FSM_State)
 			// *****************************
 			//  Etape Wait for Header 
 			// *****************************
+			
 			PhyUART_Mssg.Status=Listening;
 			if (UART_Receiv==1)
 			{
@@ -241,7 +237,8 @@ switch (PhyUART_FSM_State)
 			// *****************************
 			//  Etape Reading Frame
 			// *****************************
-
+			// positionnement module en réception
+			USART_FSK_SetReceiveAntenna(); 
 			PhyUART_Mssg.Error=NoError;
 			if (PhyUART_GetTimeOut_Status()==0) // Traitement si on n'est pas en time out !
 			{
@@ -250,6 +247,7 @@ switch (PhyUART_FSM_State)
 				// Frame : Len||My@|Dest@|ID|Type_LenData|Data|Trial|CheckSum| 
 				if (UART_Receiv==1) // une data UART vient d'arriver
 				{
+
 					UART_Receiv=0;
 					// c'est la LEN qu'on est en train de traiter
 					// Index = 0
@@ -292,6 +290,8 @@ switch (PhyUART_FSM_State)
 				PhyUART_Mssg.Error=TimeOutError;			
 				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			}
+			
+
 			break;
 			
 			
@@ -299,10 +299,12 @@ switch (PhyUART_FSM_State)
 		}
 		case CheckSum:
 		{	
+
 			// *****************************
 			//  Etape CheckSum
 			// *****************************			
 			PhyUART_Mssg.Error=NoError;
+			PhyUART_Mssg.Status=ReceivingMssg;
 			// reconstruction de la valeur du checksum = dernier octet lu
 			CRC_Val=InComingMssg[Phy_UART_Len-2];
 			
@@ -323,11 +325,13 @@ switch (PhyUART_FSM_State)
 				PhyUART_Mssg.Error=CheckSumError;			
 				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			}
-			
 			break;
 		}
 		case UpdateMssgForMAC:
 		{	
+// pulse up !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+GPIOC->ODR|=GPIO_ODR_ODR10;
+			PhyUART_Mssg.Status=ReceivingMssg;
 			if (PhyUART_Mssg.NewStrReceived==1) PhyUART_Mssg.Error=OverRunError;
 			
 			// recopie de la chaîne 
@@ -338,11 +342,112 @@ switch (PhyUART_FSM_State)
 			{
 				PhyUART_Mssg.StrReceived[i]=InComingMssg[i];
 			}	
+			PhyUART_Mssg.LenStrReceived=Phy_UART_Len-2;
 			PhyUART_Mssg.NewStrReceived=1;
+			PhyUART_Mssg.Status=Listening;
 			PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
+// pulse Down §!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+GPIOC->ODR&=~GPIO_ODR_ODR10;	
 			break;
 		}
 
 	}
+}
+
+}
+
+
+
+
+/******************************************************************************************************************
+	IO Fcts
+
+Rôle :
+Param : 
+*****************************************************************************************************************/
+char PhyUART_IsNewMssg(void)
+{
+	return (PhyUART_Mssg.NewStrReceived);
+}
+
+PhyUART_StatusType PhyUART_Get_Status(void)
+{
+	return (PhyUART_Mssg.Status);
+}
+
+PhyUART_ErrorType PhyUART_Get_Error(void)
+{
+	return (PhyUART_Mssg.Error);
+}
+
+int  PhyUART_GetNewMssg (char * AdrString, int Len)
+// recopie le string stocké à l'interface MAC et 
+// mets à 0 les autres octets jusqu'à StringLenMax.
+// retourne -1 si la longueur donnée est inférieure à la longueur
+// effective de la châine
+{
+	int i;
+	
+	// remise à 0 du flag de réception
+	PhyUART_Mssg.NewStrReceived=0;
+	if (Len<Phy_UART_Len-2) 
+	{
+		return -1;
+	}
+	else
+	{
+		for (i=0;i<Len;i++)
+		{
+			if (i<Phy_UART_Len-2)
+			{
+				*AdrString=PhyUART_Mssg.StrReceived[i];
+			}
+			else 
+			{
+				*AdrString=0;
+			}
+			AdrString++;
+		}
+		return 0;		
+	}
+}
+
+
+void PhyUART_SendNewMssg (char * AdrString, int Len)
+{
+	//!!!!!!!ajouter test len max
+	PhyUART_StatusType MyStatus;
+	char FrameLen;
+	int Sum,i;
+	char Frame[50];
+	
+	FrameLen=Len+2; // ajout de l'octet qui est la longueur + octet checksum
+	
+	// Encapsulation et calcul Checksum
+	for (i=0;i<5;i++)
+	{
+		Frame[i]='#';
+	}
+	Frame[5]=FrameLen;
+	
+	Sum=FrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
+	for (i=0;i<Len;i++)
+	{
+		Frame[i+6]=*AdrString;
+		Sum=Sum+Frame[i+6];
+		AdrString++;
+	}
+	Frame[Len+6]=(char)Sum; // insertion du checksum
+	// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7
+	
+	
+	// modification Status pour bloquer la réception
+	MyStatus=PhyUART_Mssg.Status;
+	PhyUART_Mssg.Status=SendingMssg;
+	USART_FSK_SetTransmAntenna();
+	USART_FSK_Print(Frame,(Len+7)); // envoie le corps
+	USART_FSK_SetReceiveAntenna();  // remise du module en réception
+	// restitution Statut
+	PhyUART_Mssg.Status=MyStatus;
 }
 
