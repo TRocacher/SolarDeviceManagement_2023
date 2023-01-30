@@ -100,10 +100,10 @@ if (USART==USART3)
 	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPBEN;
 	// USART_3_TX = PB10 (Alt Output Ppull 2MHz)
 	// USART_3_RX = PB11 (input floating)
-	GPIOA->CRH&=~(0xF<<(10-8)*4);
-	GPIOA->CRH|=(0xA<<(10-8)*4);
-	GPIOA->CRH&=~(0xF<<(11-8)*4);
-	GPIOA->CRH|=(0x4<<(11-8)*4);	
+	GPIOB->CRH&=~(0xF<<(10-8)*4);
+	GPIOB->CRH|=(0xA<<(10-8)*4);
+	GPIOB->CRH&=~(0xF<<(11-8)*4);
+	GPIOB->CRH|=(0x4<<(11-8)*4);	
   NVIC_SetPriority(USART3_IRQn, Prio_USART);
 	NVIC_EnableIRQ(USART3_IRQn);
 	Frequence_Ck_USART_Hz=36000000;

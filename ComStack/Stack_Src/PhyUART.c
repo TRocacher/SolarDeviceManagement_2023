@@ -3,6 +3,9 @@
 #include "PhyUART.h"
 #include "TimeOut.h"
 
+
+//#define MyDebug
+
 /******************************************************************************************************************
 	VARIABLES GLOBALES
 *****************************************************************************************************************/
@@ -162,10 +165,11 @@ void PhyUART_Init(void)
 	PhyUART_TimeOut=(11000*StringLenMax)/PhyUART_BdRate;
 	
 	
-	// dbuggage
+#ifdef MyDebug	
 	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
 	GPIOC->CRH&=~(0xF<<(10%8)*4); // output ppull 2MHz
 	GPIOC->CRH|=(0x1<<(10%8)*4);
+#endif
 	
 }
 
@@ -329,8 +333,10 @@ switch (PhyUART_FSM_State)
 		}
 		case UpdateMssgForMAC:
 		{	
-// pulse up !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifdef MyDebug	
+// pulse up 
 GPIOC->ODR|=GPIO_ODR_ODR10;
+#endif			
 			PhyUART_Mssg.Status=ReceivingMssg;
 			if (PhyUART_Mssg.NewStrReceived==1) PhyUART_Mssg.Error=OverRunError;
 			
@@ -346,8 +352,11 @@ GPIOC->ODR|=GPIO_ODR_ODR10;
 			PhyUART_Mssg.NewStrReceived=1;
 			PhyUART_Mssg.Status=Listening;
 			PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
-// pulse Down §!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			
+#ifdef MyDebug			
+// pulse Down 
 GPIOC->ODR&=~GPIO_ODR_ODR10;	
+#endif
 			break;
 		}
 
@@ -413,41 +422,51 @@ int  PhyUART_GetNewMssg (char * AdrString, int Len)
 }
 
 
-void PhyUART_SendNewMssg (char * AdrString, int Len)
+int PhyUART_SendNewMssg (char * AdrString, int Len)
 {
-	//!!!!!!!ajouter test len max
 	PhyUART_StatusType MyStatus;
 	char FrameLen;
 	int Sum,i;
 	char Frame[50];
-	
-	FrameLen=Len+2; // ajout de l'octet qui est la longueur + octet checksum
-	
-	// Encapsulation et calcul Checksum
-	for (i=0;i<5;i++)
+
+
+	if (Len>StringLenMax-2) // longueur trop grande, l'envoie ne se fait pas.
 	{
-		Frame[i]='#';
+		return -1;
 	}
-	Frame[5]=FrameLen;
+	else
+	{	
+		FrameLen=Len+2; // ajout de l'octet qui est la longueur + octet checksum
 	
-	Sum=FrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
-	for (i=0;i<Len;i++)
-	{
-		Frame[i+6]=*AdrString;
-		Sum=Sum+Frame[i+6];
-		AdrString++;
+		// Encapsulation et calcul Checksum
+		for (i=0;i<5;i++)
+		{
+			Frame[i]='#';
+		}
+		Frame[5]=FrameLen;
+	
+		Sum=FrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
+		for (i=0;i<Len;i++)
+		{
+			Frame[i+6]=*AdrString;
+			Sum=Sum+Frame[i+6];
+			AdrString++;
+		}
+		Frame[Len+6]=(char)Sum; // insertion du checksum
+		// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7
+	
+	
+		// modification Status pour bloquer la réception
+		MyStatus=PhyUART_Mssg.Status;
+		PhyUART_Mssg.Status=SendingMssg;
+		USART_FSK_SetTransmAntenna();
+		USART_FSK_Print("1234",4);      // envoie de quelques caractères car le premier byte est souvent dégradé.
+																		// Voir avec l'expérience si on peut diminuer le nbre.
+		USART_FSK_Print(Frame,(Len+7)); // envoie le corps
+		USART_FSK_SetReceiveAntenna();  // remise du module en réception
+		// restitution Statut
+		PhyUART_Mssg.Status=MyStatus;
+		return 0;
 	}
-	Frame[Len+6]=(char)Sum; // insertion du checksum
-	// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7
-	
-	
-	// modification Status pour bloquer la réception
-	MyStatus=PhyUART_Mssg.Status;
-	PhyUART_Mssg.Status=SendingMssg;
-	USART_FSK_SetTransmAntenna();
-	USART_FSK_Print(Frame,(Len+7)); // envoie le corps
-	USART_FSK_SetReceiveAntenna();  // remise du module en réception
-	// restitution Statut
-	PhyUART_Mssg.Status=MyStatus;
 }
 

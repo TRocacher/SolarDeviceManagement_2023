@@ -7,7 +7,7 @@
 
 // longueur max des chaïnes
 #define StringLenMax 30
-#define StringLenMin 8
+#define StringLenMin 7
 
 // les valeurs possibles de Status
 typedef enum {
@@ -40,6 +40,6 @@ PhyUART_StatusType PhyUART_Get_Status(void);
 PhyUART_ErrorType PhyUART_Get_Error(void);
 
 int  PhyUART_GetNewMssg (char * AdrString, int Len); // Len est la longueur maximale du tableau de réception
-void PhyUART_SendNewMssg (char * AdrString, int Len);
+int PhyUART_SendNewMssg (char * AdrString, int Len);
 #endif
 

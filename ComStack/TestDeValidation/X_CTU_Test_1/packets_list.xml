@@ -23,5 +23,8 @@
     <packet name="packet_3">
       <payload>232323232312436F75636F75204269656E205265E77551</payload>
     </packet>
+    <packet name="packet_4">
+      <payload>23232323231E4327657374206C27686973746F697265206427756E206D65632C207693</payload>
+    </packet>
   </packets_list>
 </data>

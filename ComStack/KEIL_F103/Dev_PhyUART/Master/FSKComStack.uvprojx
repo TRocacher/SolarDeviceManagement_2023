@@ -399,19 +399,34 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>ExchangeLayer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Stack_Src\ExchangeLayer.c</FilePath>
-            </File>
-            <File>
               <FileName>PhyUART.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Stack_Src\PhyUART.c</FilePath>
+              <FilePath>..\..\..\Stack_Src\PhyUART.c</FilePath>
             </File>
             <File>
               <FileName>TimeOut.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Stack_Src\TimeOut.c</FilePath>
+              <FilePath>..\..\..\Stack_Src\TimeOut.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Others</GroupName>
+          <Files>
+            <File>
+              <FileName>MyLCD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\MyLCD.c</FilePath>
+            </File>
+            <File>
+              <FileName>Drivers_STM32F103_107_Juin2018a.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>.\Src\Drivers_STM32F103_107_Juin2018a.lib</FilePath>
+            </File>
+            <File>
+              <FileName>clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\clock.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -756,7 +771,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Src;..\Stack_Src</IncludePath>
+              <IncludePath>.\Src;..\..\..\Stack_Src</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -816,19 +831,34 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>ExchangeLayer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Stack_Src\ExchangeLayer.c</FilePath>
-            </File>
-            <File>
               <FileName>PhyUART.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Stack_Src\PhyUART.c</FilePath>
+              <FilePath>..\..\..\Stack_Src\PhyUART.c</FilePath>
             </File>
             <File>
               <FileName>TimeOut.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Stack_Src\TimeOut.c</FilePath>
+              <FilePath>..\..\..\Stack_Src\TimeOut.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Others</GroupName>
+          <Files>
+            <File>
+              <FileName>MyLCD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\MyLCD.c</FilePath>
+            </File>
+            <File>
+              <FileName>Drivers_STM32F103_107_Juin2018a.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>.\Src\Drivers_STM32F103_107_Juin2018a.lib</FilePath>
+            </File>
+            <File>
+              <FileName>clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\clock.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -4,11 +4,11 @@
 
 #include "stm32f10x.h"
 
-#define UART_FSK USART1
-#define Rx_Cmde_GPIO GPIOA 
-#define Rx_Cmde_Pin  4
-#define Tx_Cmde_GPIO GPIOA
-#define Tx_Cmde_Pin  0
+#define UART_FSK USART3
+#define Rx_Cmde_GPIO GPIOB 
+#define Rx_Cmde_Pin  8
+#define Tx_Cmde_GPIO GPIOB
+#define Tx_Cmde_Pin  9
 
 
 void USART_FSK_Init(int Baud_Rate_bits_par_Sec,  char Prio_USART, void (*IT_function) (void));
