@@ -39,7 +39,9 @@ typedef enum {
 	WaitForHeader,
 	ReadingFrame,
 	CheckSum,
-	UpdateMssgForMAC
+	UpdateMssgForMAC,
+	Framing,
+	SendMssg
 }PhyUART_FSM_StateType;
 
 	
@@ -80,6 +82,7 @@ struct PhyUART_Mssg_type
 	char LenStrReceived;
 	char NewStrReceived;
 	char StrToSend[StringLenMax];
+	char LenStrToSend;
 	char NewStrToSend;
 	PhyUART_StatusType Status;
 	PhyUART_ErrorType Error;
@@ -179,9 +182,10 @@ void PhyUART_Init(void)
 
 
 
+char FrameLen;
+char Frame[50];
 
-
-
+void PhyUART_Framing (void);
 
 /******************************************************************************************************************
 	PhyUART_FSM_Progress
@@ -213,6 +217,7 @@ switch (PhyUART_FSM_State)
 			break;
 		}
 		
+				
 		case WaitForHeader:
 		{	
 			// *****************************
@@ -233,7 +238,30 @@ switch (PhyUART_FSM_State)
 					PhyUART_TimeOut_Start(PhyUART_TimeOut); // lancement TimeOut
 				}
 			}
+			else if (PhyUART_Mssg.NewStrToSend==1) 
+			{
+				PhyUART_Mssg.NewStrToSend=0;
+				PhyUART_FSM_State=Framing;					
+			}
 			break;
+		}
+		
+		case Framing:
+		{
+			PhyUART_Mssg.Status=SendingMssg;
+			PhyUART_Framing();
+			PhyUART_FSM_State=SendMssg;
+		}
+		
+		case SendMssg:  // ! Maintien ds l'IT pdt toute l'émission...
+		{
+			PhyUART_Mssg.Status=SendingMssg;
+			USART_FSK_SetTransmAntenna();
+			USART_FSK_Print("1234",4);      // envoie de quelques caractères car le premier byte est souvent dégradé.
+																		// Voir avec l'expérience si on peut diminuer le nbre.
+			USART_FSK_Print(Frame,(FrameLen+5)); // envoie le corps
+			USART_FSK_SetReceiveAntenna();  // remise du module en réception
+			PhyUART_FSM_State=WaitForHeader;
 		}
 		
 		case ReadingFrame:
@@ -422,51 +450,48 @@ int  PhyUART_GetNewMssg (char * AdrString, int Len)
 }
 
 
+void PhyUART_Framing (void)
+{
+
+	int Sum,i;
+
+	
+	FrameLen=PhyUART_Mssg.LenStrToSend+2; // ajout de l'octet qui est la longueur + octet checksum
+	// Encapsulation et calcul Checksum
+	for (i=0;i<5;i++)
+	{
+		Frame[i]='#';
+	}
+	Frame[5]=FrameLen;
+	Sum=FrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
+	for (i=0;i<PhyUART_Mssg.LenStrToSend;i++)
+	{
+		Frame[i+6]= PhyUART_Mssg.StrToSend[i];  
+		Sum=Sum+Frame[i+6];
+	}
+	Frame[FrameLen+4]=(char)Sum; // insertion du checksum
+	// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7 = FrameLen+5	
+}
+
+
 int PhyUART_SendNewMssg (char * AdrString, int Len)
 {
-	PhyUART_StatusType MyStatus;
-	char FrameLen;
-	int Sum,i;
-	char Frame[50];
-
-
+	int i;
 	if (Len>StringLenMax-2) // longueur trop grande, l'envoie ne se fait pas.
 	{
 		return -1;
 	}
 	else
-	{	
-		FrameLen=Len+2; // ajout de l'octet qui est la longueur + octet checksum
-	
-		// Encapsulation et calcul Checksum
-		for (i=0;i<5;i++)
-		{
-			Frame[i]='#';
-		}
-		Frame[5]=FrameLen;
-	
-		Sum=FrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
+	{
 		for (i=0;i<Len;i++)
 		{
-			Frame[i+6]=*AdrString;
-			Sum=Sum+Frame[i+6];
+			PhyUART_Mssg.StrToSend[i]=*AdrString;
+			PhyUART_Mssg.LenStrToSend=Len;
 			AdrString++;
 		}
-		Frame[Len+6]=(char)Sum; // insertion du checksum
-		// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7
-	
-	
-		// modification Status pour bloquer la réception
-		MyStatus=PhyUART_Mssg.Status;
-		PhyUART_Mssg.Status=SendingMssg;
-		USART_FSK_SetTransmAntenna();
-		USART_FSK_Print("1234",4);      // envoie de quelques caractères car le premier byte est souvent dégradé.
-																		// Voir avec l'expérience si on peut diminuer le nbre.
-		USART_FSK_Print(Frame,(Len+7)); // envoie le corps
-		USART_FSK_SetReceiveAntenna();  // remise du module en réception
-		// restitution Statut
-		PhyUART_Mssg.Status=MyStatus;
+		PhyUART_Mssg.NewStrToSend=1;
 		return 0;
 	}
 }
+
 
