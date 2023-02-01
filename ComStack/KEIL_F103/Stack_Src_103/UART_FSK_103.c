@@ -201,6 +201,8 @@ void USART_FSK_Print(char* Mssg, int Len)
 			while (((UART_FSK->SR)& USART_SR_TXE)==0);
 			Mssg++;
 	}
+	// attendre que le dernier octet soit parti...
+	while((UART_FSK->SR&USART_SR_TC)!=USART_SR_TC);
 }
 	
 

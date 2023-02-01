@@ -6,8 +6,9 @@
 #include "clock.h"
 
 /******************************************************************************************************************
-	Master, test PhyUART
+	Slave, test PhyUART
 *****************************************************************************************************************/
+
 
 
 char Rec[30];
@@ -33,10 +34,9 @@ int main (void)
 	MyLCD_Clear();
 	
 	MyLCD_Set_cursor(0, 0);
-	MyLCD_Print("Coucou Slave...");
+	MyLCD_Print("Waiting Master... ");
 	MyLCD_Set_cursor(0, 1);
 	
-  PhyUART_SendNewMssg("Coucou Slave...",15);
 	
 	while(1)
 	{
@@ -48,6 +48,14 @@ int main (void)
 				MyLCD_Print("                ");
 				MyLCD_Set_cursor(0, 1);
 				MyLCD_Print(Rec);
+				
+				MyLCD_Set_cursor(0, 0);
+				MyLCD_Print("                ");
+				MyLCD_Set_cursor(0, 0);
+				MyLCD_Print("Hello Master ! ");
+				
+				PhyUART_SendNewMssg("Hello Master ! ",15);
+				
 			}
 		}
 		
