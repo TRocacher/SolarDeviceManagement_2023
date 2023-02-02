@@ -34,7 +34,7 @@ int main (void)
 	MyLCD_Clear();
 	
 	MyLCD_Set_cursor(0, 0);
-	MyLCD_Print("Waiting Master... ");
+	MyLCD_Print("Waiting Mssg  ... ");
 	MyLCD_Set_cursor(0, 1);
 	
 	
@@ -48,13 +48,6 @@ int main (void)
 				MyLCD_Print("                ");
 				MyLCD_Set_cursor(0, 1);
 				MyLCD_Print(Rec);
-				
-				MyLCD_Set_cursor(0, 0);
-				MyLCD_Print("                ");
-				MyLCD_Set_cursor(0, 0);
-				MyLCD_Print("Hello Master ! ");
-				
-				PhyUART_SendNewMssg("Hello Master ! ",15);
 				
 			}
 		}

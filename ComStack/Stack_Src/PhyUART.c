@@ -2,7 +2,7 @@
 #include "UART_FSK_103.h"
 #include "PhyUART.h"
 #include "TimeOut.h"
-
+#include "FctDiverses.h"
 
 //#define MyDebug
 
@@ -199,9 +199,6 @@ void PhyUART_FSM_Progress(void)
 int Sum,i;
 char CRC_Val;
 	
-if (PhyUART_Mssg.Status!=SendingMssg) // si la couche est en train d'émettre, on bloque le FSM de réception
-{
-
 
 switch (PhyUART_FSM_State)
 	{
@@ -257,6 +254,7 @@ switch (PhyUART_FSM_State)
 		{
 			PhyUART_Mssg.Status=SendingMssg;
 			USART_FSK_SetTransmAntenna();
+			Delay_x_ms(4);
 			USART_FSK_Print("1234",4);      // envoie de quelques caractères car le premier byte est souvent dégradé.
 																		// Voir avec l'expérience si on peut diminuer le nbre.
 			USART_FSK_Print(Frame,(FrameLen+5)); // envoie le corps
@@ -391,7 +389,7 @@ GPIOC->ODR&=~GPIO_ODR_ODR10;
 	}
 }
 
-}
+
 
 
 

@@ -3,6 +3,7 @@
 
 #include "Timer_1234.h"
 #include "MyLCD.h"
+#include "FctDiverses.h"
 #include "clock.h"
 
 /******************************************************************************************************************
@@ -33,10 +34,10 @@ int main (void)
 	MyLCD_Clear();
 	
 	MyLCD_Set_cursor(0, 0);
-	MyLCD_Print("Coucou Slave...");
+	MyLCD_Print("I am the Master ");
 	MyLCD_Set_cursor(0, 1);
 	
-  PhyUART_SendNewMssg("Coucou Slave...",15);
+  PhyUART_SendNewMssg("Hey from Master",15);
 	
 	while(1)
 	{
@@ -48,6 +49,8 @@ int main (void)
 				MyLCD_Print("                ");
 				MyLCD_Set_cursor(0, 1);
 				MyLCD_Print(Rec);
+				Delay_x_ms(1000);
+				PhyUART_SendNewMssg("Still Master ! ",15);
 			}
 		}
 		

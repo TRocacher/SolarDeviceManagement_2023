@@ -428,6 +428,11 @@
               <FileType>1</FileType>
               <FilePath>.\Src\clock.c</FilePath>
             </File>
+            <File>
+              <FileName>FctDiverses.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\FctDiverses.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -859,6 +864,11 @@
               <FileName>clock.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>FctDiverses.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\FctDiverses.c</FilePath>
             </File>
           </Files>
         </Group>
