@@ -388,15 +388,10 @@
               <FileType>1</FileType>
               <FilePath>.\Src\Application.c</FilePath>
             </File>
-            <File>
-              <FileName>UART_FSK_103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\UART_FSK_103.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Stack</GroupName>
+          <GroupName>Stack_uC_Free</GroupName>
           <Files>
             <File>
               <FileName>PhyUART.c</FileName>
@@ -404,34 +399,29 @@
               <FilePath>..\..\..\Stack_Src\PhyUART.c</FilePath>
             </File>
             <File>
-              <FileName>TimeOut.c</FileName>
+              <FileName>FctDiverses.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Stack_Src\TimeOut.c</FilePath>
+              <FilePath>..\..\..\Stack_Src\FctDiverses.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Others</GroupName>
+          <GroupName>Drivers_103</GroupName>
           <Files>
+            <File>
+              <FileName>UART_FSK_103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\UART_FSK_103.c</FilePath>
+            </File>
             <File>
               <FileName>MyLCD.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>Drivers_STM32F103_107_Juin2018a.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>.\Src\Drivers_STM32F103_107_Juin2018a.lib</FilePath>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
+              <FileName>MyTimer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>FctDiverses.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\FctDiverses.c</FilePath>
+              <FilePath>..\..\Stack_Src_103\MyTimer.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -825,15 +815,10 @@
               <FileType>1</FileType>
               <FilePath>.\Src\Application.c</FilePath>
             </File>
-            <File>
-              <FileName>UART_FSK_103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\UART_FSK_103.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Stack</GroupName>
+          <GroupName>Stack_uC_Free</GroupName>
           <Files>
             <File>
               <FileName>PhyUART.c</FileName>
@@ -841,34 +826,29 @@
               <FilePath>..\..\..\Stack_Src\PhyUART.c</FilePath>
             </File>
             <File>
-              <FileName>TimeOut.c</FileName>
+              <FileName>FctDiverses.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Stack_Src\TimeOut.c</FilePath>
+              <FilePath>..\..\..\Stack_Src\FctDiverses.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Others</GroupName>
+          <GroupName>Drivers_103</GroupName>
           <Files>
+            <File>
+              <FileName>UART_FSK_103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\UART_FSK_103.c</FilePath>
+            </File>
             <File>
               <FileName>MyLCD.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>Drivers_STM32F103_107_Juin2018a.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>.\Src\Drivers_STM32F103_107_Juin2018a.lib</FilePath>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
+              <FileName>MyTimer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>FctDiverses.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\FctDiverses.c</FilePath>
+              <FilePath>..\..\Stack_Src_103\MyTimer.c</FilePath>
             </File>
           </Files>
         </Group>

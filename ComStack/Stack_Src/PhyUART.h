@@ -5,6 +5,9 @@
 #include "stm32f10x.h"
 
 
+// Baudrate
+#define PhyUART_BdRate 9600
+
 // longueur max des chaïnes
 #define StringLenMax 30
 #define StringLenMin 7

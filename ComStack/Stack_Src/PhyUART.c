@@ -1,78 +1,18 @@
 #include "stm32f10x.h"
 #include "UART_FSK_103.h"
 #include "PhyUART.h"
-#include "TimeOut.h"
+#include "MyTimer.h"
 #include "FctDiverses.h"
 
 //#define MyDebug
 
-/******************************************************************************************************************
-	VARIABLES GLOBALES
-*****************************************************************************************************************/
-
-//******************************************
-// GESTION FSM PhyUART (réception)
-//******************************************
-
-
-// Baudrate
-#define PhyUART_BdRate 9600
-
-// flag indiquant qu'un octet est arrivé sur l'UART
-char UART_Receiv;
-
-char PhyUART_HeaderCarCpt;
-
-// user fct pour démarrer la FSM
-char PhyUART_Start;
-
-// index indiquant le numéro d'octet dans la frame 
-char PhyUART_FrameIndex; // |Len|My@|Dest@|ID|Type_LenData|Data|Trial|CheckSum| 
-//                      0   1    2    3    4          ...  
-
-// longueur chaîne lue de la frame
-char Phy_UART_Len;
-
-// états possibles de la FSM
-typedef enum {
-	Init,
-	WaitForHeader,
-	ReadingFrame,
-	CheckSum,
-	UpdateMssgForMAC,
-	Framing,
-	SendMssg
-}PhyUART_FSM_StateType;
-
-	
-
-
-PhyUART_FSM_StateType PhyUART_FSM_State;
-
-#define HeaderCar '#'
-#define HeaderCarLenMax 5
-
-
-char InComingMssg[StringLenMax];
-
-
-int PhyUART_TimeOutDate;  // la date d'échéance
-int PhyUART_TimeOut;  	  // la durée à partir du start
 
 
 
 
-
-
-
-
-
-
-
-//******************************************
+/*---------------------------------
 // VARIABLE D'INTERFACE AVEC MAC
-//******************************************
-
+----------------------------------*/
 
 
 // la structure d'échange PhyUART-MAC
@@ -91,12 +31,42 @@ struct PhyUART_Mssg_type
 
 
 
-/******************************************************************************************************************
-	GESTION TIMEOUT
+/*---------------------------------
+Gestion détection header
+----------------------------------*/
+// flag indiquant que lee header est reçu en phase scrutation
+char UART_HeaderDetected;
+// flag indiquant l'arrivée d'un octer
+char UART_Receiv;
+// cpteur de caractère Header
+char PhyUART_HeaderCarCpt;
 
-Rôle :
-Param : 
-*****************************************************************************************************************/
+#define HeaderCar '#'
+#define HeaderCarLenMax 5
+
+
+
+
+
+/*---------------------------------
+String de réception UART
+----------------------------------*/
+// longueur chaîne lue de la frame
+char Phy_UART_Len;
+char InComingMssg[StringLenMax];
+
+/*---------------------------------
+String de transmmission UART
+----------------------------------*/
+char Phy_UART_TransmFrameLen;
+char Phy_UART_TransmFrame[50];
+
+
+/*---------------------------------
+Geston du time out
+----------------------------------*/
+int PhyUART_TimeOutDate;  // la date d'échéance
+int PhyUART_TimeOut;  	  // la durée à partir du start
 
 void PhyUART_TimeOut_Start(int ms)
 {
@@ -111,16 +81,31 @@ char PhyUART_GetTimeOut_Status(void)
 
 
 
-/******************************************************************************************************************
-	UART_Callback
 
-Rôle :
-Param : 
-*****************************************************************************************************************/
+//**************************************************************************************************************
+//**************************************************************************************************************
+// 							USART Callback
+//**************************************************************************************************************
+//**************************************************************************************************************
 
 void UART_Callback(void)
 {
+	// indication arrivée d'un octet
 	UART_Receiv=1;
+
+	// détection d'un HeaderCar ('#')
+	if (USART_FSK_GetByte()==HeaderCar)
+	{
+		PhyUART_HeaderCarCpt++;
+	}
+	else PhyUART_HeaderCarCpt=0;
+	
+	// indication d'une détection du Header
+	if (PhyUART_HeaderCarCpt==HeaderCarLenMax) 
+	{
+		UART_HeaderDetected=1;
+	}
+	
 }
 
 
@@ -128,72 +113,50 @@ void UART_Callback(void)
 
 
 
+//**************************************************************************************************************
+//**************************************************************************************************************
+// 							FSM PhyUART (réception/émission)
+//**************************************************************************************************************
+//**************************************************************************************************************
+
+/*---------------------------------
+ états possibles de la FSM
+----------------------------------*/
+
+typedef enum {
+	Init,
+	WaitForHeader,
+	ReadingFrame,
+	CheckSum,
+	UpdateMssgForMAC,
+	Framing,
+	SendMssg
+}PhyUART_FSM_StateType;
+
+PhyUART_FSM_StateType PhyUART_FSM_State;
 
 
-
-/******************************************************************************************************************
-	PhyUART_StartFSM
-
-Rôle :
-Param : 
-*****************************************************************************************************************/
+/*---------------------------------
+ Variables et Fct de démarrage FSM
+----------------------------------*/
+// user fct pour démarrer la FSM
+char PhyUART_Start;
 void PhyUART_StartFSM(void)
 {
 	PhyUART_Start=1;
 }
 
 
-
-
-
-
-
-
-/******************************************************************************************************************
-	PhyUART_Init
-
-Rôle :
-Param : 
-*****************************************************************************************************************/
-void PhyUART_Init(void)
-{
-	USART_FSK_Init(PhyUART_BdRate,0,UART_Callback);
-	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
-	PhyUART_FSM_State=Init;
-	PhyUART_Mssg.Status=Ready;
-	// calcul time Out on prévoit la durée d'une chaîne maximale +10% 
-	// calcul en ms : T = NbBit*NbMaxOctet*1.1*Tbit = NbBit*NbMaxOctet*1.1/R 
-	//			            = 1000*10*NbMaxOctet*1.1/R = (1100*NbBit*NbMaxOctet1)/R
-	
-	PhyUART_TimeOut=(11000*StringLenMax)/PhyUART_BdRate;
-	
-	
-#ifdef MyDebug	
-	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
-	GPIOC->CRH&=~(0xF<<(10%8)*4); // output ppull 2MHz
-	GPIOC->CRH|=(0x1<<(10%8)*4);
-#endif
-	
-}
-
-
-
-
-
-
-
-char FrameLen;
-char Frame[50];
-
 void PhyUART_Framing (void);
 
-/******************************************************************************************************************
-	PhyUART_FSM_Progress
 
-Rôle :
-Param : 
-*****************************************************************************************************************/
+/*---------------------------------
+ PhyUART_FSM_Progress
+----------------------------------*/
 
+// index indiquant le numéro d'octet dans la frame entrante
+char PhyUART_FrameIndex; // |Len|My@|Dest@|ID|Type_LenData|Data|Trial|CheckSum| 
+//                      0   1    2    3    4          ... 
 void PhyUART_FSM_Progress(void)
 {
 int Sum,i;
@@ -222,18 +185,15 @@ switch (PhyUART_FSM_State)
 			// *****************************
 			
 			PhyUART_Mssg.Status=Listening;
-			if (UART_Receiv==1)
+			if (UART_HeaderDetected==1)
 			{
+				UART_HeaderDetected=0;
 				UART_Receiv=0;
-				if (USART_FSK_GetByte()==HeaderCar)PhyUART_HeaderCarCpt++;
-				else PhyUART_HeaderCarCpt=0;
-				if (PhyUART_HeaderCarCpt==HeaderCarLenMax) 
-				{
-					PhyUART_FSM_State=ReadingFrame; 
-					PhyUART_HeaderCarCpt=0;
-					PhyUART_FrameIndex=0; // pour préparer le sampling frame
-					PhyUART_TimeOut_Start(PhyUART_TimeOut); // lancement TimeOut
-				}
+				PhyUART_FSM_State=ReadingFrame; 
+				PhyUART_HeaderCarCpt=0;
+				PhyUART_FrameIndex=0; // pour préparer le sampling frame
+				PhyUART_TimeOut_Start(PhyUART_TimeOut); // lancement TimeOut
+				
 			}
 			else if (PhyUART_Mssg.NewStrToSend==1) 
 			{
@@ -257,7 +217,7 @@ switch (PhyUART_FSM_State)
 			Delay_x_ms(4);
 			USART_FSK_Print("1234",4);      // envoie de quelques caractères car le premier byte est souvent dégradé.
 																		// Voir avec l'expérience si on peut diminuer le nbre.
-			USART_FSK_Print(Frame,(FrameLen+5)); // envoie le corps
+			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en réception
 			PhyUART_FSM_State=WaitForHeader;
 		}
@@ -392,6 +352,38 @@ GPIOC->ODR&=~GPIO_ODR_ODR10;
 
 
 
+/******************************************************************************************************************
+	PhyUART_Init
+
+Rôle :
+Param : 
+*****************************************************************************************************************/
+void PhyUART_Init(void)
+{
+	USART_FSK_Init(PhyUART_BdRate,0,UART_Callback);
+	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
+	PhyUART_FSM_State=Init;
+	PhyUART_Mssg.Status=Ready;
+	// calcul time Out on prévoit la durée d'une chaîne maximale +10% 
+	// calcul en ms : T = NbBit*NbMaxOctet*1.1*Tbit = NbBit*NbMaxOctet*1.1/R 
+	//			            = 1000*10*NbMaxOctet*1.1/R = (1100*NbBit*NbMaxOctet1)/R
+	
+	PhyUART_TimeOut=(11000*StringLenMax)/PhyUART_BdRate;
+	
+	// mise en place interruption
+	MyTimer_CkEnable(TIM2);
+	MyTimer_Set_Period(TIM2, 100*72-1, 1-1 ); // période par défaut 100µs
+	MyTimer_IT_Enable( TIM2, 3, PhyUART_FSM_Progress);
+	
+	
+#ifdef MyDebug	
+	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
+	GPIOC->CRH&=~(0xF<<(10%8)*4); // output ppull 2MHz
+	GPIOC->CRH|=(0x1<<(10%8)*4);
+#endif
+	
+}
+
 
 
 /******************************************************************************************************************
@@ -454,20 +446,20 @@ void PhyUART_Framing (void)
 	int Sum,i;
 
 	
-	FrameLen=PhyUART_Mssg.LenStrToSend+2; // ajout de l'octet qui est la longueur + octet checksum
+	Phy_UART_TransmFrameLen=PhyUART_Mssg.LenStrToSend+2; // ajout de l'octet qui est la longueur + octet checksum
 	// Encapsulation et calcul Checksum
 	for (i=0;i<5;i++)
 	{
-		Frame[i]='#';
+		Phy_UART_TransmFrame[i]='#';
 	}
-	Frame[5]=FrameLen;
-	Sum=FrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
+	Phy_UART_TransmFrame[5]=Phy_UART_TransmFrameLen;
+	Sum=Phy_UART_TransmFrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
 	for (i=0;i<PhyUART_Mssg.LenStrToSend;i++)
 	{
-		Frame[i+6]= PhyUART_Mssg.StrToSend[i];  
-		Sum=Sum+Frame[i+6];
+		Phy_UART_TransmFrame[i+6]= PhyUART_Mssg.StrToSend[i];  
+		Sum=Sum+Phy_UART_TransmFrame[i+6];
 	}
-	Frame[FrameLen+4]=(char)Sum; // insertion du checksum
+	Phy_UART_TransmFrame[Phy_UART_TransmFrameLen+4]=(char)Sum; // insertion du checksum
 	// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7 = FrameLen+5	
 }
 
