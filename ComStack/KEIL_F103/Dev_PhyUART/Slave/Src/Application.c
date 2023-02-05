@@ -1,5 +1,5 @@
 #include "PhyUART.h"
-#include "TimeOut.h"
+#include "MyTimer.h"
 
 #include "Timer_1234.h"
 #include "MyLCD.h"
@@ -14,21 +14,15 @@
 char Rec[30];
 int i;
 
-void ProcessFSM(void)
-{
-	PhyUART_FSM_Progress();
-}
+
 
 int main (void)
 {
-  CLOCK_Configure();
 	SystickStart(); // obligatoire pour la gestion des TimeOut à tous les étages...
 	PhyUART_Init();
 	PhyUART_StartFSM();
 	
-	// Timer pour activer FSM
-	Timer_1234_Init(TIM2,50.0);
-	Active_IT_Debordement_Timer( TIM2, 3, ProcessFSM);
+
 	
 	MyLCD_Init();
 	MyLCD_Clear();

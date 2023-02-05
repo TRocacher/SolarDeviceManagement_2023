@@ -32,6 +32,7 @@ struct PhyUART_Mssg_type
 #ifdef Log
 PhyUART_FSM_StateType OldState;
 Log_Typedef LogTab[100];
+//PhyUART_FSM_StateType LogTab[100];
 int j=0;
 #endif
 
@@ -107,8 +108,8 @@ void UART_Callback(void)
 	// indication d'une détection du Header
 	if (PhyUART_HeaderCarCpt==HeaderCarLenMax) 
 	{
-		// réglage Echantillonnage à 10µs pour ne pas manquer de caractères
-		MyTimer_Set_Period(TIM2, 10*72-1, 1-1 ); 
+		// réglage Echantillonnage à 100µs pour ne pas manquer de caractères à 38400Bds (10*1/38400 = 260µs)
+		MyTimer_Set_Period(TIM2, 100*72-1, 1-1 ); 
 		UART_HeaderDetected=1;
 	}
 	
@@ -161,6 +162,8 @@ if (OldState!=PhyUART_FSM_State)
 {
 	LogTab[j].Time_100us=SystickGet();
 	LogTab[j].state=PhyUART_FSM_State;
+	//LogTab[j]=PhyUART_FSM_State;
+	j++;
 	if (j==100) j=0;
 	OldState=PhyUART_FSM_State;
 }
@@ -180,6 +183,8 @@ switch (PhyUART_FSM_State)
 			USART_FSK_SetReceiveAntenna(); 
 			if (PhyUART_Start==1) 
 			{
+				// Remise réglage Echantillonnage à 1ms
+				MyTimer_Set_Period(TIM2, 500*72-1, 2-1 );
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=WaitForHeader;
 			}
@@ -211,6 +216,8 @@ switch (PhyUART_FSM_State)
 			{
 				PhyUART_Mssg.NewStrToSend=0;
 				
+				// réglage Echantillonnage 100us pour accélérer la FSM)
+				MyTimer_Set_Period(TIM2, 100*72-1, 1-1 ); 
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=Framing;					
 			}
@@ -224,6 +231,7 @@ switch (PhyUART_FSM_State)
 			
 			// ---< Evolution next State >-----//
 			PhyUART_FSM_State=SendMssg;
+			break;
 		}
 		
 		case SendMssg:  // ! Maintien ds l'IT pdt toute l'émission...
@@ -236,8 +244,11 @@ switch (PhyUART_FSM_State)
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en réception
 			
+			// Remise réglage Echantillonnage à 1ms
+			MyTimer_Set_Period(TIM2, 500*72-1, 2-1 );
 			// ---< Evolution next State >-----//
 			PhyUART_FSM_State=WaitForHeader;
+			break;
 		}
 		
 		case ReadingFrame:
@@ -246,6 +257,19 @@ switch (PhyUART_FSM_State)
 			//  Etape Reading Frame
 			// *****************************
 
+#ifdef Log
+  // enregistrement des dates de sampling réception
+	LogTab[j].Time_100us=SystickGet();
+	LogTab[j].state=PhyUART_FSM_State;
+	//LogTab[j]=PhyUART_FSM_State;
+	j++;
+	if (j==100) j=0;
+
+
+#endif
+	
+			
+			
 			PhyUART_Mssg.Error=NoError;
 			if (PhyUART_GetTimeOut_Status()==0) // Traitement si on n'est pas en time out !
 			{
@@ -254,7 +278,7 @@ switch (PhyUART_FSM_State)
 				// Frame : Len||My@|Dest@|ID|Type_LenData|Data|Trial|CheckSum| 
 				if (UART_Receiv==1) // une data UART vient d'arriver
 				{
-
+				
 					UART_Receiv=0;
 					// c'est la LEN qu'on est en train de traiter
 					// Index = 0
@@ -265,7 +289,10 @@ switch (PhyUART_FSM_State)
 						if ((Phy_UART_Len>StringLenMax)||(Phy_UART_Len<StringLenMin))  // si vrai on a une frame trop longue,
 																												// ou trop courte : il faut avorter et revenir à WaitForHeader
 						{
-							PhyUART_Mssg.Error=LenError;			
+							PhyUART_Mssg.Error=LenError;
+							// Remise réglage Echantillonnage à 1ms
+							MyTimer_Set_Period(TIM2, 500*72-1, 2-1 );							
+							// ---< Evolution next State >-----//
 							PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 						}
 					}
@@ -287,9 +314,6 @@ switch (PhyUART_FSM_State)
 						if (PhyUART_FrameIndex==Phy_UART_Len) 
 						{
 							PhyUART_FrameIndex=0;
-							// réglage Echantillonnage à 100µs pour alléger les IT et rester
-							// en mesure de capter le préambule.
-							MyTimer_Set_Period(TIM2, 1000*72-1, 1-1 ); 
 							
 							// ---< Evolution next State >-----//
 							PhyUART_FSM_State=CheckSum;
@@ -300,7 +324,8 @@ switch (PhyUART_FSM_State)
 			else // timeout
 			{
 				PhyUART_Mssg.Error=TimeOutError;
-
+				// Remise réglage Echantillonnage à 1ms
+				MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); 
 				// ---< Evolution next State >-----//				
 				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			}
@@ -332,12 +357,15 @@ switch (PhyUART_FSM_State)
 			
 			if (CRC_Val==(char)Sum) // Checksum OK
 			{
+				// ---< Evolution next State >-----//	
 				PhyUART_FSM_State=UpdateMssgForMAC;
 			}
 			else
 			{
 				PhyUART_Mssg.Error=CheckSumError;		
-
+				
+				// Remise réglage Echantillonnage à 1ms
+				MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); 
 				// ---< Evolution next State >-----//				
 				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			}
@@ -363,6 +391,8 @@ GPIOC->ODR|=GPIO_ODR_ODR10;
 			PhyUART_Mssg.LenStrReceived=Phy_UART_Len-2;
 			PhyUART_Mssg.NewStrReceived=1;
 			
+			// Remise réglage Echantillonnage à 1ms
+			MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); 
 			// ---< Evolution next State >-----//
 			PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			
@@ -387,7 +417,10 @@ Param :
 *****************************************************************************************************************/
 void PhyUART_Init(void)
 {
+	
+#ifdef Log
 	OldState=Init;
+#endif
 	
 	USART_FSK_Init(PhyUART_BdRate,0,UART_Callback);
 	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
@@ -401,7 +434,7 @@ void PhyUART_Init(void)
 	
 	// mise en place interruption
 	MyTimer_CkEnable(TIM2);
-	MyTimer_Set_Period(TIM2, 1000*72-1, 1-1 ); // période par défaut 1ms
+	MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); // période par défaut 1ms
 	MyTimer_IT_Enable( TIM2, 3, PhyUART_FSM_Progress);
 	
 	
