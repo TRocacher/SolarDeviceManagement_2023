@@ -415,14 +415,16 @@ GPIOC->ODR&=~GPIO_ODR_ODR10;
 Rôle :
 Param : 
 *****************************************************************************************************************/
+
+
 void PhyUART_Init(void)
 {
-	
+		
 #ifdef Log
 	OldState=Init;
 #endif
 	
-	USART_FSK_Init(PhyUART_BdRate,0,UART_Callback);
+	USART_FSK_Init(PhyUART_BdRate,UART_Prio_CD,UART_Prio,UART_Callback);
 	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
 	PhyUART_FSM_State=Init;
 	PhyUART_Mssg.Status=Ready;
@@ -435,7 +437,7 @@ void PhyUART_Init(void)
 	// mise en place interruption
 	MyTimer_CkEnable(TIM2);
 	MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); // période par défaut 1ms
-	MyTimer_IT_Enable( TIM2, 3, PhyUART_FSM_Progress);
+	MyTimer_IT_Enable( TIM2, Phy_UART_FSM, PhyUART_FSM_Progress);
 	
 	
 #ifdef MyDebug	

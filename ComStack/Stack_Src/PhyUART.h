@@ -4,6 +4,10 @@
 
 #include "stm32f10x.h"
 
+// Priorité d'interruption
+#define UART_Prio_CD 0							// priorité au niveau de l'UART , Carrier Detect (par défaut priorité maximale)	
+#define UART_Prio (UART_Prio_CD+1) 	// priorité au niveau de l'UART (juste au dessous de CD)
+#define Phy_UART_FSM (UART_Prio+1)  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
 
 // Baudrate
 #define PhyUART_BdRate 9600

@@ -27,7 +27,7 @@ void InfiniteLoop(void)
 
 char UART_FSK_Byte;
 void (* UART_FSK_ByteCallback)(void)=InfiniteLoop;
-
+USART_TypeDef *USART;
 
 
 
@@ -40,7 +40,7 @@ void (* UART_FSK_ByteCallback)(void)=InfiniteLoop;
 Rôle :
 Param : 
 *****************************************************************************************************************/
-void USART_FSK_Init(int Baud_Rate_bits_par_Sec,  char Prio_USART, void (*IT_function) (void))
+void USART_FSK_Init(int Baud_Rate_bits_par_Sec, char Prio_USART_CD, char Prio_USART, void (*IT_function) (void))
 /*
 
 */
@@ -53,8 +53,45 @@ void USART_FSK_Init(int Baud_Rate_bits_par_Sec,  char Prio_USART, void (*IT_func
 unsigned int Frequence_Ck_USART_Hz;	
 int USART_Div;
 int Mantisse,Fract;
-USART_TypeDef *USART;
+
 USART=UART_FSK;
+	
+	
+	//******************************************
+	// Utlisation CD pour valider IT : config IO
+	//******************************************
+	
+#ifdef UseCarrierDetect
+	
+if (CD_GPIO==GPIOA) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPAEN;
+else if (CD_GPIO==GPIOB) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPBEN;	
+else if (CD_GPIO==GPIOC) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
+else (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPDEN;
+
+if (CD_Pin<8)
+	{
+	CD_GPIO->CRL&=~(0xF<<(CD_Pin%8)*4); // input floaing
+	CD_GPIO->CRL|=(0x4<<(CD_Pin%8)*4);
+	}
+else
+	{
+	CD_GPIO->CRH&=~(0xF<<(CD_Pin%8)*4); // input floaing
+	CD_GPIO->CRH|=(0x4<<(CD_Pin%8)*4);
+	}
+	
+//---- !!! valable 5 à 9, sinon modifier ici ----///	
+	RCC->APB2ENR|=RCC_APB2ENR_AFIOEN;
+	AFIO->EXTICR[1]&=~(0xF<<12); //  GPIOx x 0 à 3-> EXTI0, 4 à 7 -> EXTI1 etc...
+	AFIO->EXTICR[1]|=(0x1<<12);
+	EXTI->RTSR|=0x1<<CD_Pin; // fronts up and down
+	EXTI->FTSR|=0x1<<CD_Pin;
+	EXTI->IMR|=0x1<<CD_Pin;  // validation locale
+  NVIC_SetPriority(EXTI9_5_IRQn, Prio_USART_CD);
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
+	
+//---- FIN !!! valable 5 à 9, sinon modifier ici ----///	
+	
+#endif
 	
 	//******************************************
 	// UART 1 , confi IO, Conf IT locale
@@ -250,4 +287,20 @@ void USART3_IRQHandler(void)
 {
 	UART_FSK_Byte=USART3->DR;
 	UART_FSK_ByteCallback();
+}
+
+void EXTI9_5_IRQHandler(void)
+{
+	EXTI->PR|=(1<<CD_Pin); // abaissement du flag de réception
+	if ((CD_GPIO->IDR&(1<<CD_Pin))==1<<CD_Pin) // front montant
+	{
+		// neutraliser IT UART
+		USART->CR1=(USART->CR1)&~USART_CR1_RXNEIE;
+		//NVIC_DisableIRQ(USART3_IRQn);
+	}
+	else 
+	{
+		USART->CR1=(USART->CR1)|USART_CR1_RXNEIE;
+		//NVIC_EnableIRQ(USART3_IRQn);
+	}
 }
