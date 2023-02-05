@@ -60,9 +60,11 @@ if (Timer==TIM4)  (RCC->APB1ENR)=(RCC->APB1ENR) | RCC_APB1ENR_TIM4EN;
 
 void MyTimer_Set_Period(TIM_TypeDef *Timer, int ARR, int PSC )
 {
+Timer->CR1&=~TIM_CR1_CEN;
 Timer->PSC=PSC;
 Timer->ARR=ARR;
 Timer->CNT=0;
+Timer->CR1|=TIM_CR1_CEN;
 }
 
 

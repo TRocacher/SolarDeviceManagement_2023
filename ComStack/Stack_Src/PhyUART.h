@@ -12,6 +12,22 @@
 #define StringLenMax 30
 #define StringLenMin 7
 
+
+/*---------------------------------
+ états possibles de la FSM
+----------------------------------*/
+
+typedef enum {
+	Init,
+	WaitForHeader,
+	ReadingFrame,
+	CheckSum,
+	UpdateMssgForMAC,
+	Framing,
+	SendMssg
+}PhyUART_FSM_StateType;
+
+
 // les valeurs possibles de Status
 typedef enum {
 	Ready,
