@@ -4,6 +4,21 @@
 
 #include "stm32f10x.h"
 
+
+//=======================================================================================
+// Rappel sur les ressources sur le STM32F103RB 
+//
+// 3 USART possibles :
+// USART_1_TX = TIM1_CH2 = PA9
+// USART_1_RX = TIM1_CH3 = PA10
+// USART_2_TX = TIM2_CH3 = PA2
+// USART_2_RX = TIM2_CH4 = PA3
+// USART_3_TX = PB10
+// USART_3_RX = PB11
+//=======================================================================================
+
+
+
 // Choix de l'UART
 #define UART_FSK USART3
 

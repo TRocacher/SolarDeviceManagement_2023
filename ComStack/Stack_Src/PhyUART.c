@@ -5,7 +5,7 @@
 #include "FctDiverses.h"
 #include "Log.h"
 
-//#define MyDebug
+#define MyDebug
 #define Log
 
 
@@ -95,6 +95,13 @@ char PhyUART_GetTimeOut_Status(void)
 
 void UART_Callback(void)
 {
+	#ifdef MyDebug	
+	int i;
+// pulse up 
+GPIOC->ODR|=GPIO_ODR_ODR3;
+for (i=0;i<300;i++);
+#endif		
+	
 	// indication arrivée d'un octet
 	UART_Receiv=1;
 
@@ -113,6 +120,10 @@ void UART_Callback(void)
 		UART_HeaderDetected=1;
 	}
 	
+	#ifdef MyDebug			
+// pulse Down 
+GPIOC->ODR&=~GPIO_ODR_ODR3;	
+#endif
 }
 
 
@@ -373,10 +384,7 @@ switch (PhyUART_FSM_State)
 		}
 		case UpdateMssgForMAC:
 		{	
-#ifdef MyDebug	
-// pulse up 
-GPIOC->ODR|=GPIO_ODR_ODR10;
-#endif			
+	
 			PhyUART_Mssg.Status=ReceivingMssg;
 			if (PhyUART_Mssg.NewStrReceived==1) PhyUART_Mssg.Error=OverRunError;
 			
@@ -396,10 +404,7 @@ GPIOC->ODR|=GPIO_ODR_ODR10;
 			// ---< Evolution next State >-----//
 			PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			
-#ifdef MyDebug			
-// pulse Down 
-GPIOC->ODR&=~GPIO_ODR_ODR10;	
-#endif
+
 			break;
 		}
 
@@ -442,8 +447,8 @@ void PhyUART_Init(void)
 	
 #ifdef MyDebug	
 	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
-	GPIOC->CRH&=~(0xF<<(10%8)*4); // output ppull 2MHz
-	GPIOC->CRH|=(0x1<<(10%8)*4);
+	GPIOC->CRL&=~(0xF<<(3%8)*4); // output ppull 2MHz
+	GPIOC->CRL|=(0x1<<(3%8)*4);
 #endif
 	
 }
