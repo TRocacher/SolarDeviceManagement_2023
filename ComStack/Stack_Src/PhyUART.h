@@ -10,7 +10,7 @@
 #define Phy_UART_FSM (UART_Prio+1)  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
 
 // Baudrate
-#define PhyUART_BdRate 9600
+#define PhyUART_BdRate 38400
 
 // longueur max des chaïnes
 #define StringLenMax 30
