@@ -440,9 +440,9 @@ void PhyUART_Init(void)
 	PhyUART_TimeOut=(11000*StringLenMax)/PhyUART_BdRate;
 	
 	// mise en place interruption
-	MyTimer_CkEnable(TIM2);
-	MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); // période par défaut 1ms
-	MyTimer_IT_Enable( TIM2, Phy_UART_FSM, PhyUART_FSM_Progress);
+	MyTimer_CkEnable(TIM_PhyUART_FSM);
+	MyTimer_Set_Period(TIM_PhyUART_FSM, 500*72-1, 2-1 ); // période par défaut 1ms
+	MyTimer_IT_Enable( TIM_PhyUART_FSM, PhyUART_FSM_Prio, PhyUART_FSM_Progress);
 	
 	
 #ifdef MyDebug	
