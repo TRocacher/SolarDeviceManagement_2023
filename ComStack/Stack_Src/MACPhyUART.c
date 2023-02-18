@@ -1,6 +1,6 @@
 #include "stm32f10x.h"
 #include "UART_FSK_103.h"
-#include "PhyUART.h"
+#include "MACPhyUART.h"
 #include "MyTimer.h"
 #include "FctDiverses.h"
 #include "Log.h"
@@ -9,18 +9,29 @@
 #define Log
 
 
+//!!!!!!!!!!!!!!! erreur ds  lecture Phy, remplacer LenUAART par Struct.LenPhyUAARt
+
+
 
 /*---------------------------------
-// VARIABLE D'INTERFACE AVEC MAC
+   VARIABLE D'INTERFACE AVEC MAC
 ----------------------------------*/
 
 
-// la structure d'échange PhyUART-MAC
+// la structure d'échange MACPhyUART
 struct PhyUART_Mssg_type
 {
-	char StrReceived[StringLenMax];
+	char StrReceived[StringLenMax-2];				// |Org@|Dest@|Data|  : On enlève la longueur Len (premier octet) et Checksum (dernier octet), 28 octets typiquement
 	char LenStrReceived;
 	char NewStrReceived;
+	// ---< Ajout MAC >-----//
+	char MACMatch;													// en cours de construction du StrReceived, passe à 1 si @dest=My, passe à 0 après le sampling
+	char My;
+	char MACStrReceived[StringLenMax-4];    // |Data|   			    : on enlève les adresses d'origines et de destination, 26 octets typiquement
+	char MACLenStrReceived;
+	char MACNewStrReceived;									// passe à 1 	près remplissage de MACStrReceived
+	char MACSrcAdress;
+	// ---< Fin Ajout MAC >-----//
 	char StrToSend[StringLenMax];
 	char LenStrToSend;
 	char NewStrToSend;
@@ -84,6 +95,100 @@ char PhyUART_GetTimeOut_Status(void)
 	else return 0;
 }
 
+// ---< Ajout MAC >-----//
+//**************************************************************************************************************
+//**************************************************************************************************************
+// 							COUCHE MAC
+//**************************************************************************************************************
+//**************************************************************************************************************
+
+void PhyUART_Init(void);
+/*---------------------------------
+   void MACPhyUART_Init(char My)
+----------------------------------*/
+void MACPhyUART_Init(char My)
+{
+	PhyUART_Mssg.My=My;
+	PhyUART_Init();
+}
+	
+/*---------------------------------
+   char MACPhyUART_IsNewMssg(void)
+----------------------------------*/
+char MACPhyUART_IsNewMssg(void)
+{
+	return (PhyUART_Mssg.MACNewStrReceived);
+}
+
+
+/*------------------------------------------------------
+   int MACPhyUART_GetNewMssg (char * AdrString, int Len)
+-------------------------------------------------------*/
+int MACPhyUART_GetNewMssg (char * AdrString, int Len)
+{
+		
+// recopie le string stocké dans la chaîne MAC
+// mets à 0 les autres octets jusqu'à la fin de la chaîne recevant (Len)
+// retourne -1 si la longueur donnée est inférieure à la longueur
+// effective de la châine MAC
+
+	int i;
+	
+	// remise à 0 du flag de réception
+	PhyUART_Mssg.MACNewStrReceived=0;
+	if (Len< PhyUART_Mssg.MACLenStrReceived) 
+	{
+		return -1;
+	}
+	else
+	{
+		for (i=0;i<Len;i++)
+		{
+			if (i<PhyUART_Mssg.MACLenStrReceived)
+			{
+				*AdrString=PhyUART_Mssg.MACStrReceived[i];
+			}
+			else 
+			{
+				*AdrString=0;
+			}
+			AdrString++;
+		}
+		return 0;		
+	}
+}
+
+/*---------------------------------------------------------------------
+   int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len)
+-----------------------------------------------------------------------*/
+int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len)
+{
+	int i;
+	
+	
+	if (Len>StringLenMax-4) // longueur trop grande, l'envoie ne se fait pas.
+	{
+		return -1;
+	}
+	else
+	{
+		// insertion src@ Dest@
+		PhyUART_Mssg.StrToSend[0]=PhyUART_Mssg.My;
+		PhyUART_Mssg.StrToSend[1]=DestAdr;
+		for (i=2;i<(Len+2);i++)
+		{
+			PhyUART_Mssg.StrToSend[i]=*AdrString;
+			PhyUART_Mssg.LenStrToSend=Len;
+			AdrString++;
+		}
+		PhyUART_Mssg.NewStrToSend=1;
+		return 0;
+	}
+}
+
+// ---< Fin Ajout MAC >-----//
+
+
 
 
 
@@ -93,6 +198,9 @@ char PhyUART_GetTimeOut_Status(void)
 //**************************************************************************************************************
 //**************************************************************************************************************
 
+/*---------------------------------------------------------------------
+   void UART_Callback(void)
+-----------------------------------------------------------------------*/
 void UART_Callback(void)
 {
 	#ifdef MyDebug	
@@ -147,6 +255,10 @@ PhyUART_FSM_StateType PhyUART_FSM_State;
 ----------------------------------*/
 // user fct pour démarrer la FSM
 char PhyUART_Start;
+
+/*---------------------------------------------------------------------
+   void PhyUART_StartFSM(void)
+-----------------------------------------------------------------------*/
 void PhyUART_StartFSM(void)
 {
 	PhyUART_Start=1;
@@ -163,6 +275,10 @@ void PhyUART_Framing (void);
 // index indiquant le numéro d'octet dans la frame entrante
 char PhyUART_FrameIndex; // |Len|My@|Dest@|ID|Type_LenData|Data|Trial|CheckSum| 
 //                      0   1    2    3    4          ... 
+
+/*---------------------------------------------------------------------
+   void PhyUART_FSM_Progress(void)
+-----------------------------------------------------------------------*/
 void PhyUART_FSM_Progress(void)
 {
 int Sum,i;
@@ -384,7 +500,9 @@ switch (PhyUART_FSM_State)
 		}
 		case UpdateMssgForMAC:
 		{	
-	
+			// ---< Ajout MAC >-----//
+			PhyUART_Mssg.MACMatch=0;
+			// ---< Fin Ajout MAC >-----//
 			PhyUART_Mssg.Status=ReceivingMssg;
 			if (PhyUART_Mssg.NewStrReceived==1) PhyUART_Mssg.Error=OverRunError;
 			
@@ -395,9 +513,29 @@ switch (PhyUART_FSM_State)
 			for (i=0;i<Phy_UART_Len-2;i++) // on ne compte pas le CheckSum ! 
 			{
 				PhyUART_Mssg.StrReceived[i]=InComingMssg[i];
+				// ---< Ajout MAC >-----//
+				if (i==0)  PhyUART_Mssg.MACSrcAdress=InComingMssg[i];
+				else if (i==1) // filtrage @Destination
+				{
+					if (InComingMssg[i]==PhyUART_Mssg.My) PhyUART_Mssg.MACMatch=1;
+				}
+				else if (PhyUART_Mssg.MACMatch==1) // sampling de MACstring
+				{
+					PhyUART_Mssg.MACStrReceived[i-2]=PhyUART_Mssg.StrReceived[i]; // Longueur MAC = Longeur Phy -2 puisqu'on sort les deux @
+				}
+				// ---< Fin Ajout MAC >-----//
 			}	
 			PhyUART_Mssg.LenStrReceived=Phy_UART_Len-2;
 			PhyUART_Mssg.NewStrReceived=1;
+			
+			// ---< Ajout MAC >-----//
+			if (PhyUART_Mssg.MACMatch==1)
+			{
+				PhyUART_Mssg.MACLenStrReceived=Phy_UART_Len-4;
+				PhyUART_Mssg.MACNewStrReceived=1;  
+			}
+			PhyUART_Mssg.MACMatch=0;
+			// ---< Fin Ajout MAC >-----//
 			
 			// Remise réglage Echantillonnage à 1ms
 			MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); 
@@ -412,6 +550,11 @@ switch (PhyUART_FSM_State)
 }
 
 
+//**************************************************************************************************************
+//**************************************************************************************************************
+// 							COUCHE PHY UART
+//**************************************************************************************************************
+//**************************************************************************************************************
 
 
 /******************************************************************************************************************
@@ -422,6 +565,9 @@ Param :
 *****************************************************************************************************************/
 
 
+/*---------------------------------------------------------------------
+   void PhyUART_Init(void)
+-----------------------------------------------------------------------*/
 void PhyUART_Init(void)
 {
 		
@@ -461,21 +607,36 @@ void PhyUART_Init(void)
 Rôle :
 Param : 
 *****************************************************************************************************************/
+
+
+/*---------------------------------------------------------------------
+   char PhyUART_IsNewMssg(void)
+-----------------------------------------------------------------------*/
 char PhyUART_IsNewMssg(void)
 {
 	return (PhyUART_Mssg.NewStrReceived);
 }
 
+
+/*---------------------------------------------------------------------
+   PhyUART_StatusType PhyUART_Get_Status(void)
+-----------------------------------------------------------------------*/
 PhyUART_StatusType PhyUART_Get_Status(void)
 {
 	return (PhyUART_Mssg.Status);
 }
 
+/*---------------------------------------------------------------------
+   PhyUART_ErrorType PhyUART_Get_Error(void)
+-----------------------------------------------------------------------*/
 PhyUART_ErrorType PhyUART_Get_Error(void)
 {
 	return (PhyUART_Mssg.Error);
 }
 
+/*---------------------------------------------------------------------
+   int  PhyUART_GetNewMssg (char * AdrString, int Len)
+-----------------------------------------------------------------------*/
 int  PhyUART_GetNewMssg (char * AdrString, int Len)
 // recopie le string stocké à l'interface MAC et 
 // mets à 0 les autres octets jusqu'à StringLenMax.
@@ -508,7 +669,9 @@ int  PhyUART_GetNewMssg (char * AdrString, int Len)
 	}
 }
 
-
+/*---------------------------------------------------------------------
+   void PhyUART_Framing (void)
+-----------------------------------------------------------------------*/
 void PhyUART_Framing (void)
 {
 
@@ -533,6 +696,9 @@ void PhyUART_Framing (void)
 }
 
 
+/*---------------------------------------------------------------------
+   int PhyUART_SendNewMssg (char * AdrString, int Len)
+-----------------------------------------------------------------------*/
 int PhyUART_SendNewMssg (char * AdrString, int Len)
 {
 	int i;

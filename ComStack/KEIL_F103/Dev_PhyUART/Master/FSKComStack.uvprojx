@@ -394,14 +394,14 @@
           <GroupName>Stack_uC_Free</GroupName>
           <Files>
             <File>
-              <FileName>PhyUART.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\Stack_Src\PhyUART.c</FilePath>
-            </File>
-            <File>
               <FileName>FctDiverses.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\Stack_Src\FctDiverses.c</FilePath>
+            </File>
+            <File>
+              <FileName>MACPhyUART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Stack_Src\MACPhyUART.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -821,14 +821,14 @@
           <GroupName>Stack_uC_Free</GroupName>
           <Files>
             <File>
-              <FileName>PhyUART.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\Stack_Src\PhyUART.c</FilePath>
-            </File>
-            <File>
               <FileName>FctDiverses.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\Stack_Src\FctDiverses.c</FilePath>
+            </File>
+            <File>
+              <FileName>MACPhyUART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Stack_Src\MACPhyUART.c</FilePath>
             </File>
           </Files>
         </Group>

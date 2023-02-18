@@ -295,12 +295,14 @@ void EXTI9_5_IRQHandler(void)
 	if ((CD_GPIO->IDR&(1<<CD_Pin))==1<<CD_Pin) // front montant
 	{
 		// neutraliser IT UART
-		USART->CR1=(USART->CR1)&~USART_CR1_RXNEIE;
+		USART->CR1=(USART->CR1)&~USART_CR1_RE; // receive disable
+		// USART->CR1=(USART->CR1)&~USART_CR1_RXNEIE;
 		//NVIC_DisableIRQ(USART3_IRQn);
 	}
 	else 
 	{
-		USART->CR1=(USART->CR1)|USART_CR1_RXNEIE;
+		USART->CR1=(USART->CR1)|USART_CR1_RE; // Receive Enable
+		//USART->CR1=(USART->CR1)|USART_CR1_RXNEIE;
 		//NVIC_EnableIRQ(USART3_IRQn);
 	}
 }

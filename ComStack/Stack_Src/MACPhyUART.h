@@ -4,6 +4,30 @@
 
 #include "stm32f10x.h"
 
+
+//**************************************************************************************************************
+//**************************************************************************************************************
+// 							COUCHE MAC
+//**************************************************************************************************************
+//**************************************************************************************************************
+
+void MACPhyUART_Init(char My);
+
+#define MACPhyUART_StartFSM PhyUART_StartFSM
+
+char MACPhyUART_IsNewMssg(void);
+
+int MACPhyUART_GetNewMssg (char * AdrString, int Len); 
+
+int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
+
+
+//**************************************************************************************************************
+//**************************************************************************************************************
+// 							COUCHE PHY UART
+//**************************************************************************************************************
+//**************************************************************************************************************
+
 // Priorité d'interruption
 #define UART_Prio_CD 0							// priorité au niveau de l'UART , Carrier Detect (par défaut priorité maximale)	
 #define UART_Prio (UART_Prio_CD+1) 	// priorité au niveau de l'UART (juste au dessous de CD)
@@ -15,8 +39,8 @@
 #define PhyUART_BdRate 38400
 
 // longueur max des chaïnes
-#define StringLenMax 30
-#define StringLenMin 7
+#define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantité de data (dont Src@ et Dest @) est donc de 28 octets
+#define StringLenMin 7    // Len + Src@ + Dest@ + 4 octets Data + Checksum| (4 octets data seront typiquement ID + Type_LenData + 1 data + Trial )
 
 
 /*---------------------------------
@@ -50,7 +74,6 @@ typedef enum {
 	TimeOutError,
 	OverRunError
 }PhyUART_ErrorType;
-
 
 
 
