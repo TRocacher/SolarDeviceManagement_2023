@@ -178,9 +178,9 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len)
 		for (i=2;i<(Len+2);i++)
 		{
 			PhyUART_Mssg.StrToSend[i]=*AdrString;
-			PhyUART_Mssg.LenStrToSend=Len;
 			AdrString++;
 		}
+		PhyUART_Mssg.LenStrToSend=Len+2;
 		PhyUART_Mssg.NewStrToSend=1;
 		return 0;
 	}
@@ -711,9 +711,9 @@ int PhyUART_SendNewMssg (char * AdrString, int Len)
 		for (i=0;i<Len;i++)
 		{
 			PhyUART_Mssg.StrToSend[i]=*AdrString;
-			PhyUART_Mssg.LenStrToSend=Len;
 			AdrString++;
 		}
+		PhyUART_Mssg.LenStrToSend=Len;
 		PhyUART_Mssg.NewStrToSend=1;
 		return 0;
 	}
