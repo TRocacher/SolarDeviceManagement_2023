@@ -19,6 +19,8 @@ char MACPhyUART_IsNewMssg(void);
 
 int MACPhyUART_GetNewMssg (char * AdrString, int Len); 
 
+char MACPhyUART_GetSrcAdress(void);
+
 int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 
 
@@ -72,7 +74,8 @@ typedef enum {
 	CheckSumError,
 	LenError,
 	TimeOutError,
-	OverRunError
+	OverRunError,
+	MACOverRunError
 }PhyUART_ErrorType;
 
 

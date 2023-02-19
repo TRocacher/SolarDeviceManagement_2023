@@ -9,7 +9,6 @@
 #define Log
 
 
-//!!!!!!!!!!!!!!! erreur ds  lecture Phy, remplacer LenUAART par Struct.LenPhyUAARt
 
 
 
@@ -25,9 +24,13 @@ struct PhyUART_Mssg_type
 	char LenStrReceived;
 	char NewStrReceived;
 	// ---< Ajout MAC >-----//
-	char MACMatch;													// en cours de construction du StrReceived, passe à 1 si @dest=My, passe à 0 après le sampling
-	char My;
-	char MACStrReceived[StringLenMax-4];    // |Data|   			    : on enlève les adresses d'origines et de destination, 26 octets typiquement
+	char MACMatch;													// flag indiquant que l'adresse destination du message est celle de My, utile à la mise à jour
+	char My;																// My : Adresse MAC propre du module
+	char MACStrReceived[StringLenMax-4];    // |Data| : on enlève les adresses d'origines et de destination, 26 octets typiquement
+																					// NB : StrReceived : string en sortie couche Phy incluant les deux
+																					// adresses + datas. Sont enlevées la longeur du message initial 
+																					// reçu par l'UART (LEN) et le checksum (d'où le -2 dans la longueur 
+																					// et le -4 dans la longueur MAC String)
 	char MACLenStrReceived;
 	char MACNewStrReceived;									// passe à 1 	près remplissage de MACStrReceived
 	char MACSrcAdress;
@@ -42,7 +45,7 @@ struct PhyUART_Mssg_type
 
 #ifdef Log
 PhyUART_FSM_StateType OldState;
-Log_Typedef LogTab[100];
+PhyUART_FSM_StateType LogTab[20];
 //PhyUART_FSM_StateType LogTab[100];
 int j=0;
 #endif
@@ -136,6 +139,7 @@ int MACPhyUART_GetNewMssg (char * AdrString, int Len)
 	
 	// remise à 0 du flag de réception
 	PhyUART_Mssg.MACNewStrReceived=0;
+	PhyUART_Mssg.NewStrReceived=0;
 	if (Len< PhyUART_Mssg.MACLenStrReceived) 
 	{
 		return -1;
@@ -157,6 +161,12 @@ int MACPhyUART_GetNewMssg (char * AdrString, int Len)
 		return 0;		
 	}
 }
+
+char MACPhyUART_GetSrcAdress(void)
+{
+	return PhyUART_Mssg.MACSrcAdress;
+}
+
 
 /*---------------------------------------------------------------------
    int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len)
@@ -287,11 +297,11 @@ char CRC_Val;
 #ifdef Log
 if (OldState!=PhyUART_FSM_State)
 {
-	LogTab[j].Time_100us=SystickGet();
-	LogTab[j].state=PhyUART_FSM_State;
+	//LogTab[j].Time_100us=SystickGet();
+	LogTab[j]=PhyUART_FSM_State;
 	//LogTab[j]=PhyUART_FSM_State;
 	j++;
-	if (j==100) j=0;
+	if (j==20) j=0;
 	OldState=PhyUART_FSM_State;
 }
 #endif
@@ -384,17 +394,7 @@ switch (PhyUART_FSM_State)
 			//  Etape Reading Frame
 			// *****************************
 
-#ifdef Log
-  // enregistrement des dates de sampling réception
-	LogTab[j].Time_100us=SystickGet();
-	LogTab[j].state=PhyUART_FSM_State;
-	//LogTab[j]=PhyUART_FSM_State;
-	j++;
-	if (j==100) j=0;
 
-
-#endif
-	
 			
 			
 			PhyUART_Mssg.Error=NoError;
@@ -500,10 +500,11 @@ switch (PhyUART_FSM_State)
 		}
 		case UpdateMssgForMAC:
 		{	
+			PhyUART_Mssg.Status=ReceivingMssg;
 			// ---< Ajout MAC >-----//
 			PhyUART_Mssg.MACMatch=0;
+			if (PhyUART_Mssg.MACNewStrReceived==1) PhyUART_Mssg.Error=MACOverRunError;
 			// ---< Fin Ajout MAC >-----//
-			PhyUART_Mssg.Status=ReceivingMssg;
 			if (PhyUART_Mssg.NewStrReceived==1) PhyUART_Mssg.Error=OverRunError;
 			
 			// recopie de la chaîne 
@@ -517,7 +518,8 @@ switch (PhyUART_FSM_State)
 				if (i==0)  PhyUART_Mssg.MACSrcAdress=InComingMssg[i];
 				else if (i==1) // filtrage @Destination
 				{
-					if (InComingMssg[i]==PhyUART_Mssg.My) PhyUART_Mssg.MACMatch=1;
+					if ((InComingMssg[i]==PhyUART_Mssg.My)||(InComingMssg[i]==0xFF)) PhyUART_Mssg.MACMatch=1;
+					// NB -1 = 0xFF, broadcast
 				}
 				else if (PhyUART_Mssg.MACMatch==1) // sampling de MACstring
 				{

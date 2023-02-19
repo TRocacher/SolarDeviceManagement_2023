@@ -58,8 +58,8 @@ void IT_1sec(void)
 	MyLCD_Set_cursor(10, 0);
 	MyLCD_Print(Alpha);
 	
-	MACPhyUART_SendNewMssg(0xBB,Alpha,5);
-	
+	//MACPhyUART_SendNewMssg(0xBB,Alpha,5);
+	MACPhyUART_SendNewMssg(0xBB,Alpha,5);  // broadcast
 	
 }
 
