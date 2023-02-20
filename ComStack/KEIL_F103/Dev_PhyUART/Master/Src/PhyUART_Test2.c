@@ -1,4 +1,4 @@
-#include "PhyUART.h"
+#include "MACPhyUART.h"
 #include "MyTimer.h"
 
 
@@ -69,8 +69,8 @@ int main (void)
 	Cnt=0;
 	Error=0;
 	SystickStart(); // obligatoire pour la gestion des TimeOut à tous les étages...
-	PhyUART_Init();
-	PhyUART_StartFSM();
+	MACPhyUART_Init();
+	MACPhyUART_StartFSM();
 	
 	MyLCD_Init();
 	MyLCD_Clear();
