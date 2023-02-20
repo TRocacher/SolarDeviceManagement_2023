@@ -162,10 +162,27 @@ int MACPhyUART_GetNewMssg (char * AdrString, int Len)
 	}
 }
 
+
+/*---------------------------------------------------------------------
+   char MACPhyUART_GetSrcAdress(void)
+-----------------------------------------------------------------------*/
+
 char MACPhyUART_GetSrcAdress(void)
 {
 	return PhyUART_Mssg.MACSrcAdress;
 }
+
+
+/*---------------------------------------------------------------------
+   char MACPhyUART_GetLen(void);
+-----------------------------------------------------------------------*/
+
+char MACPhyUART_GetLen(void)
+{
+	return PhyUART_Mssg.MACLenStrReceived;
+}
+
+
 
 
 /*---------------------------------------------------------------------

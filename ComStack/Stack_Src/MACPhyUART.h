@@ -21,6 +21,8 @@ int MACPhyUART_GetNewMssg (char * AdrString, int Len);
 
 char MACPhyUART_GetSrcAdress(void);
 
+char MACPhyUART_GetLen(void);
+
 int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 
 
@@ -38,7 +40,7 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 #define TIM_PhyUART_FSM TIM2
 
 // Baudrate
-#define PhyUART_BdRate 9600
+#define PhyUART_BdRate 38400
 
 // longueur max des chaïnes
 #define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantité de data (dont Src@ et Dest @) est donc de 28 octets

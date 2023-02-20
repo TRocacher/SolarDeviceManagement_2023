@@ -13,7 +13,7 @@
 
 char Rec[30];
 int i;
-
+char SrcAddr,Longueur;
 
 
 int main (void)
@@ -38,12 +38,14 @@ int main (void)
 		{
 			if (MACPhyUART_GetNewMssg(Rec,30)!=-1)
 			{
+				SrcAddr=MACPhyUART_GetSrcAdress();
+				Longueur=MACPhyUART_GetLen();
 				MyLCD_Set_cursor(11, 0);
 				MyLCD_Print(Rec);
 				
 				Delay_x_ms(200);
 								
-				MACPhyUART_SendNewMssg(0xAA,Rec,5);
+				MACPhyUART_SendNewMssg(SrcAddr,Rec,Longueur);
 				MyLCD_Set_cursor(11, 1);
 				MyLCD_Print(Rec);
 
