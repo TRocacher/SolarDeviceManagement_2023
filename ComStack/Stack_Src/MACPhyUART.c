@@ -3,7 +3,7 @@
 #include "MACPhyUART.h"
 #include "MyTimer.h"
 #include "FctDiverses.h"
-#include "Log.h"
+
 
 #define MyDebug
 #define Log

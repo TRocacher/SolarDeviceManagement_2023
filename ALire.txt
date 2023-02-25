@@ -1,5 +1,36 @@
+En cours :
+/CentralUnit :
+ Contiendra tout les aspects soft/hard de l'unité centrale
 
-*** Historique :  ****
+/ComStack : 
+contient l'architecture de communication XbeeLike, mais en FSK RT606.
+On trouve du développement générique indépendant du µC et des répertoires qui eux dépendent de l'architecture ou de l'IDE
+(tantôt KEIL, tantôt cubeIDE).
+Détail des répertoires :
+/CubeIDE_L31 : futur développement sur L031
+/KEIL_F103 : développement sur STM32F103RB et sur KEIL
+	/Stack_Src_103 : ce qui concerne la part de la stack propre au STM32 (UART et Timer)
+	/Dev_PhyUART : le développement de la couche PhyUART mais aussi MAC
+		/Master : code pour la partie maître avec par exemple une émission périodique des secondes et attente réception
+		/Slave  : idem côté slave avec par exemple une réception et un renvoie après 200ms à l'expéditeur
+/Stack_Src : Les fonctions indépendantes du µC. Y a juste les .h liés aux uC à changer
+
+
+/PowerMeter : 
+pas encore abordé
+
+/RemoteDevice 
+A poursuivre. Le Hard est quasi terminé. Soft à reprendre et à suivre avec un readme !
+
+/System
+Contient la description SysML et deux documents, l'un de conception (écrit par anticipation à tout codage), le second UG, 
+qui pose ce qui est réellement fait.
+
+
+
+
+
+*** Vieil Historique :  ****
 ./PVLoadsManagementSyst_Old/RemoteDevice
 Toute la partie de conception mal structurée qui a été mise sur github. On trouve tous les tatônnements, lowpower, LL, Kicad 
 Reéalisations PCB V1 et V2.
