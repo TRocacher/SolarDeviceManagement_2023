@@ -1,0 +1,58 @@
+MNode_Principal_Run ->  (Passif)
+MNode_Principal_Conf -> (Passif)
+MNode_Principal_VE -> (Passif)
+MNode_Principal_Param -> (Passif)
+MNode_Principal_Diag -> (Passif)
+
+====== Mode Run en entier ============
+MNode_Run_Mode  (Affichage)
+MNode_Run_Heure (Affichage)
+MNode_Run_PGrid (Affichage)
+MNode_Run_PInv (Affichage)
+MNode_Run_InfoClim ->  (Passif)
+MNode_Run_HeureDebJ (Affichage)
+MNode_Run_HeureDebN (Affichage)
+
+
+MNode_InfoClim_ConsSaM  (Affichage)
+MNode_InfoClim_TempSaM (Affichage)
+MNode_InfoClim_ConsSalon (Affichage)
+MNode_InfoClim_TempSalon (Affichage)
+MNode_InfoClim_ConsEntree  (Affichage)
+MNode_InfoClim_TempEntree (Affichage)
+MNode_InfoClim_ConsCouloir (Affichage)
+MNode_InfoClim_TempCouloir (Affichage)
+
+
+
+====== Mode Config en entier ============
+MNode_Conf_ModeOff -> (saisie type OK/Discard)
+MNode_Conf_ModeForce -> (saisie type OK/Discard)
+MNode_Conf_ModeVac -> (saisie type OK/Discard)
+MNode_Conf_ModeVoyage -> (saisie type OK/Discard)
+MNode_Conf_ModeHebdo -> (saisie type OK/Discard)
+MNode_Conf_ModeAbsJour -> (saisie type OK/Discard)
+MNode_Conf_ModePresAM -> (saisie type OK/Discard)
+MNode_Conf_ModePresPM -> (saisie type OK/Discard)
+
+====== Mode VE en entier ============
+MNode_VE-> VE en charge Oui/non (saisie type yn)
+
+
+====== Mode Param en entier ============
+MNode_Param_Clim -> (Passif)
+MNode_Param_ExcPV -> (Passif)
+MNode_Param_Vac -> (Passif)
+MNode_Param_Appairage -> (Passif)
+MNode_Param_GenReset -> (Passif)
+
+
+MNode_Clim_SaM -> (Passif)
+MNode_Clim_Salon -> (Passif)
+MNode_Clim_Entree -> (Passif)
+MNode_Clim_Couloir -> (Passif)
+
+MNode_ConsTempJ -> (Passif)
+MNode_Clim_Salon -> (Passif)
+
+

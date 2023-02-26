@@ -1,5 +1,5 @@
 #include "stm32f10x.h"
-#include "UART_FSK_103.h"
+#include "UART_F103.h"
 
 //=======================================================================================
 // Rappel sur les ressources sur le STM32F103RB 
@@ -25,73 +25,28 @@ void InfiniteLoop(void)
 	// Variables globales
 	//******************************************
 
-char UART_FSK_Byte;
-void (* UART_FSK_ByteCallback)(void)=InfiniteLoop;
-USART_TypeDef *USART;
 
-
-
+void (* UART1_ByteCallback)(void)=InfiniteLoop;
+void (* UART2_ByteCallback)(void)=InfiniteLoop;
+void (* UART3_ByteCallback)(void)=InfiniteLoop;
 
 
 
 /******************************************************************************************************************
-	USART_FSK_Init
+	USART_Init
 
 Rôle :
 Param : 
 *****************************************************************************************************************/
-void USART_FSK_Init(int Baud_Rate_bits_par_Sec, char Prio_USART_CD, char Prio_USART, void (*IT_function) (void))
-/*
-
-*/
-
+void USART_Init(USART_TypeDef * USART,  int Baud_Rate_bits_par_Sec, char Prio_USART, void (*IT_function) (void))
 {
-	
-	//******************************************
-	// Variables locales
-	//******************************************
+		//******************************************
+		// Variables locales
+		//******************************************
 unsigned int Frequence_Ck_USART_Hz;	
 int USART_Div;
 int Mantisse,Fract;
 
-USART=UART_FSK;
-	
-	
-	//******************************************
-	// Utlisation CD pour valider IT : config IO
-	//******************************************
-	
-#ifdef UseCarrierDetect
-	
-if (CD_GPIO==GPIOA) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPAEN;
-else if (CD_GPIO==GPIOB) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPBEN;	
-else if (CD_GPIO==GPIOC) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
-else (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPDEN;
-
-if (CD_Pin<8)
-	{
-	CD_GPIO->CRL&=~(0xF<<(CD_Pin%8)*4); // input floaing
-	CD_GPIO->CRL|=(0x4<<(CD_Pin%8)*4);
-	}
-else
-	{
-	CD_GPIO->CRH&=~(0xF<<(CD_Pin%8)*4); // input floaing
-	CD_GPIO->CRH|=(0x4<<(CD_Pin%8)*4);
-	}
-	
-//---- !!! valable 5 à 9, sinon modifier ici ----///	
-	RCC->APB2ENR|=RCC_APB2ENR_AFIOEN;
-	AFIO->EXTICR[1]&=~(0xF<<12); //  GPIOx x 0 à 3-> EXTI0, 4 à 7 -> EXTI1 etc...
-	AFIO->EXTICR[1]|=(0x1<<12);
-	EXTI->RTSR|=0x1<<CD_Pin; // fronts up and down
-	EXTI->FTSR|=0x1<<CD_Pin;
-	EXTI->IMR|=0x1<<CD_Pin;  // validation locale
-  NVIC_SetPriority(EXTI9_5_IRQn, Prio_USART_CD);
-	NVIC_EnableIRQ(EXTI9_5_IRQn);
-	
-//---- FIN !!! valable 5 à 9, sinon modifier ici ----///	
-	
-#endif
 	
 	//******************************************
 	// UART 1 , confi IO, Conf IT locale
@@ -109,6 +64,7 @@ if (USART==USART1)
   NVIC_SetPriority(USART1_IRQn, Prio_USART);
 	NVIC_EnableIRQ(USART1_IRQn);
 	Frequence_Ck_USART_Hz=72000000;
+	UART1_ByteCallback=IT_function;
 
 }
 	//******************************************
@@ -127,6 +83,7 @@ if (USART==USART2)
   NVIC_SetPriority(USART2_IRQn, Prio_USART);
 	NVIC_EnableIRQ(USART2_IRQn);
 	Frequence_Ck_USART_Hz=36000000;
+	UART2_ByteCallback=IT_function;
 }
 	//******************************************
 	// UART 3 , confi IO, Conf IT locale
@@ -144,8 +101,8 @@ if (USART==USART3)
   NVIC_SetPriority(USART3_IRQn, Prio_USART);
 	NVIC_EnableIRQ(USART3_IRQn);
 	Frequence_Ck_USART_Hz=36000000;
-	
-}
+	UART3_ByteCallback=IT_function;
+}	
 
 	//******************************************
 	// UART x , conf UART x, conf NVIC
@@ -168,42 +125,7 @@ USART->CR1=(USART->CR1)|USART_CR1_TE; // Transmit Enable
 USART->CR1=(USART->CR1)|USART_CR1_RE; // Transmit Enable
 USART->CR1=(USART->CR1)|USART_CR1_RXNEIE; // validation IT locale en réception
 
-UART_FSK_ByteCallback=IT_function;
-
-	//******************************************
-	// Configuration RxCmde et TxCmde pin
-	//******************************************
-if ((Rx_Cmde_GPIO==GPIOA) || (Tx_Cmde_GPIO==GPIOA)) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPAEN;
-else if ((Rx_Cmde_GPIO==GPIOB) || (Tx_Cmde_GPIO==GPIOB)) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPBEN;	
-else if ((Rx_Cmde_GPIO==GPIOC) || (Tx_Cmde_GPIO==GPIOC)) (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
-else (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPDEN;
-
-if (Rx_Cmde_Pin<8)
-	{
-	Rx_Cmde_GPIO->CRL&=~(0xF<<(Rx_Cmde_Pin%8)*4); // output ppull 2MHz
-	Rx_Cmde_GPIO->CRL|=(0x1<<(Rx_Cmde_Pin%8)*4);
-	}
-else
-	{
-	Rx_Cmde_GPIO->CRH&=~(0xF<<(Rx_Cmde_Pin%8)*4); // output ppull 2MHz
-	Rx_Cmde_GPIO->CRH|=(0x1<<(Rx_Cmde_Pin%8)*4);
-	}
-	
-if (Tx_Cmde_Pin<8)
-	{
-	Tx_Cmde_GPIO->CRL&=~(0xF<<(Tx_Cmde_Pin%8)*4); // output ppull 2MHz
-	Tx_Cmde_GPIO->CRL|=(0x1<<(Tx_Cmde_Pin%8)*4);
-	}
-else
-	{
-	Tx_Cmde_GPIO->CRH&=~(0xF<<(Tx_Cmde_Pin%8)*4); // output ppull 2MHz
-	Tx_Cmde_GPIO->CRH|=(0x1<<(Tx_Cmde_Pin%8)*4);
-	}
-	
-	
-	USART_FSK_SetReceiveAntenna();
 }
-
 
 
 
@@ -214,9 +136,9 @@ else
 Rôle :
 Param : 
 *****************************************************************************************************************/
-char USART_FSK_GetByte(void)
+char USART_GetByte(USART_TypeDef * USART)
 {
-	return UART_FSK_Byte;
+	return USART->DR;
 }
 
 
@@ -228,40 +150,20 @@ Rôle :
 Param : 
 *****************************************************************************************************************/
 
-void USART_FSK_Print(char* Mssg, int Len)
+void USART_Print(USART_TypeDef * USART,char* Mssg, int Len)
 {
 	int i;
 	
 	for(i=0;i<Len;i++)
 	{
-			UART_FSK->DR = *Mssg;
-			while (((UART_FSK->SR)& USART_SR_TXE)==0);
+			USART->DR = *Mssg;
+			while ((( USART->SR)& USART_SR_TXE)==0);
 			Mssg++;
 	}
 	// attendre que le dernier octet soit parti...
-	while((UART_FSK->SR&USART_SR_TC)!=USART_SR_TC);
+	while((USART->SR&USART_SR_TC)!=USART_SR_TC);
 }
 	
-
-/******************************************************************************************************************
-	USART_FSK_SetReceiveAntena et USART_FSK_SetTransmAntena
-
-Rôle :
-Param : 
-*****************************************************************************************************************/
-
-void USART_FSK_SetReceiveAntenna(void)
-{
-	Rx_Cmde_GPIO->ODR|=1<<Rx_Cmde_Pin;
-	Tx_Cmde_GPIO->ODR&=~(1<<Tx_Cmde_Pin);
-}
-void USART_FSK_SetTransmAntenna(void)
-{
-	Tx_Cmde_GPIO->ODR|=1<<Tx_Cmde_Pin;
-	Rx_Cmde_GPIO->ODR&=~(1<<Rx_Cmde_Pin);
-}
-
-
 
 
 /******************************************************************************************************************
@@ -269,40 +171,19 @@ void USART_FSK_SetTransmAntenna(void)
 
 Rôle :
 Param : 
-*****************************************************************************************************************/
+*******************************************************************************************************************/
 
 void USART1_IRQHandler(void)
 {
-	UART_FSK_Byte=USART1->DR;
-	UART_FSK_ByteCallback();
+	UART1_ByteCallback();
 }
 
 void USART2_IRQHandler(void)
 {
-	UART_FSK_Byte=USART2->DR;
-	UART_FSK_ByteCallback();
+	UART2_ByteCallback();
 }
 
 void USART3_IRQHandler(void)
 {
-	UART_FSK_Byte=USART3->DR;
-	UART_FSK_ByteCallback();
-}
-
-void EXTI9_5_IRQHandler(void)
-{
-	EXTI->PR|=(1<<CD_Pin); // abaissement du flag de réception
-	if ((CD_GPIO->IDR&(1<<CD_Pin))==1<<CD_Pin) // front montant
-	{
-		// neutraliser IT UART
-		USART->CR1=(USART->CR1)&~USART_CR1_RE; // receive disable
-		// USART->CR1=(USART->CR1)&~USART_CR1_RXNEIE;
-		//NVIC_DisableIRQ(USART3_IRQn);
-	}
-	else 
-	{
-		USART->CR1=(USART->CR1)|USART_CR1_RE; // Receive Enable
-		//USART->CR1=(USART->CR1)|USART_CR1_RXNEIE;
-		//NVIC_EnableIRQ(USART3_IRQn);
-	}
+	UART3_ByteCallback();
 }

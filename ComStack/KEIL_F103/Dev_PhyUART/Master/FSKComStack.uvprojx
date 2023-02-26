@@ -416,22 +416,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Drivers_103</GroupName>
+          <GroupName>Drivers_F103</GroupName>
           <Files>
-            <File>
-              <FileName>UART_FSK_103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\UART_FSK_103.c</FilePath>
-            </File>
             <File>
               <FileName>MyLCD.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>MyTimer.c</FileName>
+              <FileName>FSK_F103.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\MyTimer.c</FilePath>
+              <FilePath>..\..\Stack_Src_103\FSK_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\UART_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\Timer_F103.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1006,22 +1011,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Drivers_103</GroupName>
+          <GroupName>Drivers_F103</GroupName>
           <Files>
-            <File>
-              <FileName>UART_FSK_103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\UART_FSK_103.c</FilePath>
-            </File>
             <File>
               <FileName>MyLCD.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>MyTimer.c</FileName>
+              <FileName>FSK_F103.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\MyTimer.c</FilePath>
+              <FilePath>..\..\Stack_Src_103\FSK_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\UART_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\Timer_F103.c</FilePath>
             </File>
           </Files>
         </Group>

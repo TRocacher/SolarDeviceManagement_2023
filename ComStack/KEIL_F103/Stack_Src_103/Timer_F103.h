@@ -1,5 +1,5 @@
-#ifndef _MYTIMER_H__
-#define _MYTIMER_H__
+#ifndef _TIMER_F103_H__
+#define _TIMER_F103_H__
 
 
 #include "stm32f10x.h"
