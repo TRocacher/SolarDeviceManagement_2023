@@ -291,7 +291,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_VoltParam.MenuPosition=Last;
 	MenuNodeInput_VoltParam.Title="Volt Param [V]...   ";
 	MenuNodeInput_VoltParam.ItemToPrint =" Actual :           ";
-	MenuNodeInput_VoltParam.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_VoltParam.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_VoltParam.Param=&VoltageParam;
 
 
@@ -325,7 +325,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_10.MenuPosition=Last;
 	MenuNodeInput_10.Title="Volt Param 10...    ";
 	MenuNodeInput_10.ItemToPrint =" Actual :           ";
-	MenuNodeInput_10.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_10.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_10.Param=&Param_10;
 
 	Param_10.Val=1.5;
@@ -343,7 +343,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_20.MenuPosition=Last;
 	MenuNodeInput_20.Title="Volt Param 20...    ";
 	MenuNodeInput_20.ItemToPrint =" Actual :           ";
-	MenuNodeInput_20.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_20.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_20.Param=&Param_20;
 
 	Param_20.Val=10.0;
@@ -361,7 +361,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_21.MenuPosition=Last;
 	MenuNodeInput_21.Title="Volt Param 21...    ";
 	MenuNodeInput_21.ItemToPrint =" Actual :           ";
-	MenuNodeInput_21.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_21.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_21.Param=&Param_21;
 
 	Param_21.Val=1.5;
@@ -379,7 +379,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_30.MenuPosition=Last;
 	MenuNodeInput_30.Title="Volt Param 30...    ";
 	MenuNodeInput_30.ItemToPrint =" Actual :           ";
-	MenuNodeInput_30.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_30.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_30.Param=&Param_30;
 
 	Param_30.Val=150;
@@ -397,7 +397,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_31.MenuPosition=Last;
 	MenuNodeInput_31.Title="Volt Param 31...    ";
 	MenuNodeInput_31.ItemToPrint =" Actual :           ";
-	MenuNodeInput_31.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_31.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_31.Param=&Param_31;
 
 	Param_31.Val=-20.0;
@@ -415,7 +415,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_32.MenuPosition=Last;
 	MenuNodeInput_32.Title="Volt Param 32...    ";
 	MenuNodeInput_32.ItemToPrint =" Actual :           ";
-	MenuNodeInput_32.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_32.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_32.Param=&Param_32;
 
 	Param_32.Val=-9.0;
@@ -481,7 +481,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_40.MenuPosition=Last;
 	MenuNodeInput_40.Title="Volt Param 40...    ";
 	MenuNodeInput_40.ItemToPrint =" Actual :           ";
-	MenuNodeInput_40.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_40.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_40.Param=&Param_40;
 
 	Param_40.Val=1000;
@@ -499,7 +499,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_41.MenuPosition=Last;
 	MenuNodeInput_41.Title="Volt Param 41...    ";
 	MenuNodeInput_41.ItemToPrint =" Actual :           ";
-	MenuNodeInput_41.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_41.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_41.Param=&Param_41;
 
 	Param_41.Val=100.0;
@@ -517,7 +517,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_42.MenuPosition=Last;
 	MenuNodeInput_42.Title="Volt Param 42...    ";
 	MenuNodeInput_42.ItemToPrint =" Actual :           ";
-	MenuNodeInput_42.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_42.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_42.Param=&Param_42;
 
 	Param_42.Val=10;
@@ -535,7 +535,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_43.MenuPosition=Last;
 	MenuNodeInput_43.Title="Volt Param 43...    ";
 	MenuNodeInput_43.ItemToPrint =" Actual :           ";
-	MenuNodeInput_43.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_43.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_43.Param=&Param_43;
 
 	Param_43.Val=1.000;
@@ -597,7 +597,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_50.MenuPosition=Last;
 	MenuNodeInput_50.Title="Volt Param 50...    ";
 	MenuNodeInput_50.ItemToPrint =" Actual :           ";
-	MenuNodeInput_50.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_50.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_50.Param=&Param_50;
 
 	Param_50.Val=1000;
@@ -615,7 +615,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_51.MenuPosition=Last;
 	MenuNodeInput_51.Title="Volt Param 51...    ";
 	MenuNodeInput_51.ItemToPrint =" Actual :           ";
-	MenuNodeInput_51.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_51.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_51.Param=&Param_51;
 
 	Param_51.Val=100.0;
@@ -632,7 +632,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_52.MenuPosition=Last;
 	MenuNodeInput_52.Title="Volt Param 52...    ";
 	MenuNodeInput_52.ItemToPrint =" Actual :           ";
-	MenuNodeInput_52.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_52.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_52.Param=&Param_52;
 
 	Param_52.Val=10;
@@ -649,7 +649,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_53.MenuPosition=Last;
 	MenuNodeInput_53.Title="Volt Param 53...    ";
 	MenuNodeInput_53.ItemToPrint =" Actual :           ";
-	MenuNodeInput_53.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_53.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_53.Param=&Param_53;
 	Param_53.Val=1.000;
 	Param_53.MinVal=-9;
@@ -711,7 +711,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_60.MenuPosition=Last;
 	MenuNodeInput_60.Title="Volt Param 60...    ";
 	MenuNodeInput_60.ItemToPrint =" Actual :           ";
-	MenuNodeInput_60.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_60.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_60.Param=&Param_60;
 
 	Param_60.Val=100000;
@@ -729,7 +729,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_61.MenuPosition=Last;
 	MenuNodeInput_61.Title="Volt Param 61...    ";
 	MenuNodeInput_61.ItemToPrint =" Actual :           ";
-	MenuNodeInput_61.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_61.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_61.Param=&Param_61;
 
 	Param_61.Val=50000;
@@ -746,7 +746,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_62.MenuPosition=Last;
 	MenuNodeInput_62.Title="Volt Param 62...    ";
 	MenuNodeInput_62.ItemToPrint =" Actual :           ";
-	MenuNodeInput_62.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_62.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_62.Param=&Param_62;
 
 	Param_62.Val=-2000;
@@ -763,7 +763,7 @@ void Menu_Node_InitDefinition(void)
 	MenuNodeInput_63.MenuPosition=Last;
 	MenuNodeInput_63.Title="Volt Param 63...    ";
 	MenuNodeInput_63.ItemToPrint =" Actual :           ";
-	MenuNodeInput_63.NodeExecFct=Menu_InputStateMachine;
+	MenuNodeInput_63.NodeExecFct=Menu_InputNumber;
 	MenuNodeInput_63.Param=&Param_63;
 	Param_63.Val=200;
 	Param_63.MinVal=-900;

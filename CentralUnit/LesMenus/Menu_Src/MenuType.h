@@ -39,7 +39,7 @@ struct Menu_Node {
 
 
 extern void Menu_PassivePrint(void);
-extern void Menu_InputStateMachine(void);
+extern void Menu_InputNumber(void);
 
 
 // Param nul
