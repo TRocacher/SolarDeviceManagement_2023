@@ -394,6 +394,11 @@
           <GroupName>Menu</GroupName>
           <Files>
             <File>
+              <FileName>UserMenu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Menu_Src\UserMenu.c</FilePath>
+            </File>
+            <File>
               <FileName>Menu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Menu_Src\Menu.c</FilePath>
@@ -810,6 +815,11 @@
         <Group>
           <GroupName>Menu</GroupName>
           <Files>
+            <File>
+              <FileName>UserMenu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Menu_Src\UserMenu.c</FilePath>
+            </File>
             <File>
               <FileName>Menu.c</FileName>
               <FileType>1</FileType>
