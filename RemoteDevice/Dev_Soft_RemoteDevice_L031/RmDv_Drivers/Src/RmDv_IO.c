@@ -1,7 +1,13 @@
-/*
- * RemoteDevice_IO.c
+/* ===============================================================================
+ * ==================    RemDev_IO.c   ===========================================
  *
- * -> configure TOUTES les IO du remote Device. La plupart sont nommée dans main.h
+ *   Created on: Jul 16, 2023
+ *   Author: trocache
+ *   Tool : CubeIDE 1.12.1, from CubeMx for initialization
+ *   Target : STM32L031
+ *  ------------------------------------------------------------------------------
+ *
+ * Configure TOUTES les IO du remote Device. La plupart sont nommée dans RmDv_IO.h
  * sauf celles de l'UART2 (PA2 et PA3)
  *      celles de l'I2C1 (PA9 et PA10)
  *      celle de l'ADC in6 (PA6)
@@ -10,44 +16,39 @@
  * -> contient le handler d'IT du BP
  *
  *
- *  Created on: Jul 3, 2022
- *      Author: trocache
- */
+ * ===============================================================================*/
 
 //!!!!!!!!!!!!!!!!!!!!!!!! mettre en OD le pilotage UART et TXcmde...
 // après avoir bricolé la carte.
 
 
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  *
-  */
-
-#include "main.h"
+#include "RmDv_IO.h"
 void RmDv_IO_Init(void)
 {
+/***************************************************************
+	définitions des structures d'initialisation
+***************************************************************/
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-
   LL_EXTI_InitTypeDef EXTI_InitStruct= {0};
 
+/***************************************************************
+  	Configurations de toutes les IO
+****************************************************************/
   /* GPIO Ports Clock Enable */
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_SetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin); // disable boost (OD actif low)
-
-  /**/
+  /*disable boost (OD actif low)*/
+  LL_GPIO_SetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin);
+  /*disable HF Transmission */
   LL_GPIO_ResetOutputPin(TxCmde_GPIO_Port, TxCmde_Pin);
-
-  /**/
+  /*disable HF Reception */
+  LL_GPIO_ResetOutputPin(RxCmde_GPIO_Port, RxCmde_Pin);
+  /*disable IR LED */
   LL_GPIO_ResetOutputPin(LED_IR_GPIO_Port, LED_IR_Pin);
 
-  /**/
-  LL_GPIO_ResetOutputPin(RxCmde_GPIO_Port, RxCmde_Pin);
 
   /* nBoost Output Open Drain (TC 3.3V) */
   GPIO_InitStruct.Pin = nBoost_En_Pin;
@@ -104,7 +105,6 @@ void RmDv_IO_Init(void)
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
   LL_GPIO_Init(CT_GPIO_Port, &GPIO_InitStruct);
-
 
 
   /* NOUVEAU user BP input pull up + conf EXTI IT (TC 3,3V)*/
