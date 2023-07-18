@@ -1,12 +1,47 @@
+/* Règle commentaires encadrés*/
 
+/* Entête de fichier*/
+
+/* =================================================================================
+* ==================   Nom Fichier.c	     ===================================
+ *
+ *   Created on:
+ *   Author:
+ *   Tool :
+ *   Target :
+ *  ------------------------------------------------------------------------------
+ *
+ *
+* =================================================================================*/
+
+
+/* Entête de fonction*/
+/*______________________________________________________________________________
+*_______________________ Nom fonction	________________________________________
+ *
+ *   Rôle:
+ *   Appelant :
+ *   Appelés :
+ *   Param :
+ *
+ *
+ *
+* __________________________________________________________________________________*/
+
+
+/* Commentaire fonction */
+/***************************************************************
+		blabla
+***************************************************************/
 
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "RmDv_IO.h"
-#include "RmDv_RT606FSK.h"
-#include "RmDv_Boost.h"
-#include "RmDv_TelecoIR.h"
+
+#include "../../RmDv_Services/Inc/RmDv_Boost.h"
+#include "../../RmDv_Services/Inc/RmDv_IO.h"
+#include "../../RmDv_Services/Inc/RmDv_RT606FSK.h"
+#include "../../RmDv_Services/Inc/RmDv_TelecoIR.h"
 
 
 
@@ -26,7 +61,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_I2C1_Init(void);
+
 
 
 
@@ -44,8 +79,7 @@ int main(void)
   SystemClock_Config();
   /* Conf all IO */
   RmDv_IO_Init();
-  /* Conf I2C1 */
-  MX_I2C1_Init();
+
 
 
 
@@ -126,42 +160,7 @@ void SystemClock_Config(void)
 
 
 
-/***************************************************************
-		I2C1
-***************************************************************/
-static void MX_I2C1_Init(void)
-{
 
-  LL_I2C_InitTypeDef I2C_InitStruct = {0};
-  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-
-  /**I2C1 GPIO Configuration voir RmDv_IO.c
-  PA9   ------> I2C1_SCL
-  PA10   ------> I2C1_SDA
-  */
-
-  /* Peripheral clock enable */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
-
-  /* USER CODE BEGIN I2C1_Init 1 */
-
-  /* USER CODE END I2C1_Init 1 */
-  /** I2C Initialization
-  */
-  LL_I2C_EnableAutoEndMode(I2C1);
-  LL_I2C_DisableOwnAddress2(I2C1);
-  LL_I2C_DisableGeneralCall(I2C1);
-  LL_I2C_EnableClockStretching(I2C1);
-  I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
-  I2C_InitStruct.Timing = 0x00506682;
-  I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
-  I2C_InitStruct.DigitalFilter = 0;
-  I2C_InitStruct.OwnAddress1 = 0;
-  I2C_InitStruct.TypeAcknowledge = LL_I2C_ACK;
-  I2C_InitStruct.OwnAddrSize = LL_I2C_OWNADDRESS1_7BIT;
-  LL_I2C_Init(I2C1, &I2C_InitStruct);
-  LL_I2C_SetOwnAddress2(I2C1, 0, LL_I2C_OWNADDRESS2_NOMASK);
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.
