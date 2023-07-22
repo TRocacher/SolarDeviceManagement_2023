@@ -39,15 +39,6 @@ void RmDv_IO_Init(void)
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
 
-  /**/
-  /*disable boost (OD actif low)*/
-  LL_GPIO_SetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin);
-  /*disable HF Transmission */
-  LL_GPIO_ResetOutputPin(TxCmde_GPIO_Port, TxCmde_Pin);
-  /*disable HF Reception */
-  LL_GPIO_ResetOutputPin(RxCmde_GPIO_Port, RxCmde_Pin);
-  /*disable IR LED */
-  LL_GPIO_ResetOutputPin(LED_IR_GPIO_Port, LED_IR_Pin);
 
 
   /* nBoost Output Open Drain (TC 3.3V) */
@@ -58,7 +49,7 @@ void RmDv_IO_Init(void)
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(nBoost_En_GPIO_Port, &GPIO_InitStruct);
 
-  /*Carrier Detecte CD  input floating (TC 3.3V protégé par R1 100k)  */
+  /*Carrier Detect CD  input floating (TC 3.3V protégé par R1 100k)  */
   GPIO_InitStruct.Pin = CD_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
@@ -169,6 +160,22 @@ void RmDv_IO_Init(void)
   GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+
+  /***************************************************************
+    	Niveaux sorties par défaut
+  ****************************************************************/
+
+
+  /*disable boost (OD actif low)*/
+  LL_GPIO_SetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin);
+  /*disable HF Transmission */
+  LL_GPIO_ResetOutputPin(TxCmde_GPIO_Port, TxCmde_Pin);
+  /*disable HF Reception */
+  LL_GPIO_ResetOutputPin(RxCmde_GPIO_Port, RxCmde_Pin);
+  /*disable IR LED */
+  LL_GPIO_ResetOutputPin(LED_IR_GPIO_Port, LED_IR_Pin);
+
 
 }
 

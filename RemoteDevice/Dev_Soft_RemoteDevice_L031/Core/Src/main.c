@@ -38,10 +38,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-#include "../../RmDv_Services/Inc/RmDv_Boost.h"
-#include "../../RmDv_Services/Inc/RmDv_IO.h"
-#include "../../RmDv_Services/Inc/RmDv_RT606FSK.h"
-#include "../../RmDv_Services/Inc/RmDv_TelecoIR.h"
+#include "RmDv_Boost.h"
+#include "RmDv_IO.h"
+#include "RmDv_RT606FSK.h"
+#include "RmDv_TelecoIR.h"
 
 
 
@@ -80,6 +80,8 @@ int main(void)
   /* Conf all IO */
   RmDv_IO_Init();
 
+ /* check I2C*/
+  ADT7410_Init();
 
 
 

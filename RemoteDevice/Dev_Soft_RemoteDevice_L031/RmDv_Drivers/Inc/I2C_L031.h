@@ -11,8 +11,8 @@
 
 * =================================================================================*/
 
-#ifndef INC_MYL031_I2C_H_
-#define INC_MYL031_I2C_H_
+#ifndef INC_I2C_L031_H_
+#define INC_I2C_L031_H_
 
 #include "RmDv_IO.h"
 
@@ -20,14 +20,16 @@
 typedef struct
 {
 	char SlaveAdress7bits;  /* Adresse du composant I2C */
-	char WordAdress;  			/* Adresse interne du composant où lire-écrire */
-	char * Ptr_Data;				/* Adresse du tableau de données à transmettre ou  recevoir */
-	char Nb_Data;						/* Nbre de données à transmettre-recevoir */
+	uint8_t * Ptr_Data;		/* Adresse du tableau de données à transmettre ou  recevoir
+	 	 	 	 	 	 	 NB : le premier élément est le Word Adress (adresse d'écriture
+	 	 	 	 	 	 	 /lecture interne du slave. Le reste sont les données brutes*/
+	uint8_t Nb_Data;			/* Nbre de données à transmettre-recevoir */
 }
 I2C_RecSendData_Typedef;
 
 
-void MyL031_I2C_Init(I2C_TypeDef * I2Cx);
-void MyL031_I2C_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend);
+void I2C_L031_Init(I2C_TypeDef * I2Cx);
+void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend);
+void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToReceive);
 
-#endif /* INC_MYL031_I2C_H_ */
+#endif /* INC_I2C_L031_H_ */

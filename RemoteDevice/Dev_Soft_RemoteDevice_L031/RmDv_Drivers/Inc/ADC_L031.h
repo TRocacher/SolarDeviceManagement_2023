@@ -11,12 +11,12 @@
 
 * =================================================================================*/
 
-#ifndef INC_MYL031_ADC_H_
-#define INC_MYL031_ADC_H_
+#ifndef INC_ADC_L031_H_
+#define INC_ADC_L031_H_
 
 #include "main.h"
 void MX_ADC_Init(void);
 
 
 
-#endif /* INC_MYL031_ADC_H_ */
+#endif /* INC_ADC_L031_H_ */
