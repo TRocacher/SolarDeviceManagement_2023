@@ -49,34 +49,34 @@ void I2C_L031_Init(I2C_TypeDef * I2Cx)
 	/*I2C_CR1_DNF=0000b Invalidation filtre numérique */
 #ifdef DMA
 	I2Cx->CR1 =I2C_CR1_RXDMAEN|I2C_CR1_TXDMAEN; /*Rx/Tx DMA enable */
-#endif
-	I2Cx->CR1 |=I2C_CR1_PE; /* Enable I2C */
 
-
-#ifdef DMA
 	/*************************************************
-	**  	Préparation DMA :DMA1 channel 6         **
-	**  	en émission, channel 7 en réception 	**
+	**  	Préparation DMA :DMA1 channel 2         **
+	**  	en émission, channel 3 en réception 	**
 	*************************************************/
 	/* Préparation DMA :DMA1 channel 6 en émission, channel 7 en réception */
 	RCC->AHBENR|= RCC_AHBENR_DMA1EN; /* Activation Clk DMA1*/
-	DMA1_Channel6->CCR=0; /* init à 0 par défaut */
-	//DMA1_Channel6->CCR &=~DMA_CCR_PSIZE;
-	//DMA1_Channel6->CCR &=~DMA_CCR_MSIZE;
-	//DMA1_Channel6->CCR&=~DMA_CCR_PINC;
-	//DMA1_Channel6->CCR&=~DMA_CCR_CIRC;/* Réglage du mode circulaire : non circulaire */
-	DMA1_Channel7->CCR=0; /* init à 0 par défaut */
-	//DMA1_Channel7->CCR &=~DMA_CCR_PSIZE;
-	//DMA1_Channel7->CCR &=~DMA_CCR_MSIZE;
-	//DMA1_Channel7->CCR&=~DMA_CCR_PINC;
-	//DMA1_Channel7->CCR&=~DMA_CCR_CIRC;
-	//DMA1_Channel7->CCR&=~DMA_CCR_DIR;		/* 	 I2C vers Buffer (lecture) */
-	DMA1_Channel6->CPAR=(uint32_t)&I2Cx->TXDR; /* Affectation @ périphérique : celle de TxDR */
-	DMA1_Channel7->CPAR=(uint32_t)&I2Cx->RXDR; /* Affectation @ périphérique : celle de RxDR */
-	DMA1_Channel6->CCR|=DMA_CCR_MINC;			/* Réglage de l'incrémentation côté buffer RAM : +1 */
-	DMA1_Channel7->CCR|=DMA_CCR_MINC;
-	DMA1_Channel6->CCR|=DMA_CCR_DIR;		/* Réglage du sens DMA 	: Buffer vers I2C (écriture) */
+	DMA1_CSELR->CSELR|=6<<4|6<<8; /* sélection de I2C1 Tx sur channel 2 DMA
+	 	 	 	 	 	 	 	 	 	 	 	 et I2C1 Rx sur channel 3 DMA */
+	DMA1_Channel2->CCR=0; /* init à 0 par défaut */
+	//DMA1_Channel2->CCR &=~DMA_CCR_PSIZE;
+	//DMA1_Channel2->CCR &=~DMA_CCR_MSIZE;
+	//DMA1_Channel2->CCR&=~DMA_CCR_PINC;
+	//DMA1_Channel2->CCR&=~DMA_CCR_CIRC;/* Réglage du mode circulaire : non circulaire */
+	DMA1_Channel3->CCR=0; /* init à 0 par défaut */
+	//DMA1_Channel3->CCR &=~DMA_CCR_PSIZE;
+	//DMA1_Channel3->CCR &=~DMA_CCR_MSIZE;
+	//DMA1_Channel3->CCR&=~DMA_CCR_PINC;
+	//DMA1_Channel3->CCR&=~DMA_CCR_CIRC;
+	//DMA1_Channel3->CCR&=~DMA_CCR_DIR;		/* 	 I2C vers Buffer (lecture) */
+	DMA1_Channel2->CPAR=(uint32_t)&I2Cx->TXDR; /* Affectation @ périphérique : celle de TxDR */
+	DMA1_Channel3->CPAR=(uint32_t)&I2Cx->RXDR; /* Affectation @ périphérique : celle de RxDR */
+	DMA1_Channel2->CCR|=DMA_CCR_MINC;			/* Réglage de l'incrémentation côté buffer RAM : +1 */
+	DMA1_Channel3->CCR|=DMA_CCR_MINC;
+	DMA1_Channel2->CCR|=DMA_CCR_DIR;		/* Réglage du sens DMA 	: Buffer vers I2C (écriture) */
+
 #endif
+	I2Cx->CR1 |=I2C_CR1_PE; /* Enable I2C */
 }
 
 
@@ -99,9 +99,9 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	**  	PHASE 0 :  PREPARATION				   	**
 	*************************************************/
 	I2C_L031_Ptr_Data=DataToSend->Ptr_Data;
-	I2C_L031_NByte=(DataToSend->Nb_Data)+1;  /* on passe tout y compris WordAdress donc +1
+	I2C_L031_NByte=(DataToSend->Nb_Data);  /* on passe tout y compris WordAdress */
 
-	I2Cx->ICR=0xFF; /* Clear all flags */////////////////////////////// check
+	I2Cx->ICR=0x3F<<8|0x7<<3; /* tous les flags sont resetés*/
 	I2Cx->CR2=0; /* Clear CR2 par défaut*/
 	/*I2C_CR2_RELOAD=0  Nécessaire si nbre de bytes < 255 */
 	/*I2C_CR2_RD_WRN=0 Write acces */
@@ -110,6 +110,14 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	 	 	 	 	 	 	 	 	 	 	  avec un déclage de 1 (SADD[0] = don't care*/
 	I2Cx->CR2|=I2C_L031_NByte<<I2C_CR2_NBYTES_Pos;  /*réglage du nbre de bytes à envoyer avant stop
 	 	 	 	 	 	 	 	 	 	 	 	 	 Word Adress compris*/
+
+#ifdef DMA
+	DMA1_Channel2->CCR &=~DMA_CCR_EN;					/* Blocage DMA pour configuration */
+	DMA1_Channel2->CMAR=(uint32_t)I2C_L031_Ptr_Data;	/* Affectation adresse buffer */
+	DMA1_Channel2->CNDTR=I2C_L031_NByte;			/* réglage nombre d'octets à lire */
+	DMA1_Channel2->CCR|=DMA_CCR_EN;						/* Démarrage DMA */
+#endif
+
 
 
 
@@ -122,6 +130,11 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	/*************************************************
 	**  	PHASE 2 : ECRITURE Data				**
 	*************************************************/
+
+
+
+
+#ifndef DMA /* Scrutation */
 	while (I2C_L031_NByte!=0)
 	{
 		while ((I2Cx->ISR&I2C_ISR_TXIS)==0); /* attendre la levée de flag pour émettre*/
@@ -129,14 +142,6 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 		(I2C_L031_Ptr_Data)++;
 		I2C_L031_NByte--;
 	}
-
-#ifdef DMA
-	DMA1_Channel6->CCR &=~DMA_CCR_EN;					/* Blocage DMA pour configuration */
-	DMA1_Channel6->CMAR=(uint32_t)DataToSend->Ptr_Data;	/* Affectation adresse buffer */
-	DMA1_Channel6->CNDTR=DataToSend->Nb_Data;			/* réglage nombre d'octets à lire */
-	DMA1_Channel6->CCR|=DMA_CCR_EN;						/* Démarrage DMA */
-	while ((DMA1->ISR&DMA_ISR_TCIF6)==0);				/* Attente DMA full */
-	DMA1->IFCR|=DMA_IFCR_CTCIF6;						/* Effacement Flag DMA full */
 #endif
 
 
@@ -144,6 +149,10 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	**  	PHASE 3 : Fermeture communication		**
 	*************************************************/
 	/* Génération condition stop automatique AUTOEND = 1  */
+#ifdef DMA
+	while ((DMA1->ISR&DMA_ISR_TCIF2)==0);				/* Attente DMA full */
+	DMA1->IFCR|=DMA_IFCR_CTCIF2;						/* Effacement Flag DMA full */
+#endif
 }
 
 
@@ -165,9 +174,9 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	**  	PHASE 0 :  PREPARATION				   	**
 	*************************************************/
 	I2C_L031_Ptr_Data=DataToReceive->Ptr_Data;
-	I2C_L031_NByte=(DataToReceive->Nb_Data);  /* on ne passera en boucle que les data */
+	I2C_L031_NByte=(DataToReceive->Nb_Data)-1;  /* on ne passera en boucle que les data */
 
-	I2Cx->ICR|=I2C_ICR_STOPCF; /* Clear all flags *//////////////
+	I2Cx->ICR=0x3F<<8|0x7<<3; /* tous les flags sont resetés*/
 	I2Cx->CR2=0; /* Clear CR2 par défaut*/
 	/*I2C_CR2_RELOAD=0  Nécessaire si nbre de bytes < 255 */
 	/*I2C_CR2_RD_WRN=0 Write acces */
@@ -189,9 +198,19 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	while ((I2Cx->ISR&I2C_ISR_TC)==0); /* attendre la fin d'émission, Nbyte, (=1 ici)*/
 	/* préparation lecture*/
 	I2Cx->CR2|=I2C_CR2_AUTOEND; /* La condition de stop sera générée après les n bytes transmis  */
-	I2Cx->CR2|=I2C_L031_NByte<<I2C_CR2_NBYTES_Pos;  /*réglage du nbre de bytes à envoyer avant stop */
+	I2Cx->CR2|=(I2C_L031_NByte)<<I2C_CR2_NBYTES_Pos;  /*réglage du nbre de bytes à envoyer avant stop */
 	I2Cx->CR2|=I2C_CR2_RD_WRN; /*read acces */
 	I2C_L031_Ptr_Data++; /* positionnement pointeur sur les data (on saute WordAdress)*/
+
+
+#ifdef DMA
+	DMA1_Channel3->CCR &=~DMA_CCR_EN;					/* Blocage DMA pour configuration */
+	DMA1_Channel3->CMAR=(uint32_t)(I2C_L031_Ptr_Data);	/* Affectation adresse buffer
+	 	 	 	 	 	 	 	 	 	 	 	 	 	 décalé de 1 pour laisser WordAdr*/
+	DMA1_Channel3->CNDTR=I2C_L031_NByte;		/* réglage nombre d'octets à lire */
+	DMA1_Channel3->CCR|=DMA_CCR_EN;						/* Démarrage DMA */
+#endif
+
 
 	I2Cx->CR2|=I2C_CR2_START; /* ReStart cond. après avoir testé l'acces*/
 
@@ -199,6 +218,14 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	**  	PHASE 3 : LECTURE  de Nb_Data  **
 	*****************************************/
 
+
+
+#ifdef DMA
+	while ((DMA1->ISR&DMA_ISR_TCIF3)==0);				/* Attente DMA full */
+	DMA1->IFCR|=DMA_IFCR_CTCIF3;						/* Effacement Flag DMA full */
+#endif
+
+#ifndef DMA /* Scrutation */
 	while (I2C_L031_NByte!=0)
 	{
 		while ((I2Cx->ISR&I2C_ISR_RXNE)==0); /* attendre la levée de flag pour émettre*/
@@ -206,17 +233,6 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 		I2C_L031_Ptr_Data++;
 		I2C_L031_NByte--;
 	}
-
-
-
-#ifdef DMA
-	DMA1_Channel7->CCR &=~DMA_CCR_EN;					/* Blocage DMA pour configuration */
-	DMA1_Channel7->CMAR=(uint32_t)((DataToReceive->Ptr_Data)+1);	/* Affectation adresse buffer
-	 	 	 	 	 	 	 	 	 	 	 	 	 	 décalé de 1 pour laisser WordAdr*/
-	DMA1_Channel7->CNDTR=DataToReceive->Nb_Data;		/* réglage nombre d'octets à lire */
-	DMA1_Channel7->CCR|=DMA_CCR_EN;						/* Démarrage DMA */
-	while ((DMA1->ISR&DMA_ISR_TCIF7)==0);				/* Attente DMA full */
-	DMA1->IFCR|=DMA_IFCR_CTCIF7;						/* Effacement Flag DMA full */
 #endif
 
 

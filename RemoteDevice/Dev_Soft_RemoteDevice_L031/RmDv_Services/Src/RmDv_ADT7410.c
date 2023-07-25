@@ -29,7 +29,7 @@ void ADT7410_Init(void)
 	I2C_Data_Struct.Nb_Data=4;
 	I2C_Data_Struct.Ptr_Data=data;
 	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
-	data[0]=0;
+	data[0]=0; // Word Adress
 	data[1]=0xA1;
 	data[2]=0xB2;
 	data[3]=0xC3;

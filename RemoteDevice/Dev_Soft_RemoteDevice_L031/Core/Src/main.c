@@ -41,6 +41,9 @@
 #include "RmDv_ADT7410.h"
 #include "RmDv_Boost.h"
 #include "RmDv_IO.h"
+#include "FctDiverses.h"
+
+
 #include "RmDv_RT606FSK.h"
 #include "RmDv_TelecoIR.h"
 
@@ -83,6 +86,7 @@ int main(void)
   /* Alimentation 3,3V pour ADT7410, OPAmp µphone, OpAmp LED IR Xbee (si câblé)
    * Alimentation 5V pour RT606 (FSK, si câblé) */
   RmDv_EnableBoost;
+  Delay_x_ms(10); /* attendre 10ms pour que le ADT7410 se réveille*/
   /* check I2C*/
   ADT7410_Init();
 
@@ -107,7 +111,7 @@ while(1)
 * ===============================================================================*/
 
 /***************************************************************
-		Clock
+		Clock Sysclk = 24MHz
 ***************************************************************/
 void SystemClock_Config(void)
 {
