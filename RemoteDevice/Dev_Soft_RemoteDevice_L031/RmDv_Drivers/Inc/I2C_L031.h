@@ -23,7 +23,11 @@ typedef struct
 	uint8_t * Ptr_Data;		/* Adresse du tableau de données à transmettre ou  recevoir
 	 	 	 	 	 	 	 NB : le premier élément est le Word Adress (adresse d'écriture
 	 	 	 	 	 	 	 /lecture interne du slave. Le reste sont les données brutes*/
-	uint8_t Nb_Data;			/* Nbre de données à transmettre-recevoir */
+	uint8_t Nb_Data;		/* Nbre de données à transmettre-recevoir
+	 	 	 	 	 	 	 NB ne compte pas Word Adress ! */
+	/*Exemple
+	 * Data[4] = 0xAA, 0x1A, 0x2A, 0x3B  : 0xAA est le word Adress, le reste les données
+	 * Nb_Data doit être égal à 3*/
 }
 I2C_RecSendData_Typedef;
 

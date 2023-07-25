@@ -19,7 +19,7 @@
 
 I2C_RecSendData_Typedef I2C_Data_Struct;
 
-uint8_t data[4]="0123"; // test
+uint8_t data[4];
 
 // on shot mode, 16bits data format
 void ADT7410_Init(void)
@@ -29,8 +29,10 @@ void ADT7410_Init(void)
 	I2C_Data_Struct.Nb_Data=4;
 	I2C_Data_Struct.Ptr_Data=data;
 	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
-
-
+	data[0]=0;
+	data[1]=0xA1;
+	data[2]=0xB2;
+	data[3]=0xC3;
 
 	uint8_t ConfRegVal;
 	ConfRegVal=ConfReg_Reso_16;
@@ -43,9 +45,9 @@ void ADT7410_Init(void)
 
 	I2C_L031_PutString(I2C1,&I2C_Data_Struct);
 	// relecture pour voir
-	data[1]=0xAA;
-	data[2]=0xBB;
-	data[3]=0xCC;
+	data[1]=0xDD;
+	data[2]=0xEE;
+	data[3]=0xAA;
 	I2C_L031_GetString(I2C1, &I2C_Data_Struct);
 
 }

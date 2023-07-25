@@ -38,6 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+#include "RmDv_ADT7410.h"
 #include "RmDv_Boost.h"
 #include "RmDv_IO.h"
 #include "RmDv_RT606FSK.h"
@@ -79,8 +80,10 @@ int main(void)
   SystemClock_Config();
   /* Conf all IO */
   RmDv_IO_Init();
-
- /* check I2C*/
+  /* Alimentation 3,3V pour ADT7410, OPAmp µphone, OpAmp LED IR Xbee (si câblé)
+   * Alimentation 5V pour RT606 (FSK, si câblé) */
+  RmDv_EnableBoost;
+  /* check I2C*/
   ADT7410_Init();
 
 
