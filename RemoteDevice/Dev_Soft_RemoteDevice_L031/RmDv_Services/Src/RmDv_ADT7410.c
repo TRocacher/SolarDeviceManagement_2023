@@ -13,7 +13,7 @@
 
 
 
-
+#include "FctDiverses.h"
 #include "RmDv_ADT7410.h"
 
 
@@ -25,30 +25,38 @@ uint8_t data[4];
 void ADT7410_Init(void)
 {
 	I2C_L031_Init(I2C1);
-
+/*
 	I2C_Data_Struct.Nb_Data=4;
 	I2C_Data_Struct.Ptr_Data=data;
 	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
-	data[0]=0; // Word Adress
+	data[0]=0x4; // Word Adress
 	data[1]=0xA1;
 	data[2]=0xB2;
 	data[3]=0xC3;
+*/
 
 	uint8_t ConfRegVal;
 	ConfRegVal=ConfReg_Reso_16;
 	ConfRegVal|=ConfReg_Mode_Shutdown;
 
-	//data[0]=ConfRegAdr;
-	//data[1]=ConfRegVal;
+	data[0]=ConfRegAdr;
+	data[1]=ConfRegVal;
 
-
+	I2C_Data_Struct.Nb_Data=2;
+	I2C_Data_Struct.Ptr_Data=data;
+	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
 
 	I2C_L031_PutString(I2C1,&I2C_Data_Struct);
+
+
+
+/*
 	// relecture pour voir
 	data[1]=0xDD;
 	data[2]=0xEE;
 	data[3]=0xAA;
 	I2C_L031_GetString(I2C1, &I2C_Data_Struct);
+	*/
 
 }
 
@@ -65,15 +73,24 @@ short int ADT7410_GetTemp_fract_9_7(void)
 	data[1]=ConfRegVal;
 
 	//HAL_I2C_Master_Transmit(&hi2c1, ADT7410_Slave8bitsAdr, data,2, HAL_MAX_DELAY);
-
+	I2C_Data_Struct.Nb_Data=2;
+	I2C_Data_Struct.Ptr_Data=data;
+	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
+	I2C_L031_PutString(I2C1,&I2C_Data_Struct);
 
 	// Wait at least 240ms
-	//HAL_Delay(250);
-
+	//HAL_Delay
+	Delay_x_ms(240);
 
 	// Read temperature
 	//HAL_I2C_Mem_Read(&hi2c1, ADT7410_Slave8bitsAdr, TempHighAdr,1,data,2,HAL_MAX_DELAY);
-	ReturnValue=(data[0]<<8)+data[1];
+	data[0]=TempHighAdr;
+	I2C_Data_Struct.Nb_Data=3;
+	I2C_Data_Struct.Ptr_Data=data;
+	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
+	I2C_L031_GetString(I2C1, &I2C_Data_Struct);
+
+	ReturnValue=(data[1]<<8)+data[2];
 
 	return ReturnValue;
 

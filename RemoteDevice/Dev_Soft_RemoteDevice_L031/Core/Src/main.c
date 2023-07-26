@@ -68,7 +68,10 @@ void SystemClock_Config(void);
 
 
 
+short int Temp1_E;
+short int Temp1_F;
 
+short int Temp1;
 
 
 int main(void)
@@ -90,7 +93,9 @@ int main(void)
   /* check I2C*/
   ADT7410_Init();
 
-
+  Temp1=ADT7410_GetTemp_fract_9_7();
+  Temp1_E =Temp1>>7;
+  Temp1_F =Temp1 & 0x003F;
 
 
 while(1)

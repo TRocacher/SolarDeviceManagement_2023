@@ -22,7 +22,7 @@
 
 * =================================================================================*/
 
-//#define DMA
+#define DMA
 #include <I2C_L031.h>
 
 /*______________________________________________________________________________
@@ -43,7 +43,7 @@ void I2C_L031_Init(I2C_TypeDef * I2Cx)
 	*************************************************/
 	RCC->APB1ENR |= RCC_APB1ENR_I2C1EN; /* Activation Clk I2C1*/
 	I2Cx->CR1 &=~I2C_CR1_PE; /* Reset I2C */
-	I2Cx->TIMINGR=0x00505D8D; /* Réglage Timing, 100kHz avec CkI2C = 24MHz (valeur Cube)*/
+	I2Cx->TIMINGR=0x506682;//0x00505D8D; /* Réglage Timing, 100kHz avec CkI2C = 24MHz (valeur Cube)*/
 	I2Cx->CR1=0; /* Clear CR1 par défaut*/
 	/*I2C_CR1_ANFOFF=0 Validation filtre analogique */
 	/*I2C_CR1_DNF=0000b Invalidation filtre numérique */
