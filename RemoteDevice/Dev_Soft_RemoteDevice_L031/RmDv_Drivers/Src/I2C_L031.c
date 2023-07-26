@@ -8,34 +8,27 @@
  *  ------------------------------------------------------------------------------
  *  Directement aux registres
  *
- *  Le concept I2C sur STML031 (prérequis SDA et SCL en OD)
- *  Il existe un compteur qu'il faut charger (il ne se décrémente pas en cours de transmission)
- *  Il correspond au nombre de bytes à transmettre.
- *  Le bit AUTOEND permet de générer un stop automatiquement une fois le nombre de bytes
- *  écoulé.
+ * void I2C_L031_Init(I2C_TypeDef * I2Cx);
+ * void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend);
+ * void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToReceive);
  *
- *  Emission du start : l'adresse slave aura été programmée. Dès que l'émission a lieu
- *  					l'adresse est posée sur le bus avec attente bus libre au préalable
- *  Dès que l'adresse est acquittée, le flag TXIS passe à 1.
- *  En mode scrutation, dès que TXIS pass à 1, on envoie un octet.
- *  Dès que les octets sont passés, un stop est généré.
+ * Voir commentaires fonctions pour plus de détail.
+ * La lib fonctionne en scrutation ou en DMA avec scrutation fin DMA à la fin
+ *
+ * Utiliser #define DMA ou pas selon votre choix
 
 * =================================================================================*/
 
-#define DMA
+//#define DMA
 #include <I2C_L031.h>
 
 /*______________________________________________________________________________
-*_______________________ Nom fonction	________________________________________
+*_______________________ void I2C_L031_Init_____________________________________
  *
- *   Rôle:
- *   Appelant :
- *   Appelés :
- *   Param :
- *
- *
- *
-* __________________________________________________________________________________*/
+ *   Rôle: Initialise le module I2C
+ *   Param in : I2C_TypeDef * I2Cx
+ *   Exemple : I2C_L031_Init(I2C1);
+ *_______________________________________________________________________________*/
 void I2C_L031_Init(I2C_TypeDef * I2Cx)
 {
 	/*************************************************
@@ -43,7 +36,7 @@ void I2C_L031_Init(I2C_TypeDef * I2Cx)
 	*************************************************/
 	RCC->APB1ENR |= RCC_APB1ENR_I2C1EN; /* Activation Clk I2C1*/
 	I2Cx->CR1 &=~I2C_CR1_PE; /* Reset I2C */
-	I2Cx->TIMINGR=0x506682;//0x00505D8D; /* Réglage Timing, 100kHz avec CkI2C = 24MHz (valeur Cube)*/
+	I2Cx->TIMINGR=0x00505D8D; /* Réglage Timing, 100kHz avec CkI2C = 24MHz (valeur Cube)*/
 	I2Cx->CR1=0; /* Clear CR1 par défaut*/
 	/*I2C_CR1_ANFOFF=0 Validation filtre analogique */
 	/*I2C_CR1_DNF=0000b Invalidation filtre numérique */
@@ -81,15 +74,24 @@ void I2C_L031_Init(I2C_TypeDef * I2Cx)
 
 
 /*______________________________________________________________________________
-*_______________________ Nom fonction	________________________________________
+*_______________________ I2C_L031_PutString_____________________________________
  *
- *   Rôle:
- *   Appelant :
- *   Appelés :
- *   Param :
+ *   Rôle: Envoie une série d'octets vers un composant I2C slave d'@ donnée,
+ *   et à partir d'une adresse interne (Word Adress) au composant.
+ *   L'adresse d'un tableau contenant la châine est donnée. Ce tableau contient au
+ *   minimum deux octets : la Word Adress et la donnée à y mettre (au moins une).
  *
- *
- *
+ *   Param in : I2C_TypeDef * I2Cx
+ *   			I2C_RecSendData_Typedef * DataToSend (voir définition .h)
+ *   				* Adresse du composant I2C
+ *   				* Ptr sur la table de données (contenant la word Adress au début)
+ *   				* Nbre de donnée de la table (incluant la word adress), min 2.
+
+ *   Exemple : 	I2C_Data_Struct.Nb_Data=2;
+				I2C_Data_Struct.Ptr_Data=data;
+				I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
+
+				I2C_L031_PutString(I2C1,&I2C_Data_Struct);
 * __________________________________________________________________________________*/
 char I2C_L031_NByte;
 uint8_t * I2C_L031_Ptr_Data;
@@ -100,7 +102,6 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	*************************************************/
 	I2C_L031_Ptr_Data=DataToSend->Ptr_Data;
 	I2C_L031_NByte=(DataToSend->Nb_Data);  /* on passe tout y compris WordAdress */
-
 	I2Cx->ICR=0x3F<<8|0x7<<3; /* tous les flags sont resetés*/
 	I2Cx->CR2=0; /* Clear CR2 par défaut*/
 	/*I2C_CR2_RELOAD=0  Nécessaire si nbre de bytes < 255 */
@@ -118,9 +119,6 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	DMA1_Channel2->CCR|=DMA_CCR_EN;						/* Démarrage DMA */
 #endif
 
-
-
-
 	/*************************************************
 	**  	PHASE 1 :  I2C Adressing			   	**
 	*************************************************/
@@ -130,10 +128,6 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	/*************************************************
 	**  	PHASE 2 : ECRITURE Data				**
 	*************************************************/
-
-
-
-
 #ifndef DMA /* Scrutation */
 	while (I2C_L031_NByte!=0)
 	{
@@ -143,7 +137,6 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 		I2C_L031_NByte--;
 	}
 #endif
-
 
 	/*************************************************
 	**  	PHASE 3 : Fermeture communication		**
@@ -158,15 +151,27 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 
 
 /*______________________________________________________________________________
-*_______________________ Nom fonction	________________________________________
+*_______________________ I2C_L031_GetString_____________________________________
  *
- *   Rôle:
- *   Appelant :
- *   Appelés :
- *   Param :
+ *   Rôle: Lit une série d'octets à partir d'un composant I2C slave d'@ donnée,
+ *   et à partir d'une adresse interne (Word Adress) au composant.
+ *   L'adresse d'un tableau contenant la chaîne est donnée. Ce tableau contient au
+ *   minimum deux octets : la Word Adress et la donnée à lire (au moins une).
+ *   Le procédé se déroule en deux étapes :
+ *   - une écriture de la WordAdress
+ *   - une lecture ensuivant via un restart
  *
- *
- *
+ *   Param in : I2C_TypeDef * I2Cx
+ *   			I2C_RecSendData_Typedef * DataToReceive (voir définition .h)
+ *   				* Adresse du composant I2C
+ *   				* Ptr sur la table de données (contenant la word Adress au début)
+ *   				* Nbre de donnée de la table (incluant la word adress), min 2.
+
+ *   Exemple : 		data[0]=TempHighAdr;
+					I2C_Data_Struct.Nb_Data=3;
+					I2C_Data_Struct.Ptr_Data=data;
+					I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
+					I2C_L031_GetString(I2C1, &I2C_Data_Struct);
 * __________________________________________________________________________________*/
 void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToReceive)
 {
@@ -175,7 +180,6 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	*************************************************/
 	I2C_L031_Ptr_Data=DataToReceive->Ptr_Data;
 	I2C_L031_NByte=(DataToReceive->Nb_Data)-1;  /* on ne passera en boucle que les data */
-
 	I2Cx->ICR=0x3F<<8|0x7<<3; /* tous les flags sont resetés*/
 	I2Cx->CR2=0; /* Clear CR2 par défaut*/
 	/*I2C_CR2_RELOAD=0  Nécessaire si nbre de bytes < 255 */
@@ -217,8 +221,6 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	/****************************************
 	**  	PHASE 3 : LECTURE  de Nb_Data  **
 	*****************************************/
-
-
 
 #ifdef DMA
 	while ((DMA1->ISR&DMA_ISR_TCIF3)==0);				/* Attente DMA full */

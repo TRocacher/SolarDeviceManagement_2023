@@ -20,9 +20,8 @@
 *_______________________ Nom fonction	________________________________________
  *
  *   Rôle:
- *   Appelant :
- *   Appelés :
  *   Param :
+ *   Exemple :
  *
  *
  *
@@ -68,10 +67,9 @@ void SystemClock_Config(void);
 
 
 
-short int Temp1_E;
-short int Temp1_F;
-
 short int Temp1;
+float Temperature;
+
 
 
 int main(void)
@@ -91,11 +89,14 @@ int main(void)
   RmDv_EnableBoost;
   Delay_x_ms(10); /* attendre 10ms pour que le ADT7410 se réveille*/
   /* check I2C*/
+//  ADT7410_Init();
+while(1)
+{
   ADT7410_Init();
-
   Temp1=ADT7410_GetTemp_fract_9_7();
-  Temp1_E =Temp1>>7;
-  Temp1_F =Temp1 & 0x003F;
+  Temperature=((float)Temp1)/128.0;
+
+}
 
 
 while(1)
