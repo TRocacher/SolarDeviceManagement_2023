@@ -44,22 +44,9 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 
 // longueur max des chaïnes
 #define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantité de data (dont Src@ et Dest @) est donc de 28 octets
-#define StringLenMin 7    // Len + Src@ + Dest@ + 4 octets Data + Checksum| (4 octets data seront typiquement ID + Type_LenData + 1 data + Trial )
+#define StringLenMin 5    // Len + Src@ + Dest@ + 1 octet Data + Checksum| 
 
 
-/*---------------------------------
- états possibles de la FSM
-----------------------------------*/
-
-typedef enum {
-	Init,
-	WaitForHeader,
-	ReadingFrame,
-	CheckSum,
-	UpdateMssgForMAC,
-	Framing,
-	SendMssg
-}PhyUART_FSM_StateType;
 
 
 // les valeurs possibles de Status

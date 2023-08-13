@@ -77,26 +77,33 @@ int main(void)
 /***************************************************************
 		Configurations générales
 ***************************************************************/
-  /* Init clock */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
   NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
   SystemClock_Config();
-  /* Conf all IO */
+
+  /***************************************************************
+  		Configurations I/O Remote Device
+  ***************************************************************/
   RmDv_IO_Init();
-  /* Alimentation 3,3V pour ADT7410, OPAmp µphone, OpAmp LED IR Xbee (si câblé)
-   * Alimentation 5V pour RT606 (FSK, si câblé) */
+
+  /***************************************************************
+  		Activation Boost 3V -> 5V -> 3,3V
+  		-> Alimentation 3,3V pour ADT7410, OPAmp µphone,
+  		OpAmp LED IR Xbee (si câblé)
+  		-> Alimentation 5V pour RT606 (FSK, si câblé)
+  ***************************************************************/
   RmDv_EnableBoost;
   Delay_x_ms(10); /* attendre 10ms pour que le ADT7410 se réveille*/
-  /* check I2C*/
-//  ADT7410_Init();
-while(1)
-{
+
+  /***************************************************************
+  		Mesure température
+  ***************************************************************/
   ADT7410_Init();
   Temp1=ADT7410_GetTemp_fract_9_7();
   Temperature=((float)Temp1)/128.0;
 
-}
+
 
 
 while(1)
