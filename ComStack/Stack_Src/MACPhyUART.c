@@ -1,13 +1,21 @@
-#include "stm32f10x.h"
-#include "FSK_F103.h"
+
 #include "MACPhyUART.h"
-#include "Timer_F103.h"
-#include "FctDiverses.h"
+
 
 
 #define MyDebug
 #define Log
 
+
+/*
+Architecture du module :
+-> Variables globales du module
+-> Gestion du temps par Systick (TimeOut)
+-> API COUCHE MAC
+-> USART Callback
+-> FSM PhyUART (réception/émission)
+-> API COUCHE PHY UART (utilisation déconseillée, préférer API couche MAC)
+*/
 
 //**************************************************************************************************************
 //**************************************************************************************************************
@@ -161,7 +169,7 @@ char PhyUART_GetTimeOut_Status(void)
 // ---< Ajout MAC >-----//
 //**************************************************************************************************************
 //**************************************************************************************************************
-// 							COUCHE MAC
+// 							API COUCHE MAC
 //**************************************************************************************************************
 //**************************************************************************************************************
 
@@ -665,6 +673,56 @@ switch (PhyUART_FSM_State)
 
 
 
+/*---------------------------------------------------------------------
+   void PhyUART_Framing (void)
+-----------------------------------------------------------------------*/
+void PhyUART_Framing (void)
+{
+
+	int Sum,i;
+
+	
+	Phy_UART_TransmFrameLen=PhyUART_Mssg.LenStrToSend+2; // ajout de l'octet qui est la longueur + octet checksum
+	// Encapsulation et calcul Checksum
+	for (i=0;i<5;i++)
+	{
+		Phy_UART_TransmFrame[i]='#';
+	}
+	Phy_UART_TransmFrame[5]=Phy_UART_TransmFrameLen;
+	Sum=Phy_UART_TransmFrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
+	for (i=0;i<PhyUART_Mssg.LenStrToSend;i++)
+	{
+		Phy_UART_TransmFrame[i+6]= PhyUART_Mssg.StrToSend[i];  
+		Sum=Sum+Phy_UART_TransmFrame[i+6];
+	}
+	Phy_UART_TransmFrame[Phy_UART_TransmFrameLen+4]=(char)Sum; // insertion du checksum
+	// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7 = FrameLen+5	
+}
+
+
+/*---------------------------------------------------------------------
+   int PhyUART_SendNewMssg (char * AdrString, int Len)
+-----------------------------------------------------------------------*/
+int PhyUART_SendNewMssg (char * AdrString, int Len)
+{
+	int i;
+	if (Len>StringLenMax-2) // longueur trop grande, l'envoie ne se fait pas.
+	{
+		return -1;
+	}
+	else
+	{
+		for (i=0;i<Len;i++)
+		{
+			PhyUART_Mssg.StrToSend[i]=*AdrString;
+			AdrString++;
+		}
+		PhyUART_Mssg.LenStrToSend=Len;
+		PhyUART_Mssg.NewStrToSend=1;
+		return 0;
+	}
+}
+
 
 
 
@@ -686,7 +744,7 @@ switch (PhyUART_FSM_State)
 
 //**************************************************************************************************************
 //**************************************************************************************************************
-// 							COUCHE PHY UART
+// 							API COUCHE PHY UART
 //**************************************************************************************************************
 //**************************************************************************************************************
 
@@ -721,9 +779,11 @@ void PhyUART_Init(void)
 	
 	// mise en place interruption
 	MyTimer_CkEnable(TIM_PhyUART_FSM);
-	MyTimer_Set_Period(TIM_PhyUART_FSM, 500*72-1, 2-1 ); // période par défaut 1ms
+	MyTimer_Set_Period(TIM_PhyUART_FSM, 1000*72-1, 2-1 ); // période par défaut 1ms !!!!!!! 500 de base
 	MyTimer_IT_Enable( TIM_PhyUART_FSM, PhyUART_FSM_Prio, PhyUART_FSM_Progress);
 	
+	// Lancement Systick pour gestion TimeOut
+	SystickStart();
 	
 #ifdef MyDebug	
 	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;
@@ -800,56 +860,6 @@ int  PhyUART_GetNewMssg (char * AdrString, int Len)
 			AdrString++;
 		}
 		return 0;		
-	}
-}
-
-/*---------------------------------------------------------------------
-   void PhyUART_Framing (void)
------------------------------------------------------------------------*/
-void PhyUART_Framing (void)
-{
-
-	int Sum,i;
-
-	
-	Phy_UART_TransmFrameLen=PhyUART_Mssg.LenStrToSend+2; // ajout de l'octet qui est la longueur + octet checksum
-	// Encapsulation et calcul Checksum
-	for (i=0;i<5;i++)
-	{
-		Phy_UART_TransmFrame[i]='#';
-	}
-	Phy_UART_TransmFrame[5]=Phy_UART_TransmFrameLen;
-	Sum=Phy_UART_TransmFrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
-	for (i=0;i<PhyUART_Mssg.LenStrToSend;i++)
-	{
-		Phy_UART_TransmFrame[i+6]= PhyUART_Mssg.StrToSend[i];  
-		Sum=Sum+Phy_UART_TransmFrame[i+6];
-	}
-	Phy_UART_TransmFrame[Phy_UART_TransmFrameLen+4]=(char)Sum; // insertion du checksum
-	// La frame mesure donc  5 (les #)  +1 (FrameLen) + Len (les data du param) + 1 (checksum) = Len+7 = FrameLen+5	
-}
-
-
-/*---------------------------------------------------------------------
-   int PhyUART_SendNewMssg (char * AdrString, int Len)
------------------------------------------------------------------------*/
-int PhyUART_SendNewMssg (char * AdrString, int Len)
-{
-	int i;
-	if (Len>StringLenMax-2) // longueur trop grande, l'envoie ne se fait pas.
-	{
-		return -1;
-	}
-	else
-	{
-		for (i=0;i<Len;i++)
-		{
-			PhyUART_Mssg.StrToSend[i]=*AdrString;
-			AdrString++;
-		}
-		PhyUART_Mssg.LenStrToSend=Len;
-		PhyUART_Mssg.NewStrToSend=1;
-		return 0;
 	}
 }
 

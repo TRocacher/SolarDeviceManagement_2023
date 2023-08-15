@@ -4,6 +4,9 @@
 
 #include "stm32f10x.h"
 
+#include "FSK_F103.h"
+//#include "Timer_F103.h"
+#include "FctDiverses.h"
 
 //**************************************************************************************************************
 //**************************************************************************************************************
@@ -14,6 +17,8 @@
 void MACPhyUART_Init(char My);
 
 #define MACPhyUART_StartFSM PhyUART_StartFSM
+#define MACPhyUART_Get_Status PhyUART_Get_Status 
+#define MACPhyUART_Get_Error PhyUART_Get_Error
 
 char MACPhyUART_IsNewMssg(void);
 
@@ -33,15 +38,19 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 //**************************************************************************************************************
 
 // Priorité d'interruption
+// USER DEFINE (recommandé)
 #define UART_Prio_CD 0							// priorité au niveau de l'UART , Carrier Detect (par défaut priorité maximale)	
+// NE PAS TOUCHER
 #define UART_Prio (UART_Prio_CD+1) 	// priorité au niveau de l'UART (juste au dessous de CD)
 #define PhyUART_FSM_Prio (UART_Prio+1)  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
 
+// USER DEFINE
 #define TIM_PhyUART_FSM TIM2
 
-// Baudrate
+// USER DEFINE
 #define PhyUART_BdRate 38400
 
+// USER DEFINE
 // longueur max des chaïnes
 #define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantité de data (dont Src@ et Dest @) est donc de 28 octets
 #define StringLenMin 5    // Len + Src@ + Dest@ + 1 octet Data + Checksum| 

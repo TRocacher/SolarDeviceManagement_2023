@@ -42,7 +42,7 @@ char USART_GetByte(USART_TypeDef * USART);
  Envoie caractère par caractère la chaîne dont l'adresse est spécifiée. Le nombre d'octet à émettre
  est spécifiée par le paramètre Len.
  Exemple :
- USART_FSK_Print("1234",4);
+ USART_Print("1234",4);
 ***************************************************************************************************/
 void USART_Print(USART_TypeDef * USART,char* Mssg, int Len);
 
