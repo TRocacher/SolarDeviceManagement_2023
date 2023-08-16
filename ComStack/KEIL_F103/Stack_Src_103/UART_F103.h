@@ -47,6 +47,8 @@ char USART_GetByte(USART_TypeDef * USART);
 void USART_Print(USART_TypeDef * USART,char* Mssg, int Len);
 
 
+#define USART_ReceivDisable(UART) (UART->CR1=(UART->CR1)&~USART_CR1_RE)
+#define USART_ReceivEnable(UART) (UART->CR1=(UART->CR1)|USART_CR1_RE)
 
 
 

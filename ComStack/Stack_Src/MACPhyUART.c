@@ -1,10 +1,26 @@
+/* =================================================================================
+* ==================   MACPhyUART.c	     =================================
+ *
+ *   Created on: 15/08/23
+ *   Author: T.Rocacher
+ *   Tool : KEIL V5.34
+ *   Target : STM32F103RTB6
+ *  ------------------------------------------------------------------------------
+ *  Pile de communication Xbee Like (@My, @Dest).
+ *  Fonctionne en UART Half duplex avec un module FSK (RT606), 38400 Bd max
+ *  "réseau" identifié par une préampbule ##### démarrant toute trame.
+ *  
+ *  Lire pdf associé "LaPile_FSK_COM_STACK_UG_Light.pdf"
+ *
+* =================================================================================*/
+
 
 #include "MACPhyUART.h"
 
 
 
-#define MyDebug
-#define Log
+
+
 
 
 /*
@@ -17,11 +33,19 @@ Architecture du module :
 -> API COUCHE PHY UART (utilisation déconseillée, préférer API couche MAC)
 */
 
-//**************************************************************************************************************
-//**************************************************************************************************************
-// 							Variables globales du module
-//**************************************************************************************************************
-//**************************************************************************************************************
+
+/*======================================================================================================
+========================================================================================================
+		Variables globales du module			
+========================================================================================================		
+=======================================================================================================*/
+
+
+
+
+//#define MyDebug
+//#define Log
+
 
 
 /*---------------------------------
@@ -117,75 +141,31 @@ char Phy_UART_TransmFrame[50];
 
 
 
-
-
-
-
-
-
-
-
-//**************************************************************************************************************
-//**************************************************************************************************************
-// 							Gestion du temps par Systick (TimeOut)
-//**************************************************************************************************************
-//**************************************************************************************************************
-
-
-/*---------------------------------
-Geston du time out
-----------------------------------*/
-int PhyUART_TimeOutDate;  // la date d'échéance
-int PhyUART_TimeOut;  	  // la durée à partir du start
-
-void PhyUART_TimeOut_Start(int ms)
-{
-	PhyUART_TimeOutDate=10*ms+SystickGet();
-}
-
-char PhyUART_GetTimeOut_Status(void)
-{
-	if ((SystickGet()-PhyUART_TimeOutDate)>=0) return 1;
-	else return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ---< Ajout MAC >-----//
-//**************************************************************************************************************
-//**************************************************************************************************************
-// 							API COUCHE MAC
-//**************************************************************************************************************
-//**************************************************************************************************************
+/*======================================================================================================
+========================================================================================================
+		API Couche MAC
+========================================================================================================		
+=======================================================================================================*/
+
 
 void PhyUART_Init(void);
-/*---------------------------------
-   void MACPhyUART_Init(char My)
-----------------------------------*/
+/*______________________________________________________________________________
+_______________________ void MACPhyUART_Init(char My)	__________________________
+ 
+    Rôle : Initialise la pile, tout est prêt pour la lancement de la FSM à suivre
+					 macro MACPhyUART_StartFSM(), voir .h
+    Param : My, l'adresse propre du module 
+
+* __________________________________________________________________________________*/
 void MACPhyUART_Init(char My)
 {
 	PhyUART_Mssg.My=My;
 	PhyUART_Init();
 }
 	
-/*---------------------------------
-   char MACPhyUART_IsNewMssg(void)
-----------------------------------*/
+
+
 char MACPhyUART_IsNewMssg(void)
 {
 	return (PhyUART_Mssg.MACNewStrReceived);
@@ -303,11 +283,12 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len)
 
 
 
-//**************************************************************************************************************
-//**************************************************************************************************************
-// 							USART Callback
-//**************************************************************************************************************
-//**************************************************************************************************************
+/*======================================================================================================
+========================================================================================================
+		UART Callback
+========================================================================================================		
+=======================================================================================================*/
+
 
 /*---------------------------------------------------------------------
    void UART_Callback(void)
@@ -334,8 +315,8 @@ for (i=0;i<300;i++);
 	// indication d'une détection du Header
 	if (PhyUART_HeaderCarCpt==HeaderCarLenMax) 
 	{
-		// réglage Echantillonnage à 100µs pour ne pas manquer de caractères à 38400Bds (10*1/38400 = 260µs)
-		MyTimer_Set_Period(TIM2, 100*72-1, 1-1 ); 
+		// réglage Echantillonnage à 100µs pour ne pas manquer de caractères à 38400Bds (10*1/38400 = 260µs) 
+		TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,100);
 		UART_HeaderDetected=1;
 	}
 	
@@ -366,11 +347,12 @@ GPIOC->ODR&=~GPIO_ODR_ODR3;
 
 
 
-//**************************************************************************************************************
-//**************************************************************************************************************
-// 							FSM PhyUART (réception/émission)
-//**************************************************************************************************************
-//**************************************************************************************************************
+/*======================================================================================================
+========================================================================================================
+		FSM PhyUART (réception/émission)			
+========================================================================================================		
+=======================================================================================================*/
+
 
 
 
@@ -438,7 +420,7 @@ switch (PhyUART_FSM_State)
 			if (PhyUART_Start==1) 
 			{
 				// Remise réglage Echantillonnage à 1ms
-				MyTimer_Set_Period(TIM2, 1000*72-1, 2-1 ); ///////////////////!!! de base MyTimer_Set_Period(TIM2, 500*72-1, 2-1 );
+				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=WaitForHeader;
 			}
@@ -461,9 +443,8 @@ switch (PhyUART_FSM_State)
 				UART_Receiv=0;
 				PhyUART_HeaderCarCpt=0;
 				PhyUART_FrameIndex=0; // pour préparer le sampling frame
-				PhyUART_TimeOut_Start(PhyUART_TimeOut); // lancement TimeOut
-				// réglage Echantillonnage 100us pour accélérer la FSM) /////////////// ajout : sans ça cela aurait du bugger !?
-				MyTimer_Set_Period(TIM2, 100*72-1, 1-1 );
+				TimeManag_TimeOutStart(Chrono_1 ,PhyUART_TimeOut); // lancement TimeOut
+				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,100);
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=ReadingFrame; 
 			}
@@ -472,7 +453,7 @@ switch (PhyUART_FSM_State)
 				PhyUART_Mssg.NewStrToSend=0;
 				
 				// réglage Echantillonnage 100us pour accélérer la FSM)
-				MyTimer_Set_Period(TIM2, 100*72-1, 1-1 ); 
+				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000); 
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=Framing;					
 			}
@@ -498,9 +479,6 @@ switch (PhyUART_FSM_State)
 																		// Voir avec l'expérience si on peut diminuer le nbre.
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en réception
-			
-			// Remise réglage Echantillonnage à 1ms
-			MyTimer_Set_Period(TIM2, 1000*72-1, 2-1 ); ///////////////////!!! de base MyTimer_Set_Period(TIM2, 500*72-1, 2-1 );
 
 			// ---< Evolution next State >-----//
 			PhyUART_FSM_State=WaitForHeader;
@@ -517,7 +495,7 @@ switch (PhyUART_FSM_State)
 			
 			
 			PhyUART_Mssg.Error=NoError;
-			if (PhyUART_GetTimeOut_Status()==0) // Traitement si on n'est pas en time out !
+			if (TimeManag_GetTimeOutStatus(Chrono_1)==0) // Traitement si on n'est pas en time out !
 			{
 			
 				PhyUART_Mssg.Status=ReceivingMssg;
@@ -537,8 +515,7 @@ switch (PhyUART_FSM_State)
 						{
 							PhyUART_Mssg.Error=LenError;
 							// Remise réglage Echantillonnage à 1ms
-							MyTimer_Set_Period(TIM2, 1000*72-1, 2-1 ); ///////////////////!!! de base MyTimer_Set_Period(TIM2, 500*72-1, 2-1 );
-						
+							TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);			
 							// ---< Evolution next State >-----//
 							PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 						}
@@ -561,7 +538,8 @@ switch (PhyUART_FSM_State)
 						if (PhyUART_FrameIndex==Phy_UART_Len) 
 						{
 							PhyUART_FrameIndex=0;
-							
+							// Remise réglage Echantillonnage à 1ms
+							TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);
 							// ---< Evolution next State >-----//
 							PhyUART_FSM_State=CheckSum;
 						}
@@ -572,7 +550,7 @@ switch (PhyUART_FSM_State)
 			{
 				PhyUART_Mssg.Error=TimeOutError;
 				// Remise réglage Echantillonnage à 1ms
-				MyTimer_Set_Period(TIM2, 1000*72-1, 2-1 ); ///////////////////!!! de base MyTimer_Set_Period(TIM2, 500*72-1, 2-1 );
+				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);
  				// ---< Evolution next State >-----//				
 				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			}
@@ -611,8 +589,6 @@ switch (PhyUART_FSM_State)
 			{
 				PhyUART_Mssg.Error=CheckSumError;		
 				
-				// Remise réglage Echantillonnage à 1ms
-				MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); 
 				// ---< Evolution next State >-----//				
 				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			}
@@ -659,8 +635,6 @@ switch (PhyUART_FSM_State)
 			PhyUART_Mssg.MACMatch=0;
 			// ---< Fin Ajout MAC >-----//
 			
-			// Remise réglage Echantillonnage à 1ms
-			MyTimer_Set_Period(TIM2, 500*72-1, 2-1 ); 
 			// ---< Evolution next State >-----//
 			PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
 			
@@ -740,13 +714,11 @@ int PhyUART_SendNewMssg (char * AdrString, int Len)
 
 
 
-
-
-//**************************************************************************************************************
-//**************************************************************************************************************
-// 							API COUCHE PHY UART
-//**************************************************************************************************************
-//**************************************************************************************************************
+/*======================================================================================================
+========================================================================================================
+		API COUCHE PHY UART			
+========================================================================================================		
+=======================================================================================================*/
 
 
 /******************************************************************************************************************
@@ -771,19 +743,14 @@ void PhyUART_Init(void)
 	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
 	PhyUART_FSM_State=Init;
 	PhyUART_Mssg.Status=Ready;
-	// calcul time Out on prévoit la durée d'une chaîne maximale +10% 
-	// calcul en ms : T = NbBit*NbMaxOctet*1.1*Tbit = NbBit*NbMaxOctet*1.1/R 
-	//			            = 1000*10*NbMaxOctet*1.1/R = (1100*NbBit*NbMaxOctet1)/R
+
 	
-	PhyUART_TimeOut=(11000*StringLenMax)/PhyUART_BdRate;
+	// mise en place interruption, TIM FSM à 1ms
+	TimeManag_FSMTimerInit(TIM_PhyUART_FSM, PhyUART_FSM_Prio, PhyUART_FSM_Progress,1000);
 	
-	// mise en place interruption
-	MyTimer_CkEnable(TIM_PhyUART_FSM);
-	MyTimer_Set_Period(TIM_PhyUART_FSM, 1000*72-1, 2-1 ); // période par défaut 1ms !!!!!!! 500 de base
-	MyTimer_IT_Enable( TIM_PhyUART_FSM, PhyUART_FSM_Prio, PhyUART_FSM_Progress);
+	// Initialisation du gestionnaire de TimeOut (Systick)
+	TimeManag_TimeOutInit();
 	
-	// Lancement Systick pour gestion TimeOut
-	SystickStart();
 	
 #ifdef MyDebug	
 	(RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_IOPCEN;

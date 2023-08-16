@@ -3,7 +3,6 @@
 
 
 #include "MyLCD.h"
-#include "FctDiverses.h"
 #include "clock.h"
 
 /******************************************************************************************************************
@@ -81,9 +80,9 @@ int main (void)
 	MyLCD_Print("Receiving:       ");
 		
 	
-	MyTimer_CkEnable(TIM1);
-	MyTimer_Set_Period(TIM1, 7200-1, 10000-1 );
-  MyTimer_IT_Enable( TIM1, 5, IT_1sec);	
+	Timer_CkEnable(TIM1);
+	Timer_Set_Period(TIM1, 7200-1, 10000-1 );
+  Timer_IT_Enable( TIM1, 5, IT_1sec);	
 
 	
 

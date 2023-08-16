@@ -4,9 +4,8 @@
 
 #include "stm32f10x.h"
 
-#include "FSK_F103.h"
-//#include "Timer_F103.h"
-#include "FctDiverses.h"
+#include "ModuleFSK.h"
+#include "TimeManagement.h"
 
 //**************************************************************************************************************
 //**************************************************************************************************************
@@ -55,7 +54,11 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 #define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantité de data (dont Src@ et Dest @) est donc de 28 octets
 #define StringLenMin 5    // Len + Src@ + Dest@ + 1 octet Data + Checksum| 
 
-
+	// calcul time Out on prévoit la durée d'une chaîne maximale +10% 
+	// calcul en ms : T = NbBit*NbMaxOctet*1.1*Tbit = NbBit*NbMaxOctet*1.1/R 
+	//			            = 1000*10*NbMaxOctet*1.1/R = (1100*NbBit*NbMaxOctet1)/R
+	
+#define	PhyUART_TimeOut ((11000*StringLenMax)/PhyUART_BdRate)
 
 
 // les valeurs possibles de Status

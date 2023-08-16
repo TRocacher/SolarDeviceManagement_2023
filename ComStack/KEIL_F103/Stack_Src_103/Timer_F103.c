@@ -48,7 +48,7 @@ void SysTick_Handler(void)
 
 
 
-void MyTimer_CkEnable(TIM_TypeDef *Timer)
+void Timer_CkEnable(TIM_TypeDef *Timer)
 {
 	
 //  activation horloge periph :
@@ -58,7 +58,7 @@ if (Timer==TIM3)  (RCC->APB1ENR)=(RCC->APB1ENR) | RCC_APB1ENR_TIM3EN;
 if (Timer==TIM4)  (RCC->APB1ENR)=(RCC->APB1ENR) | RCC_APB1ENR_TIM4EN;
 }
 
-void MyTimer_Set_Period(TIM_TypeDef *Timer, int ARR, int PSC )
+void Timer_Set_Period(TIM_TypeDef *Timer, int ARR, int PSC )
 {
 Timer->CR1&=~TIM_CR1_CEN;
 Timer->PSC=PSC;
@@ -74,7 +74,7 @@ static void (*Ptr_TIM2)(void);
 static void (*Ptr_TIM3)(void);
 static void (*Ptr_TIM4)(void);
 
-void MyTimer_IT_Enable( TIM_TypeDef *Timer, char Prio, void (*IT_function) (void))
+void Timer_IT_Enable( TIM_TypeDef *Timer, char Prio, void (*IT_function) (void))
 {
 //  activation horloge periph :
 if (Timer==TIM1)  (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_TIM1EN;
