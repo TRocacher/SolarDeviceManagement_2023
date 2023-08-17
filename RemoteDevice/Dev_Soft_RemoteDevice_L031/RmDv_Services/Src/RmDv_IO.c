@@ -23,13 +23,15 @@
 
 
 #include "RmDv_IO.h"
+
+void UserBP_Callback(void);
 void RmDv_IO_Init(void)
 {
 /***************************************************************
 	définitions des structures d'initialisation
 ***************************************************************/
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-  LL_EXTI_InitTypeDef EXTI_InitStruct= {0};
+
 
 /***************************************************************
   	Configurations de toutes les IO
@@ -99,19 +101,7 @@ void RmDv_IO_Init(void)
 
 
   /* NOUVEAU user BP input pull up + conf EXTI IT (TC 3,3V)*/
-  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTA, LL_SYSCFG_EXTI_LINE5);
-  LL_GPIO_SetPinPull(User_BP_GPIO_Port, User_BP_Pin, LL_GPIO_PULL_UP);
-  LL_GPIO_SetPinMode(User_BP_GPIO_Port, User_BP_Pin, LL_GPIO_MODE_INPUT);
-  /**/
-  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_5;
-  EXTI_InitStruct.LineCommand = ENABLE;
-  EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
-  EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;
-  LL_EXTI_Init(&EXTI_InitStruct);
-  /* EXTI interrupt init*/
-  NVIC_SetPriority(EXTI4_15_IRQn, 0);
-  NVIC_EnableIRQ(EXTI4_15_IRQn);
-
+  NVIC_Ext_IT (User_BP_GPIO_Port, User_BP_Pin, FALLING_EGDE,55 , 0, UserBP_Callback);
 
 
   /* UART 2  */
@@ -184,9 +174,9 @@ void RmDv_IO_Init(void)
 /*======================================================
  * User BP Test variables / callback
  ======================================================*/
-void EXTI4_15_IRQHandler(void)
+void UserBP_Callback(void)
 {
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_5) != RESET)
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_5) != RESET) // sert à rien, fait ds le handler
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_5);
   }

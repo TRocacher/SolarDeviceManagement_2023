@@ -1,33 +1,21 @@
 
-#include "ModuleFSK.h"
+#include "ModuleFSK_RmDv.h"
 
 
 /* =================================================================================
 * ==================   Module_FSK.c	     =================================
  *
- *   Created on: 15/08/23
+ *   Created on: 16/08/23
  *   Author: T.Rocacher
- *   Tool : KEIL V5.34
- *   Target : STM32F103RTB6
+ *   Tool : Cube IDE 1.12.1
+ *   Target : STM32L31F6P7
  *  ------------------------------------------------------------------------------
- *   Gère le module FSK RT606 433MHz
+ *   Gï¿½re le module FSK RT606 433MHz
+ *   ModifiÃ© lÃ©gÃ¨rement pour coller au nouveau processeur
+ *   - inclusion main.h pour les dÃ©finitions
+ *   - suppression configuration des IO puisque fait ailleurs.
  *
 * =================================================================================*/
-
-
-
-//=======================================================================================
-// Rappel sur les ressources sur le STM32F103RB 
-//
-// 3 USART possibles :
-// USART_1_TX = TIM1_CH2 = PA9
-// USART_1_RX = TIM1_CH3 = PA10
-// USART_2_TX = TIM2_CH3 = PA2
-// USART_2_RX = TIM2_CH4 = PA3
-// USART_3_TX = PB10
-// USART_3_RX = PB11
-//=======================================================================================
-
 
 
 
@@ -42,7 +30,7 @@ void CD_Callback(void);
 /******************************************************************************************************************
 	USART_FSK_Init
 
-Rôle :
+Rï¿½le :
 Param : 
 *****************************************************************************************************************/
 void USART_FSK_Init(int Baud_Rate_bits_par_Sec, char Prio_USART_CD, char Prio_USART, void (*IT_function) (void))
@@ -64,18 +52,11 @@ USART_Init(UART_FSK, Baud_Rate_bits_par_Sec, Prio_USART, IT_function);
 	
 #ifdef UseCarrierDetect
 
-GPIO_Configure(CD_GPIO, CD_Pin, INPUT, INPUT_FLOATING);	
-NVIC_Ext_IT (CD_GPIO, CD_Pin, FALLING_RISING_EDGE, INPUT_FLOATING, Prio_USART_CD, CD_Callback);
+NVIC_Ext_IT (_CD_GPIO, _CD_Pin, FALLING_RISING_EDGE, INPUT_FLOATING, Prio_USART_CD, CD_Callback);
 	
 #endif
 	
 
-	//******************************************
-	// Configuration RxCmde et TxCmde pin
-	//******************************************
-GPIO_Configure(CD_GPIO, CD_Pin, INPUT, INPUT_FLOATING);	
-GPIO_Configure(Rx_Cmde_GPIO, Rx_Cmde_Pin, OUTPUT, OUTPUT_PPULL);	
-GPIO_Configure(Tx_Cmde_GPIO, Tx_Cmde_Pin, OUTPUT, OUTPUT_PPULL);
 USART_FSK_SetReceiveAntenna();
 }
 
@@ -86,7 +67,7 @@ USART_FSK_SetReceiveAntenna();
 /******************************************************************************************************************
 	getter
 
-Rôle :
+Rï¿½le :
 Param : 
 *****************************************************************************************************************/
 char USART_FSK_GetByte(void)
@@ -99,7 +80,7 @@ char USART_FSK_GetByte(void)
 /******************************************************************************************************************
 	USART_FSK_Print
 
-Rôle :
+Rï¿½le :
 Param : 
 *****************************************************************************************************************/
 
@@ -112,19 +93,19 @@ void USART_FSK_Print(char* Mssg, int Len)
 /******************************************************************************************************************
 	USART_FSK_SetReceiveAntena et USART_FSK_SetTransmAntena
 
-Rôle :
+Rï¿½le :
 Param : 
 *****************************************************************************************************************/
 
 void USART_FSK_SetReceiveAntenna(void)
 {
-	GPIO_Clear(Tx_Cmde_GPIO,Tx_Cmde_Pin);
-	GPIO_Set(Rx_Cmde_GPIO,Rx_Cmde_Pin);
+	GPIO_Clear(_Tx_Cmde_GPIO,_Tx_Cmde_Pin);
+	GPIO_Set(_Rx_Cmde_GPIO,_Rx_Cmde_Pin);
 }
 void USART_FSK_SetTransmAntenna(void)
 {
-	GPIO_Clear(Rx_Cmde_GPIO,Rx_Cmde_Pin);
-	GPIO_Set(Tx_Cmde_GPIO,Tx_Cmde_Pin);
+	GPIO_Clear(_Rx_Cmde_GPIO,_Rx_Cmde_Pin);
+	GPIO_Set(_Tx_Cmde_GPIO,_Tx_Cmde_Pin);
 }
 
 
@@ -133,13 +114,13 @@ void USART_FSK_SetTransmAntenna(void)
 /******************************************************************************************************************
 	Les handlers d'IT
 
-Rôle :
+Rï¿½le :
 Param : 
 *****************************************************************************************************************/
 
 void CD_Callback(void)
 {
-	if (GPIO_Read(CD_GPIO,CD_Pin)==1<<CD_Pin) // front montant
+	if (GPIO_Read(_CD_GPIO,_CD_Pin)==1<<_CD_Pin) // front montant
 	{
 		// neutraliser IT UART
 		USART_ReceivDisable(UART_FSK);

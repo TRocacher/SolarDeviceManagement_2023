@@ -5,6 +5,7 @@
  *      Author: trocache
  */
 #include "main.h"
+#include "GPIO_L031.h"
 #ifndef INC_RMDV_IO_H_
 #define INC_RMDV_IO_H_
 

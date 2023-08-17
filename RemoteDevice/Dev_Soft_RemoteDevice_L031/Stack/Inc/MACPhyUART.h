@@ -2,8 +2,8 @@
 #define _PHYUART_H__
 
 
-#include "stm32f10x.h"
-
+#include <ModuleFSK_RmDv.h>
+#include <TimeManagement_RmDv.h>
 
 //**************************************************************************************************************
 //**************************************************************************************************************
@@ -14,6 +14,8 @@
 void MACPhyUART_Init(char My);
 
 #define MACPhyUART_StartFSM PhyUART_StartFSM
+#define MACPhyUART_Get_Status PhyUART_Get_Status 
+#define MACPhyUART_Get_Error PhyUART_Get_Error
 
 char MACPhyUART_IsNewMssg(void);
 
@@ -32,34 +34,29 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 //**************************************************************************************************************
 //**************************************************************************************************************
 
-// Priorité d'interruption
-#define UART_Prio_CD 0							// priorité au niveau de l'UART , Carrier Detect (par défaut priorité maximale)	
-#define UART_Prio (UART_Prio_CD+1) 	// priorité au niveau de l'UART (juste au dessous de CD)
-#define PhyUART_FSM_Prio (UART_Prio+1)  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
+// Prioritï¿½ d'interruption
+// USER DEFINE (recommandï¿½)
+#define UART_Prio_CD 0							// prioritï¿½ au niveau de l'UART , Carrier Detect (par dï¿½faut prioritï¿½ maximale)	
+// NE PAS TOUCHER
+#define UART_Prio (UART_Prio_CD+1) 	// prioritï¿½ au niveau de l'UART (juste au dessous de CD)
+#define PhyUART_FSM_Prio (UART_Prio+1)  // prioritï¿½ de la FSM (par dï¿½faut juste en dessous de celle de l'UART)
 
+// USER DEFINE
 #define TIM_PhyUART_FSM TIM2
 
-// Baudrate
+// USER DEFINE
 #define PhyUART_BdRate 38400
 
-// longueur max des chaïnes
-#define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantité de data (dont Src@ et Dest @) est donc de 28 octets
-#define StringLenMin 7    // Len + Src@ + Dest@ + 4 octets Data + Checksum| (4 octets data seront typiquement ID + Type_LenData + 1 data + Trial )
+// USER DEFINE
+// longueur max des chaï¿½nes
+#define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantitï¿½ de data (dont Src@ et Dest @) est donc de 28 octets
+#define StringLenMin 5    // Len + Src@ + Dest@ + 1 octet Data + Checksum| 
 
-
-/*---------------------------------
- états possibles de la FSM
-----------------------------------*/
-
-typedef enum {
-	Init,
-	WaitForHeader,
-	ReadingFrame,
-	CheckSum,
-	UpdateMssgForMAC,
-	Framing,
-	SendMssg
-}PhyUART_FSM_StateType;
+	// calcul time Out on prï¿½voit la durï¿½e d'une chaï¿½ne maximale +10% 
+	// calcul en ms : T = NbBit*NbMaxOctet*1.1*Tbit = NbBit*NbMaxOctet*1.1/R 
+	//			            = 1000*10*NbMaxOctet*1.1/R = (1100*NbBit*NbMaxOctet1)/R
+	
+#define	PhyUART_TimeOut ((11000*StringLenMax)/PhyUART_BdRate)
 
 
 // les valeurs possibles de Status
@@ -84,12 +81,12 @@ typedef enum {
 
 
 /**************************************************************************************************
- Configure le module PhyUART (Timer, UART, état initial de la FSM...
+ Configure le module PhyUART (Timer, UART, ï¿½tat initial de la FSM...
 ***************************************************************************************************/
 void PhyUART_Init(void);
 
 /**************************************************************************************************
- Lance la FSM en validant la transition vers l'état WaitForHeader
+ Lance la FSM en validant la transition vers l'ï¿½tat WaitForHeader
 ***************************************************************************************************/
 void PhyUART_StartFSM(void);
 
@@ -100,11 +97,11 @@ PhyUART_StatusType PhyUART_Get_Status(void);
 PhyUART_ErrorType PhyUART_Get_Error(void);
 
 /**************************************************************************************************
- Permet de recopier la donnée validée par la couche PhyUART.
+ Permet de recopier la donnï¿½e validï¿½e par la couche PhyUART.
  Len est la longueur Maximale pour cette recopie.
- ATTENTION ! la chaîne samplée par l'UART est entièrement recopiée à partir de l'adresse pointée.
+ ATTENTION ! la chaï¿½ne samplï¿½e par l'UART est entiï¿½rement recopiï¿½e ï¿½ partir de l'adresse pointï¿½e.
  Un test est donc fait pour savoir si la longueur du tableau recevant est suffisant.
- La fonction répond -1 en cas d'erreur sur ce test ou 0 si tout est OK
+ La fonction rï¿½pond -1 en cas d'erreur sur ce test ou 0 si tout est OK
 ***************************************************************************************************/
 int PhyUART_GetNewMssg (char * AdrString, int Len); 
 int PhyUART_SendNewMssg (char * AdrString, int Len);
