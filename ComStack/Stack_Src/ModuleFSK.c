@@ -141,11 +141,13 @@ void CD_Callback(void)
 {
 	if (GPIO_Read(CD_GPIO,CD_Pin)==1<<CD_Pin) // front montant
 	{
+		Clear_Flag_IT_Ext_5_15(CD_Pin);
 		// neutraliser IT UART
 		USART_ReceivDisable(UART_FSK);
 	}
 	else 
 	{
+		Clear_Flag_IT_Ext_5_15(CD_Pin);
 		USART_ReceivEnable(UART_FSK); // Receive Enable
 	}
 }

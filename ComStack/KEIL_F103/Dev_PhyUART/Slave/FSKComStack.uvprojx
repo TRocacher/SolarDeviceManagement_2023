@@ -399,14 +399,19 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>FctDiverses.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\Stack_Src\FctDiverses.c</FilePath>
-            </File>
-            <File>
               <FileName>MACPhyUART.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\Stack_Src\MACPhyUART.c</FilePath>
+            </File>
+            <File>
+              <FileName>ModuleFSK.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Stack_Src\ModuleFSK.c</FilePath>
+            </File>
+            <File>
+              <FileName>TimeManagement.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Stack_Src\TimeManagement.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -419,11 +424,6 @@
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>FSK_F103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\FSK_F103.c</FilePath>
-            </File>
-            <File>
               <FileName>UART_F103.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Stack_Src_103\UART_F103.c</FilePath>
@@ -432,6 +432,11 @@
               <FileName>Timer_F103.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Stack_Src_103\Timer_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>GPIO_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\GPIO_F103.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -938,14 +943,19 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>FctDiverses.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\Stack_Src\FctDiverses.c</FilePath>
-            </File>
-            <File>
               <FileName>MACPhyUART.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\Stack_Src\MACPhyUART.c</FilePath>
+            </File>
+            <File>
+              <FileName>ModuleFSK.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Stack_Src\ModuleFSK.c</FilePath>
+            </File>
+            <File>
+              <FileName>TimeManagement.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\Stack_Src\TimeManagement.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -958,11 +968,6 @@
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>FSK_F103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Stack_Src_103\FSK_F103.c</FilePath>
-            </File>
-            <File>
               <FileName>UART_F103.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Stack_Src_103\UART_F103.c</FilePath>
@@ -971,6 +976,11 @@
               <FileName>Timer_F103.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Stack_Src_103\Timer_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>GPIO_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Stack_Src_103\GPIO_F103.c</FilePath>
             </File>
           </Files>
         </Group>

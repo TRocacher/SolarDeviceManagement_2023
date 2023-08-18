@@ -52,7 +52,15 @@ void IT_1sec(void)
 	IntToChar(Cnt);
 	
 	
-	if ((Res+1)!=Cnt) Error++;
+	if ((Res+1)!=Cnt) 
+	{
+		Error++;
+	}
+	if (PhyUART_Get_Error()!=NoError)
+	{
+		Error++;
+	}
+		
 	
 	MyLCD_Set_cursor(10, 0);
 	MyLCD_Print(Alpha);

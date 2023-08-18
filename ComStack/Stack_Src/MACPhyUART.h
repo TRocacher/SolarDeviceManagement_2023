@@ -47,7 +47,7 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 #define TIM_PhyUART_FSM TIM2
 
 // USER DEFINE
-#define PhyUART_BdRate 38400
+#define PhyUART_BdRate 9600
 
 // USER DEFINE
 // longueur max des chaïnes
