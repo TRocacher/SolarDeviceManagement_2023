@@ -107,14 +107,15 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.927933578" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.979105743"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.519294111.1165830491" name="RmDv_RT606FSK.c" rcbsApplicability="disable" resourcePath="RmDv_Services/Src/RmDv_RT606FSK.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1626147811.1414991930">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1626147811.1414991930" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1626147811"/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.519294111.386599989" name="stm32l0xx_ll_pwr.c" rcbsApplicability="disable" resourcePath="Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_pwr.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.587621294.1007202923">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.587621294.1007202923" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.587621294"/>
 					</fileInfo>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.519294111.2042629338" name="RmDv_RT606FSK.h" rcbsApplicability="disable" resourcePath="RmDv_Services/Inc/RmDv_RT606FSK.h" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="Src/stm32l0xx_it.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry excluding="STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_i2c.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_dma.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry excluding="STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_pwr.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_rtc.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_utils.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_adc.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_tim.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_usart.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_i2c.c|STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_dma.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="RmDv_Drivers"/>
-						<entry excluding="Src/RmDv_RT606FSK.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="RmDv_Services"/>
+						<entry excluding="Inc/RmDv_RT606FSK.h|Src/RmDv_RT606FSK.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="RmDv_Services"/>
 						<entry excluding="Src/PhyUART.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Stack"/>
 					</sourceEntries>
 				</configuration>

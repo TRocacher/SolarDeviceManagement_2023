@@ -2,7 +2,7 @@
 #define _MODULE_FSK_H__
 
 
-#include "stm32f10x.h"
+
 #include "GPIO_F103.h"
 #include "UART_F103.h"
 

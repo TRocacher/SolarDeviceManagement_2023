@@ -2,8 +2,6 @@
 #define _PHYUART_H__
 
 
-#include "stm32f10x.h"
-
 #include "ModuleFSK.h"
 #include "TimeManagement.h"
 
@@ -47,7 +45,7 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 #define TIM_PhyUART_FSM TIM2
 
 // USER DEFINE
-#define PhyUART_BdRate 9600
+#define PhyUART_BdRate 38400
 
 // USER DEFINE
 // longueur max des chaïnes

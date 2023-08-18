@@ -81,5 +81,10 @@ void USART_FSK_SetReceiveAntenna(void);
 ***************************************************************************************************/
 void USART_FSK_SetTransmAntenna(void);
 
+/**************************************************************************************************
+ Fixe le module FSK en position neutre (basse puissance, pas d'émission, pas de réception)
+***************************************************************************************************/
+void USART_FSK_RT606_OFF(void);
+
 
 #endif

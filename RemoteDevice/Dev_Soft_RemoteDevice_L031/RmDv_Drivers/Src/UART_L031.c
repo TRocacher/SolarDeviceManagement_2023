@@ -58,7 +58,7 @@ void USART_Init(USART_TypeDef * USART,  int Baud_Rate_bits_par_Sec, char Prio_US
 USART->CR1=(USART->CR1)|USART_CR1_UE; // UART On
 USART->CR2=(USART->CR1)&~(0x1<<12); // 8 bits de data !!!!!!!!!!!! to check
 USART->CR2=(USART->CR2)&~(0x3<<12); // 1 bit de stop
-USART->BRR=(36000000/Baud_Rate_bits_par_Sec); // Baud Rate
+USART->BRR=(UART_CK_Hz/Baud_Rate_bits_par_Sec); // Baud Rate
 USART->CR1=(USART->CR1)|USART_CR1_TE; // Transmit Enable
 
 //Configuration r�ception

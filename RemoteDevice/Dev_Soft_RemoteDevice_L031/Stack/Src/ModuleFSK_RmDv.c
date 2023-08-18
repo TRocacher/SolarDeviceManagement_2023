@@ -108,7 +108,11 @@ void USART_FSK_SetTransmAntenna(void)
 	GPIO_Set(_Tx_Cmde_GPIO,_Tx_Cmde_Pin);
 }
 
-
+void USART_FSK_RT606_OFF(void)
+{
+	GPIO_Clear(_Rx_Cmde_GPIO,_Rx_Cmde_Pin);
+	GPIO_Clear(_Tx_Cmde_GPIO,_Tx_Cmde_Pin);
+}
 
 
 /******************************************************************************************************************
