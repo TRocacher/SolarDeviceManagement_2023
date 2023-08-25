@@ -24,7 +24,20 @@
 
 #include "RmDv_IO.h"
 
+/***************************************************************
+	UserBP Interruption & callback
+***************************************************************/
+static void (*Ptr_UserBP)(void);
 void UserBP_Callback(void);
+void RmDv_IO_AssociateFct_UserBP(void (*IT_function) (void))
+{
+	Ptr_UserBP=IT_function;
+}
+
+
+
+
+
 void RmDv_IO_Init(void)
 {
 /***************************************************************
@@ -65,12 +78,13 @@ void RmDv_IO_Init(void)
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(TxCmde_GPIO_Port, &GPIO_InitStruct);
 
-  /*LED_IR Output PushPull (FT 5V)*/
+  /*LED_IR Alternate Output PushPull (FT 5V)*/
   GPIO_InitStruct.Pin = LED_IR_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_2;
   LL_GPIO_Init(LED_IR_GPIO_Port, &GPIO_InitStruct);
 
   /* TxCmde Output PushPull (TC 3.3V) */
@@ -101,7 +115,7 @@ void RmDv_IO_Init(void)
 
 
   /* NOUVEAU user BP input pull up + conf EXTI IT (TC 3,3V)*/
-  NVIC_Ext_IT (User_BP_GPIO_Port, User_BP_Pin, FALLING_EGDE,55 , 0, UserBP_Callback);
+  NVIC_Ext_IT (User_BP_GPIO_Port, User_BP_Pin, FALLING_EGDE,55 , RmDv_IO_Prio_UserBP, UserBP_Callback);
 
 
   /* UART 2  */
@@ -176,10 +190,6 @@ void RmDv_IO_Init(void)
  ======================================================*/
 void UserBP_Callback(void)
 {
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_5) != RESET) // sert à rien, fait ds le handler
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_5);
-  }
-
+	Ptr_UserBP();
 }
 

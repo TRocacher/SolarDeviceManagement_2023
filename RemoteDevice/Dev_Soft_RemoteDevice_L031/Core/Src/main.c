@@ -62,6 +62,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void BP_User_Callback(void);
 
 
 
@@ -168,6 +169,18 @@ int main(void)
   Temperature=((float)Temp1)/128.0;
 
   /***************************************************************
+  		 test LED IR Clim
+  ***************************************************************/
+  RmDv_TelecoIR_Init();
+  RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
+  RmDv_TelecoIR_SetCmde(_Chaud_18_VanBas_FanAuto);
+  while(1)
+  {
+
+  }
+
+
+  /***************************************************************
   		 test MACPhy
   ***************************************************************/
 	Cnt=0;
@@ -215,6 +228,11 @@ while(1)
 }
 
 
+
+void BP_User_Callback(void)
+{
+	  RmDv_TelecoIR_SetCmde(_Stop);
+}
 
 /* =================================================================================
 * ==================    Conf pgm	     ===========================================

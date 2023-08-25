@@ -1,22 +1,26 @@
 
 #include "Timer_L031.h"
 
-
-
-//**************************************************************************************************************
-//**************************************************************************************************************
-// 							GESTION TIMEOUT / Systick
-//		Pour le STM32L031 on trouve TIM2, TIM21 et TIM22 (TIM2 légèrement différent)
-//						il existe aussi LPTIM non utilisé ici
-//**************************************************************************************************************
-//**************************************************************************************************************
+/* =================================================================================
+* ==================    Timer_L031.c	         ===================================
+ *
+ *   Created on: 15/08/2023
+ *   Author: T.Rocacher
+ *   Tool : Cube IDE 1.12.1
+ *   Target : STM32L31F6P7
+ *  ------------------------------------------------------------------------------
+ * GESTION TIMEOUT / Systick
+ *		Pour le STM32L031 on trouve TIM2, TIM21 et TIM22 (TIM2 légèrement différent)
+ *						il existe aussi LPTIM non utilisé ici
+ *
+* =================================================================================*/
 
 int Cpt_100us;
 
 void SystickStart(void)
 {
 	Cpt_100us=0;
-	SysTick->LOAD=100*9-1; // 72MHz/8 = 9Mhz, config � 100�s
+	SysTick->LOAD=100*3-1; // 24MHz/8 = 3Mhz, config � 100�s
 	SysTick->CTRL|=1<<1; // Interruption locale valid�e
 	SysTick->CTRL|=1<<0; // systick on
 }
@@ -68,8 +72,41 @@ Timer->CNT=0;
 Timer->CR1|=TIM_CR1_CEN;
 }
 
+/*______________________________________________________________________________
+*_______________________ Timer_ConfPWM_Ch2(TIM_TypeDef *Timer)	________
+ *
+ *   Rôle: valide le canal 2 du timer  en PWM EdgeAligned
+ *
+ *   Param : Timer
+ *   Exemple :
+ *
+ *
+ *
+* __________________________________________________________________________________*/
+void Timer_ConfPWM_Ch2(TIM_TypeDef *Timer)
+{
+	Timer->CR1&=~TIM_CR1_CEN;
+	/*Channel 2 en sortie CC2S=0 */
+	Timer->CCMR1&=~(0x3<<TIM_CCMR1_CC2S_Pos);
+	/*Mode PWM1 0C2M=6*/
+	Timer->CCMR1&=~(0x7<<TIM_CCMR1_OC2M_Pos);
+	Timer->CCMR1|=0x6<<TIM_CCMR1_OC2M_Pos;
+	Timer->CR1|=TIM_CR1_CEN;
+}
 
+void Timer_SetOutputMode(TIM_TypeDef *Timer, TimerMode Mode)
+{
+	/*Mode Non actif 0C2M=2*/
+	Timer->CCMR1&=~(0x7<<TIM_CCMR1_OC2M_Pos);
+	Timer->CCMR1|=Mode<<TIM_CCMR1_OC2M_Pos;
+}
 
+void Timer_PWM1_Ch2(TIM_TypeDef *Timer)
+{
+	/*Mode Non actif 0C2M=2*/
+	Timer->CCMR1&=~(0x7<<TIM_CCMR1_OC2M_Pos);
+	Timer->CCMR1|=0x2<<TIM_CCMR1_OC2M_Pos;
+}
 
 static void (*Ptr_TIM2)(void);
 static void (*Ptr_TIM21)(void);

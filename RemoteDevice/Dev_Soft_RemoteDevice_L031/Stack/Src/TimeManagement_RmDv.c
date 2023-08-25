@@ -126,7 +126,7 @@ par soft.
 void TimeManag_FSMTimerInit(TIM_TypeDef *Timer, char Prio, void (*IT_function) (void),int FSMPeriod_us)
 {
 	Timer_CkEnable(Timer);
-	Timer_Set_Period(Timer, FSMPeriod_us*72-1, 2-1 );
+	Timer_Set_Period(Timer, FSMPeriod_us*24-1, 1-1 );
 	Timer_IT_Enable(Timer, Prio, IT_function);
 }
 
@@ -139,6 +139,6 @@ ________ TimeManag_SetFSMPeriod(TIM_TypeDef *Timer,int FSMPeriod_us)) __________
  _______________________________________________________________________________*/
 void TimeManag_SetFSMPeriod(TIM_TypeDef *Timer,int FSMPeriod_us)
 {
-	Timer_Set_Period(Timer, FSMPeriod_us*72-1, 2-1 ); 
+	Timer_Set_Period(Timer, FSMPeriod_us*24-1, 1-1 );
 
 }

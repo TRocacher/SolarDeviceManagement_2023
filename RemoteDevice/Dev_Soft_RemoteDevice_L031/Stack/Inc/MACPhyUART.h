@@ -42,7 +42,7 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 #define PhyUART_FSM_Prio (UART_Prio+1)  // priorit� de la FSM (par d�faut juste en dessous de celle de l'UART)
 
 // USER DEFINE
-#define TIM_PhyUART_FSM TIM2
+#define TIM_PhyUART_FSM TIM22
 
 // USER DEFINE
 #define PhyUART_BdRate 38400

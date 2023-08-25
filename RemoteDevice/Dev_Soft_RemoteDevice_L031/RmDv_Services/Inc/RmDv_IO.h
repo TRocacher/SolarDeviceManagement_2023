@@ -49,7 +49,8 @@
 #define CT_Pin LL_GPIO_PIN_1
 #define CT_GPIO_Port GPIOB
 
-
+#define RmDv_IO_Prio_UserBP 2
 void RmDv_IO_Init(void);
+void RmDv_IO_AssociateFct_UserBP(void (*IT_function) (void));
 
 #endif /* INC_RMDV_IO_H_ */

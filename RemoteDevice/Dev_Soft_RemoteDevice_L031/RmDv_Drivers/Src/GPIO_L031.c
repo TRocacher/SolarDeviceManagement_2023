@@ -55,12 +55,12 @@ LL_EXTI_InitTypeDef EXTI_InitStruct= {0};
 
 
 
-	if (Broche==5)
+	if (Broche==(1<<5))
 	{
 		Ptr_EXTI5=IT_function;
 		SYSCFG_EXTI_LINE=LL_SYSCFG_EXTI_LINE5;
 	}
-	else if (Broche==15)
+	else if (Broche==(1<<15))
 	{
 		Ptr_EXTI15=IT_function;
 		SYSCFG_EXTI_LINE=LL_SYSCFG_EXTI_LINE15;
