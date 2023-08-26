@@ -80,9 +80,12 @@
  *   		(LSB = 7.8125m°C, format 9.7)
 *   		Initialise au préalable le module I2C1 à 100kHz standard
  *   Param in : _
+ *   Param out :Si le module I2C est configuré en gestion timeout
+ *    			renvoie -32768 si plantage I2C (correspond à -256°, temp impossible)
+ *    			si OK renvoie 1.
  *   Exemple : ADT7410_Init();
  *_______________________________________________________________________________*/
-void ADT7410_Init(void);
+short int ADT7410_Init(void);
 
 /*______________________________________________________________________________
 *_______________________  ADT7410_GetTemp_fract_9_7   __________________________
@@ -93,7 +96,8 @@ void ADT7410_Init(void);
  *   		Valeurs signées classiques
  *
  *   Param in : _
- *   Param out : short int 16 bits
+ *   Param out : short int 16 bits. Si le module I2C est configuré en gestion timeout
+ *    			renvoie -32768 si plantage I2C (correspond à -256°, temp impossible)
  *   Exemple : ADT7410_GetTemp_fract_9_7();
  *_______________________________________________________________________________*/
 short int ADT7410_GetTemp_fract_9_7(void);

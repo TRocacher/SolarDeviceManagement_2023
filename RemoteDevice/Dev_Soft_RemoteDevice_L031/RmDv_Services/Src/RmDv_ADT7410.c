@@ -60,7 +60,7 @@ I2C_RecSendData_Typedef I2C_Data_Struct;
  *   Param in : _
  *   Exemple : ADT7410_Init();
  *_______________________________________________________________________________*/
-void ADT7410_Init(void)
+short int ADT7410_Init(void)
 {
 	uint8_t data[4];
 	I2C_L031_Init(I2C1);
@@ -72,7 +72,8 @@ void ADT7410_Init(void)
 	I2C_Data_Struct.Nb_Data=2;
 	I2C_Data_Struct.Ptr_Data=data;
 	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
-	I2C_L031_PutString(I2C1,&I2C_Data_Struct);
+	if (I2C_L031_PutString(I2C1,&I2C_Data_Struct)==0) return -32768;
+	return 1;
 }
 
 
@@ -103,17 +104,17 @@ short int ADT7410_GetTemp_fract_9_7(void)
 	I2C_Data_Struct.Nb_Data=2;
 	I2C_Data_Struct.Ptr_Data=data;
 	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
-	I2C_L031_PutString(I2C1,&I2C_Data_Struct);
+	if (I2C_L031_PutString(I2C1,&I2C_Data_Struct)==0) return -32768;
 
 	// Wait at least 240ms
-	Delay_x_ms(240);
+	Delay_x_ms(500);
 
 	// Read temperature
 	data[0]=TempHighAdr;
 	I2C_Data_Struct.Nb_Data=3;
 	I2C_Data_Struct.Ptr_Data=data;
 	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
-	I2C_L031_GetString(I2C1, &I2C_Data_Struct);
+	if (I2C_L031_GetString(I2C1, &I2C_Data_Struct)==0) return -32768;
 
 	ReturnValue=(data[1]<<8)+data[2];
 
@@ -125,7 +126,7 @@ short int ADT7410_GetTemp_fract_9_7(void)
 	I2C_Data_Struct.Nb_Data=2;
 	I2C_Data_Struct.Ptr_Data=data;
 	I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
-	I2C_L031_PutString(I2C1,&I2C_Data_Struct);
+	if (I2C_L031_PutString(I2C1,&I2C_Data_Struct)==0) return -32768;
 
 
 	return ReturnValue;

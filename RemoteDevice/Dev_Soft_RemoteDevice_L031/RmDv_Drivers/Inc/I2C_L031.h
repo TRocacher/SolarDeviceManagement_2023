@@ -23,7 +23,26 @@
 #ifndef INC_I2C_L031_H_
 #define INC_I2C_L031_H_
 
-#include "main.h"
+#include "stm32l0xx.h"
+
+/***************************************************************
+		 I2C en DMA : définir #DMA
+***************************************************************/
+#define DMA
+
+/***************************************************************
+		 Gestion TimeOut : définir #I2C_Use_TimeOut
+***************************************************************/
+#define I2C_Use_TimeOut
+#ifdef I2C_Use_TimeOut
+	#include "TimeManagement_RmDv.h"
+	#define I2C_ByteNb 20 /* Nb d'octet maximum envoyé: Start + 8 bits + Ack + Stop (11 bits)*/
+	#define I2C_TimeOut ((I2C_ByteNb*11)/10 + 1 ) /* C'est le temps en nbre de ms
+	 	 	 	 	 	 	 	 	 soit 20*11*Tbit/1000µs = 20*11/(Fbit*1000uS)
+	 	 	 	 	 	 	 	 	     =20*11/0.1MHz*1000µs = 20*11/100
+	 	 	 	 	 	 	 	 	     on ajoute 1ms pour compenser la troncature*/
+#endif
+
 
 /* Structure de données pour les fonctions */
 typedef struct
@@ -64,14 +83,14 @@ void I2C_L031_Init(I2C_TypeDef * I2Cx);
  *   				* Adresse du composant I2C
  *   				* Ptr sur la table de données (contenant la word Adress au début)
  *   				* Nbre de donnée de la table (incluant la word adress), min 2.
-
+ *   Param out : 0 si erreur timeout, 1 si OK
  *   Exemple : 	I2C_Data_Struct.Nb_Data=2;
 				I2C_Data_Struct.Ptr_Data=data;
 				I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
 
 				I2C_L031_PutString(I2C1,&I2C_Data_Struct);
 * __________________________________________________________________________________*/
-void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend);
+char I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend);
 
 /*______________________________________________________________________________
 *_______________________ I2C_L031_GetString_____________________________________
@@ -89,13 +108,13 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
  *   				* Adresse du composant I2C
  *   				* Ptr sur la table de données (contenant la word Adress au début)
  *   				* Nbre de donnée de la table (incluant la word adress), min 2.
-
+ *   Param out : 0 si erreur timeout, 1 si OK
  *   Exemple : 		data[0]=TempHighAdr;
 					I2C_Data_Struct.Nb_Data=3;
 					I2C_Data_Struct.Ptr_Data=data;
 					I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
 					I2C_L031_GetString(I2C1, &I2C_Data_Struct);
 * __________________________________________________________________________________*/
-void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToReceive);
+char I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToReceive);
 
 #endif /* INC_I2C_L031_H_ */

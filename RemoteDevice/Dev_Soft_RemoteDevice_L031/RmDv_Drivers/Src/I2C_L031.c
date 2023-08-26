@@ -19,7 +19,7 @@
 
 * =================================================================================*/
 
-//#define DMA
+
 #include <I2C_L031.h>
 
 /*______________________________________________________________________________
@@ -34,6 +34,9 @@ void I2C_L031_Init(I2C_TypeDef * I2Cx)
 	/*************************************************
 	**  	cong I2C							   	**
 	*************************************************/
+#ifdef I2C_Use_TimeOut
+	TimeManag_TimeOutInit();
+#endif
 	RCC->APB1ENR |= RCC_APB1ENR_I2C1EN; /* Activation Clk I2C1*/
 	I2Cx->CR1 &=~I2C_CR1_PE; /* Reset I2C */
 	I2Cx->TIMINGR=0x00505D8D; /* Réglage Timing, 100kHz avec CkI2C = 24MHz (valeur Cube)*/
@@ -95,8 +98,14 @@ void I2C_L031_Init(I2C_TypeDef * I2Cx)
 * __________________________________________________________________________________*/
 char I2C_L031_NByte;
 uint8_t * I2C_L031_Ptr_Data;
-void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend)
+
+
+
+char I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend)
 {
+#ifdef I2C_Use_TimeOut
+	TimeManag_TimeOutStart(Chrono_2 , I2C_TimeOut);
+#endif
 	/*************************************************
 	**  	PHASE 0 :  PREPARATION				   	**
 	*************************************************/
@@ -109,6 +118,7 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	I2Cx->CR2|=I2C_CR2_AUTOEND; /* La condition de stop sera générée après les n bytes transmis  */
 	I2Cx->CR2|=DataToSend->SlaveAdress7bits<<1; /* @ I2C ADT7410 ds le champ SADD de CR2
 	 	 	 	 	 	 	 	 	 	 	  avec un déclage de 1 (SADD[0] = don't care*/
+	I2Cx->CR2&=~I2C_CR2_NBYTES_Msk;
 	I2Cx->CR2|=I2C_L031_NByte<<I2C_CR2_NBYTES_Pos;  /*réglage du nbre de bytes à envoyer avant stop
 	 	 	 	 	 	 	 	 	 	 	 	 	 Word Adress compris*/
 
@@ -131,7 +141,12 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 #ifndef DMA /* Scrutation */
 	while (I2C_L031_NByte!=0)
 	{
-		while ((I2Cx->ISR&I2C_ISR_TXIS)==0); /* attendre la levée de flag pour émettre*/
+		while ((I2Cx->ISR&I2C_ISR_TXIS)==0) /* attendre la levée de flag pour émettre*/
+		{
+			#ifdef I2C_Use_TimeOut
+			if (TimeManag_GetTimeOutStatus(Chrono_2)==1) return 0;
+			#endif
+		}
 		I2Cx->TXDR=*(I2C_L031_Ptr_Data);
 		(I2C_L031_Ptr_Data)++;
 		I2C_L031_NByte--;
@@ -143,9 +158,16 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 	*************************************************/
 	/* Génération condition stop automatique AUTOEND = 1  */
 #ifdef DMA
-	while ((DMA1->ISR&DMA_ISR_TCIF2)==0);				/* Attente DMA full */
+	while ((DMA1->ISR&DMA_ISR_TCIF2)==0)				/* Attente DMA full */
+	{
+		#ifdef I2C_Use_TimeOut
+		if (TimeManag_GetTimeOutStatus(Chrono_2)==1) return 0;
+		#endif
+	}
 	DMA1->IFCR|=DMA_IFCR_CTCIF2;						/* Effacement Flag DMA full */
 #endif
+
+	return 1;
 }
 
 
@@ -173,8 +195,11 @@ void I2C_L031_PutString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToSend
 					I2C_Data_Struct.SlaveAdress7bits=ADT7410_Slave8bitsAdr;
 					I2C_L031_GetString(I2C1, &I2C_Data_Struct);
 * __________________________________________________________________________________*/
-void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToReceive)
+char I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToReceive)
 {
+#ifdef I2C_Use_TimeOut
+	TimeManag_TimeOutStart(Chrono_2 , I2C_TimeOut);
+#endif
 	/*************************************************
 	**  	PHASE 0 :  PREPARATION				   	**
 	*************************************************/
@@ -187,6 +212,7 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	/*I2C_CR2_AUTOEND=0;  pas de stop automatique pour pouvoir faire un restart */
 	I2Cx->CR2|=DataToReceive->SlaveAdress7bits<<1; /* @ I2C ADT7410 ds le champ SADD de CR2
 		 	 	 	 	 	 	 	 	 	 	  avec un déclage de 1 (SADD[0] = don't care*/
+	I2Cx->CR2&=~I2C_CR2_NBYTES_Msk;
 	I2Cx->CR2|=(1<<I2C_CR2_NBYTES_Pos); 		 /*un seul byte à transmettre, le Word Adress */
 
 	/*************************************************
@@ -197,11 +223,22 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	/***************************************************************************
 	**  	PHASE 2 : ECRITURE word adress + restart en mode read de Nb_Data  **
 	****************************************************************************/
-	while ((I2Cx->ISR&I2C_ISR_TXIS)==0); /* attendre la levée de flag pour émettre*/
+	while ((I2Cx->ISR&I2C_ISR_TXIS)==0) /* attendre la levée de flag pour émettre*/
+	{
+		#ifdef I2C_Use_TimeOut
+		if (TimeManag_GetTimeOutStatus(Chrono_2)==1) return 0;
+		#endif
+	}
 	I2Cx->TXDR=*I2C_L031_Ptr_Data;
-	while ((I2Cx->ISR&I2C_ISR_TC)==0); /* attendre la fin d'émission, Nbyte, (=1 ici)*/
+	while ((I2Cx->ISR&I2C_ISR_TC)==0) /* attendre la fin d'émission, Nbyte, (=1 ici)*/
+	{
+		#ifdef I2C_Use_TimeOut
+		if (TimeManag_GetTimeOutStatus(Chrono_2)==1) return 0;
+		#endif
+	}
 	/* préparation lecture*/
 	I2Cx->CR2|=I2C_CR2_AUTOEND; /* La condition de stop sera générée après les n bytes transmis  */
+	I2Cx->CR2&=~I2C_CR2_NBYTES_Msk;
 	I2Cx->CR2|=(I2C_L031_NByte)<<I2C_CR2_NBYTES_Pos;  /*réglage du nbre de bytes à envoyer avant stop */
 	I2Cx->CR2|=I2C_CR2_RD_WRN; /*read acces */
 	I2C_L031_Ptr_Data++; /* positionnement pointeur sur les data (on saute WordAdress)*/
@@ -223,14 +260,24 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	*****************************************/
 
 #ifdef DMA
-	while ((DMA1->ISR&DMA_ISR_TCIF3)==0);				/* Attente DMA full */
+	while ((DMA1->ISR&DMA_ISR_TCIF3)==0)				/* Attente DMA full */
+	{
+		#ifdef I2C_Use_TimeOut
+		if (TimeManag_GetTimeOutStatus(Chrono_2)==1) return 0;
+		#endif
+	}
 	DMA1->IFCR|=DMA_IFCR_CTCIF3;						/* Effacement Flag DMA full */
 #endif
 
 #ifndef DMA /* Scrutation */
 	while (I2C_L031_NByte!=0)
 	{
-		while ((I2Cx->ISR&I2C_ISR_RXNE)==0); /* attendre la levée de flag pour émettre*/
+		while ((I2Cx->ISR&I2C_ISR_RXNE)==0) /* attendre la levée de flag pour émettre*/
+		{
+			#ifdef I2C_Use_TimeOut
+			if (TimeManag_GetTimeOutStatus(Chrono_2)==1) return 0;
+			#endif
+		}
 		*I2C_L031_Ptr_Data=I2Cx->RXDR;
 		I2C_L031_Ptr_Data++;
 		I2C_L031_NByte--;
@@ -242,7 +289,7 @@ void I2C_L031_GetString(I2C_TypeDef * I2Cx, I2C_RecSendData_Typedef * DataToRece
 	**  	PHASE 3 : Fermeture communication		**
 	*************************************************/
 	/* Génération condition stop automatique AUTOEND = 1  */
-
+	return 1;
 }
 
 
