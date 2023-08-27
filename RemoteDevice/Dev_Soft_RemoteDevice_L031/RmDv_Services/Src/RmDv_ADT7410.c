@@ -107,7 +107,7 @@ short int ADT7410_GetTemp_fract_9_7(void)
 	if (I2C_L031_PutString(I2C1,&I2C_Data_Struct)==0) return -32768;
 
 	// Wait at least 240ms
-	Delay_x_ms(500);
+	Delay_x_ms(250);
 
 	// Read temperature
 	data[0]=TempHighAdr;
