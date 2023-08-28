@@ -97,13 +97,11 @@ void Main_StandByWkUpPgm(void)
 	  /***************************************************************
 	  		 test LED IR Clim
 	  ***************************************************************/
+	  USART_FSK_RT606_OFF();
 	  RmDv_TelecoIR_Init();
-	  RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
-	  RmDv_TelecoIR_SetCmde(_Chaud_18_VanBas_FanAuto);
-	  while(1)
-	  {
 
-	  }
+	  RmDv_TelecoIR_SetCmde(_Stop);
+
 
 /***************************************************************
 			Ajustement RTC

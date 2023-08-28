@@ -7,6 +7,7 @@
 #include "RmDv_IO.h"
 #include "MACPhyUART.h"
 #include "RmDv_TelecoIR.h"
+#include "LowPower_L031.h"
 
 #ifndef INC_STANDBYWKUPPGM_H_
 #define INC_STANDBYWKUPPGM_H_

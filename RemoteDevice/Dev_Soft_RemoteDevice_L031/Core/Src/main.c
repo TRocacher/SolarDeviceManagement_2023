@@ -56,7 +56,7 @@
 void SystemClock_Config(void);
 void BP_User_Callback(void);
 
-
+#define PeriodeSleep_Sec 10
 
 int main(void)
 {
@@ -67,25 +67,24 @@ int main(void)
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 	SystemClock_Config();
+	LowPower_L031_RTC_Init(PeriodeSleep_Sec);
 
 	/***************************************************************
 	  		Configurations I/O Remote Device
 	***************************************************************/
 	RmDv_IO_Init();
 	USART_FSK_RT606_OFF();
+	RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
 
 	Main_StandByWkUpPgm();
+	LowPower_L031_GoToStbySleep();
+
   while(1)
   {
 
   }
 
 
-
-while(1)
-{
-
-}
 
 
 }
@@ -94,7 +93,7 @@ while(1)
 
 void BP_User_Callback(void)
 {
-	  RmDv_TelecoIR_SetCmde(_Stop);
+	  //RmDv_TelecoIR_SetCmde(_Stop);
 }
 
 
