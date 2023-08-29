@@ -15,7 +15,7 @@
  *  1	Externe (/CD RT606) - GPIO_L031.c (NB) -> ModuleFSK_RmDv.c : (NB)
  *  2	UART (RX) -UART_L031.c (NB) -> MAC_PhyUART.c : (NB)
  *  3	TIM22 (FSM) -Timer_L031.c (NB) ->  MAC_PhyUART.c : (NB)
- *  1	Systick (Tps réel) -Timer_L031.c -> TimeManagement_RmDv (NB)
+ *  0	Systick (Tps réel) -Timer_L031.c -> TimeManagement_RmDv (NB)
  *
  *  + Module RmDv_TelecoIR.c
  *  1	TIM21 (Cadencement bit) - Timer_L031.c (NB) ->  RmDv_TelecoIR.c : bloquant
@@ -88,20 +88,20 @@ int main(void)
 	USART_FSK_RT606_OFF();
 	RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
 
+
+
 	/* Test LPTM1*/
 	RmDv_EnableBoost;
+	ADT7410_Init();
 	RmDv_TelecoIR_Init();
-	Timer_Set_Duty(RmDv_TelecoIR_Timer_PWM,2,99);
+	//Timer_Set_Duty(RmDv_TelecoIR_Timer_PWM,2,99);
 	RmDv_ErrorWDG_LPTIMConf(5,Prio_LPTIM, LPTIM1_User_Callback);
-	StartLPTM;
-	while(1)
-	{
-
-	}
+	StartLPTMOneShot;
+	while(1);
 	/* fin Test LPTM1*/
 
 	Main_StandByWkUpPgm();
-	LowPower_L031_GoToStdbySleep();
+	//LowPower_L031_GoToStdbySleep();
 
   while(1)
   {
@@ -128,7 +128,7 @@ void  LPTIM1_User_Callback(void)
 
 	Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,PWM);
 	Delay_x_ms(500);
-	Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,Clear);
+
 }
 
 

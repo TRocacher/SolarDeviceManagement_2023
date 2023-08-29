@@ -4,6 +4,7 @@
 
 #include "stm32l0xx.h"
 
+#define PrioSystick 0
 
 void SystickStart(void);
 int SystickGet(void);

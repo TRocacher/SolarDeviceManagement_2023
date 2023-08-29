@@ -17,13 +17,20 @@
 
 int Cpt_100us;
 
+
 void SystickStart(void)
 {
+
 	if ((SysTick->CTRL&0x1)==0) // test pour voir si pas déjà parti !
 	{
+		NVIC_SetPriority(SysTick_IRQn, PrioSystick);
+		NVIC_EnableIRQ(SysTick_IRQn);
 		Cpt_100us=0;
+
+		SysTick->VAL=100*3-1;
 		SysTick->LOAD=100*3-1; // 24MHz/8 = 3Mhz, config � 100�s
 		SysTick->CTRL|=1<<1; // Interruption locale valid�e
+		SysTick->CTRL|=1<<SysTick_CTRL_TICKINT_Pos;
 		SysTick->CTRL|=1<<0; // systick on
 	}
 }
