@@ -102,7 +102,7 @@ void Main_StandByWkUpPgm(void)
 
 	  RmDv_TelecoIR_SetCmde(_Stop);
 
-
+	  RmDv_TelecoIR_DeInit();
 /***************************************************************
 			Ajustement RTC
 ***************************************************************/

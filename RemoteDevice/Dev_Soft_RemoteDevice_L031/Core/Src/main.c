@@ -1,16 +1,27 @@
-/* Règle commentaires encadrés*/
 
-/* Entête de fichier*/
 
 /* =================================================================================
 * ==================   Nom Fichier.c	     ===================================
  *
- *   Created on:
- *   Author:
- *   Tool :
- *   Target :
- *  ------------------------------------------------------------------------------
  *
+ *   Created on: Jul 18, 2023
+ *   Author: trocache
+ *   Tool : CubeIDE 1.12.1,
+ *   Target : STM32L031
+ *  ------------------------------------------------------------------------------
+ *  Point sur les interruptions : NB = Non Bloquant
+ *
+ *  + Module Stack MAC_PhyUART.c
+ *  1	Externe (/CD RT606) - GPIO_L031.c (NB) -> ModuleFSK_RmDv.c : (NB)
+ *  2	UART (RX) -UART_L031.c (NB) -> MAC_PhyUART.c : (NB)
+ *  3	TIM22 (FSM) -Timer_L031.c (NB) ->  MAC_PhyUART.c : (NB)
+ *  1	Systick (Tps réel) -Timer_L031.c -> TimeManagement_RmDv (NB)
+ *
+ *  + Module RmDv_TelecoIR.c
+ *  1	TIM21 (Cadencement bit) - Timer_L031.c (NB) ->  RmDv_TelecoIR.c : bloquant
+ *
+ *  + Module RmDV_ErrorWDG.c
+ *  0	LPTIM1 (timeout Watch dog général) - Module RmDV_ErrorWDG.c (NB) -> main : go sleep !
  *
 * =================================================================================*/
 
@@ -37,7 +48,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "StandByWkupPgm.h"
-
+#include "RmDv_ErrorWDG.h"
 
 
 /* =================================================================================
@@ -55,6 +66,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void BP_User_Callback(void);
+void LPTIM1_User_Callback(void);
 
 #define PeriodeSleep_Sec 10
 
@@ -76,8 +88,20 @@ int main(void)
 	USART_FSK_RT606_OFF();
 	RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
 
+	/* Test LPTM1*/
+	RmDv_EnableBoost;
+	RmDv_TelecoIR_Init();
+	Timer_Set_Duty(RmDv_TelecoIR_Timer_PWM,2,99);
+	RmDv_ErrorWDG_LPTIMConf(5,Prio_LPTIM, LPTIM1_User_Callback);
+	StartLPTM;
+	while(1)
+	{
+
+	}
+	/* fin Test LPTM1*/
+
 	Main_StandByWkUpPgm();
-	LowPower_L031_GoToStbySleep();
+	LowPower_L031_GoToStdbySleep();
 
   while(1)
   {
@@ -93,12 +117,19 @@ int main(void)
 
 void BP_User_Callback(void)
 {
-	  //RmDv_TelecoIR_SetCmde(_Stop);
+
 }
 
 
 
+void  LPTIM1_User_Callback(void)
+{
+	//RmDv_TelecoIR_SetCmde(_Stop);
 
+	Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,PWM);
+	Delay_x_ms(500);
+	Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,Clear);
+}
 
 
 

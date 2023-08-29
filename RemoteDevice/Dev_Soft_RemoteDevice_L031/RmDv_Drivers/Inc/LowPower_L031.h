@@ -32,6 +32,6 @@
 #include "stm32l0xx_ll_rcc.h"
 
 void LowPower_L031_RTC_Init(int WakeUpPeriodSec);
-void LowPower_L031_GoToStbySleep(void);
+void LowPower_L031_GoToStdbySleep(void);
 
 #endif /* INC_RMDV_LOWPOWER_H_ */

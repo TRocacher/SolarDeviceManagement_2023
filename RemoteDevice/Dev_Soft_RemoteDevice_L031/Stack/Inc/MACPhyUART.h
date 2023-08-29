@@ -36,7 +36,7 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 
 // Priorit� d'interruption
 // USER DEFINE (recommand�)
-#define UART_Prio_CD 0							// priorit� au niveau de l'UART , Carrier Detect (par d�faut priorit� maximale)	
+#define UART_Prio_CD 1							// priorit� au niveau de l'UART , Carrier Detect (par d�faut priorit� maximale)
 // NE PAS TOUCHER
 #define UART_Prio (UART_Prio_CD+1) 	// priorit� au niveau de l'UART (juste au dessous de CD)
 #define PhyUART_FSM_Prio (UART_Prio+1)  // priorit� de la FSM (par d�faut juste en dessous de celle de l'UART)

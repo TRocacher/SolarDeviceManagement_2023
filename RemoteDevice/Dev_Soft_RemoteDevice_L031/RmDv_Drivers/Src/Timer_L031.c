@@ -66,6 +66,13 @@ if (Timer==TIM21)  (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_TIM21EN;
 if (Timer==TIM22)  (RCC->APB2ENR)=(RCC->APB2ENR) | RCC_APB2ENR_TIM22EN;
 }
 
+void Timer_CkDisable(TIM_TypeDef *Timer)
+{
+	if (Timer==TIM2)  (RCC->APB1ENR)=(RCC->APB1ENR) & ~RCC_APB1ENR_TIM2EN;
+	if (Timer==TIM21)  (RCC->APB2ENR)=(RCC->APB2ENR) & ~RCC_APB2ENR_TIM21EN;
+	if (Timer==TIM22)  (RCC->APB2ENR)=(RCC->APB2ENR) & ~ RCC_APB2ENR_TIM22EN;
+}
+
 void Timer_Set_Period(TIM_TypeDef *Timer, int ARR, int PSC )
 {
 Timer->CR1&=~TIM_CR1_CEN;

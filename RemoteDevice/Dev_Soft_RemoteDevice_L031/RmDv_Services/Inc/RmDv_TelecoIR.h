@@ -23,9 +23,10 @@ typedef enum {
 
 #define RmDv_TelecoIR_Timer_PWM TIM2
 #define RmDv_TelecoIR_Timer_Bit TIM21
-#define RmDv_TelecoIR_Prio_IT_Bit 0
+#define RmDv_TelecoIR_Prio_IT_Bit 1
 
 void RmDv_TelecoIR_Init(void);
+void RmDv_TelecoIR_DeInit(void);
 void RmDv_TelecoIR_SetCmde(RmDv_TelecoIR_Cmde Cmde);
 
 

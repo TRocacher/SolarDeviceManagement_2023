@@ -81,7 +81,7 @@ void LowPower_L031_RTC_Init(int WakeUpPeriodSec)
 
 
 
-void LowPower_L031_GoToStbySleep(void)
+void LowPower_L031_GoToStdbySleep(void)
 {
 	  /* PREREQUIS
 	  On entre en supposant :

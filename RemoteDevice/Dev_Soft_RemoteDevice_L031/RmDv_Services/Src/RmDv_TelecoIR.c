@@ -49,6 +49,7 @@ void RmDv_TelecoIR_Init(void)
 	Timer_CkEnable(RmDv_TelecoIR_Timer_PWM);
 	Timer_Set_Period(RmDv_TelecoIR_Timer_PWM, 632-1, 1-1 ); // 38kHz à 24MHz (en fait 24M/632=37.97kHz)
 	Timer_ConfPWM_Ch2(RmDv_TelecoIR_Timer_PWM);
+	Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,Clear);
 	Timer_Set_Duty(RmDv_TelecoIR_Timer_PWM,2,50);
 	Timer_EnablePWMChan(RmDv_TelecoIR_Timer_PWM,2);
 	/* Configuration du timer bit*/
@@ -57,6 +58,19 @@ void RmDv_TelecoIR_Init(void)
 	Timer_IT_Enable( RmDv_TelecoIR_Timer_Bit, RmDv_TelecoIR_Prio_IT_Bit, RmDv_TelecoIR_Bit_Callback);
 	Timer_Disable_IT_Callback(RmDv_TelecoIR_Timer_Bit);
 }
+
+void RmDv_TelecoIR_DeInit(void)
+{
+	/* Arrêt PWM*/
+	Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,Clear);
+	Timer_CkDisable(RmDv_TelecoIR_Timer_PWM);
+
+	/* Configuration du timer bit*/
+	Timer_Disable_IT_Callback(RmDv_TelecoIR_Timer_Bit);
+	Timer_CkDisable(RmDv_TelecoIR_Timer_Bit);
+
+}
+
 
 void RmDv_TelecoIR_BitByteIncOverflow(void);
 
