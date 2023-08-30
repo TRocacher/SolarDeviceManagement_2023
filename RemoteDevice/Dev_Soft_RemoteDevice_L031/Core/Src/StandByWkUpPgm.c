@@ -15,16 +15,36 @@
 * =================================================================================*/
 
 float TempSensor[4],TempSensorOrdered[4];
-float MinTemp,Temperature;
+float MinTemp,Temperature,a;
 int i,j,k; /* Indice boucle*/
 int Error;
+int Stop; /* Si 1 on arrête là le processus */
+
+RmDv_WkUp_CurrentState StandByWkUpPgm_CurrentState;
+RmDv_WarningCode StandByWkUpPgm_WCode;
+
+
+/***************************************************************
+		Définitions des variables messages pour la stack
+***************************************************************/
+char TransmitMssg[30];
+char ReceivedMssg[30];
+char Long;
+char ReceivedCodeClim;
+
+RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
+{
+	return StandByWkUpPgm_CurrentState;
+}
 
 void Main_StandByWkUpPgm(void)
 {
 	int Temp;
-
+	int i; /* Boucle*/
+	Stop=0;
 	Error=0;
-
+	StandByWkUpPgm_CurrentState=BoostActivation;
+	StandByWkUpPgm_WCode=NoWarning;
 
 	/***************************************************************
 	  		Activation Boost 3V -> 5V -> 3,3V
@@ -35,9 +55,13 @@ void Main_StandByWkUpPgm(void)
 	RmDv_EnableBoost;
 	Delay_x_ms(50); /* attendre 50ms pour que le ADT7410 se réveille*/
 
+
+
+
 	/***************************************************************
 	  		Mesure température
 	***************************************************************/
+	StandByWkUpPgm_CurrentState=TemperatureMeasure;
 	ADT7410_Init();
 	/* Acquisition 4 valeurs */
 	for (i=0;i<4;i++)
@@ -70,42 +94,122 @@ void Main_StandByWkUpPgm(void)
 			  * il faut l'exclure du classement suivant, en le mettant au max*/
 			 TempSensor[k]=50.0;
 		 }
+		 /* Calcul sur la moyenne des éléments, min et max exclus*/
+		 Temperature = (TempSensorOrdered[1]+TempSensorOrdered[2])/2.0;
 	 }
-	 /* Calcul sur la moyenne des éléments, min et max exclus*/
-	 Temperature = (TempSensorOrdered[1]+TempSensorOrdered[2])/2.0;
+	 /* si erreur I2C on renvoie une température idiote -100°C : UC doit interprêter erreur ! */
+	 else
+		 {
+		 Temperature = -100.0;
+		 Stop=1;
+		 StandByWkUpPgm_WCode=Temp_Error;
+		 }
+
+	 ExchLayer_BuildMssgTemp(TransmitMssg, Temperature);
+	 a=ExchLayer_ExtractTemperature(TransmitMssg);
 
 
-/***************************************************************
-			Emission Info UC, attente réception UC
+	 /***************************************************************
+			Wakeup Emission Info UC Temperature. 3 tentatives.
+			Wait for  Nouvel Ordre Clim, Heure
+
 			Trame :
-			|Code | Value |
+			|Code 		| Value |
 
-			Error |Value = code erreur string
-			Temp  |Value = float brut
-			Time  |Value = String formaté HH:Mn:Sec
-			ClimOrder |Value = enum|
-			Ack   |Value = no value
-***************************************************************/
+			Error 		|Value = code erreur string
+			Temp 		|Value = float brut
+			Time  		|Value = String formaté HH:Mn:Sec
+			ClimOrder 	|Value = enum|
+			Ack   		|Value = no value
+	***************************************************************/
+	 if (Stop==0) /* on poursuit la transaction*/
+	 {
+		 StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
+		 TimeManag_TimeOutInit();
+		 MACPhyUART_Init(My);
+		 PhyUART_StartFSM();
 
 
+		 Stop=1; /* On stoppe par défaut*/
+		 for (i=0;i<3;i++)
+		 {
+			 PhyUART_SendNewMssg (TransmitMssg, 5);
+			 TimeManag_TimeOutStart(Chrono_3 , 100);
+			 while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
+			 {
+				 if (MACPhyUART_IsNewMssg()==1)
+				 {
+					 Long=MACPhyUART_GetLen();
+					 MACPhyUART_GetNewMssg(ReceivedMssg, Long);
+					 Stop=0;
+					 break;
+				 }
+			 }
+			 if (Stop==0) break;
+			 else StandByWkUpPgm_WCode=Transm_1_Attempt+i;
+		 }
+		 if (Stop==1) StandByWkUpPgm_WCode=Transm_Error_NoTimeClimCodeReceived;
+	 }
 
-
-
-/***************************************************************
+	/***************************************************************
 			Mise à jour Climatiseur
-***************************************************************/
-	  /***************************************************************
-	  		 test LED IR Clim
-	  ***************************************************************/
-	  USART_FSK_RT606_OFF();
-	  RmDv_TelecoIR_Init();
+	***************************************************************/
 
-	  RmDv_TelecoIR_SetCmde(_Stop);
+//////// TRUCAGE ///////////
+	Stop=0;
+//////// FIN TRUCAGE ///////////
+	if (Stop==0) /* on poursuit la transaction*/
+	{
+		//////// TRUCAGE ///////////	 	if (ExchLayer_ExtractMssgcode(ReceivedMssg)==MssgTimeClimOrderCode)
+	 	{
+			StandByWkUpPgm_CurrentState=ClimUpdate;
+		 	ReceivedCodeClim=ExchLayer_ExtractClimOrder(ReceivedMssg);
+		 	RmDv_TelecoIR_Init();
+		 	//RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
+		 	RmDv_TelecoIR_SetCmde(_Stop);
+		 	RmDv_TelecoIR_DeInit();
+	 	}
+	 	//////// TRUCAGE ///////////	 	else
+	 	//////// TRUCAGE ///////////	 	{
+	 	//////// TRUCAGE ///////////	 		StandByWkUpPgm_WCode=WrongCmdeWhenReceivingTimeClimCode;
+	 	//////// TRUCAGE ///////////	 		Stop=1;
+	 	//////// TRUCAGE ///////////	 	}
 
-	  RmDv_TelecoIR_DeInit();
-/***************************************************************
-			Ajustement RTC
-***************************************************************/
+	}
+
+	/***************************************************************
+				Ajustement RTC
+	***************************************************************/
+	 StandByWkUpPgm_CurrentState=RTCAdjust;
+
+
+	/***************************************************************
+				Statut final Wkup phase
+				Emission Warning
+				Attente retour quelqu'il soit
+	***************************************************************/
+	StandByWkUpPgm_CurrentState=WarningMssg;
+	ExchLayer_BuildMssgWarning(TransmitMssg, StandByWkUpPgm_WCode);
+
+	for (i=0;i<3;i++)
+	{
+		PhyUART_SendNewMssg (TransmitMssg, 2);
+		TimeManag_TimeOutStart(Chrono_3 , 100);
+		while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
+		{
+			if (MACPhyUART_IsNewMssg()==1)
+			{
+				Long=MACPhyUART_GetLen();
+				MACPhyUART_GetNewMssg(ReceivedMssg, Long);
+				break;
+			}
+		}
+	}
+	/***************************************************************
+				go sleep standby (ds le main)
+	***************************************************************/
+
+
 
 
 

@@ -48,17 +48,24 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "StandByWkupPgm.h"
-#include "RmDv_ErrorWDG.h"
+
 
 
 /* =================================================================================
 * ==================    Main pgm	     ===========================================
   General Configurations (Clock, IO remote Device)
-  Si Pwr reset ou BP reset
-  	  FactoryReset
-  Sinon (wkup RTC depuis Standby Mode)
-  	  StandByWkUpPgm
-  FinSi
+
+  StbyPgm (émission temp avec attente consigne, émission warning
+  Sleep
+
+  Si plantage, émission erreur (état dans lequel s'est fait le plantage)
+  sleep
+
+  Donc,
+  - ds le cas normal : deux émissions normalement, consigne et warning
+  - erreur température : une seule émission, erreur de température
+  - plantage sévère : une seule émission la phase qui a causé le plantage
+
 
 * =================================================================================*/
 
@@ -68,7 +75,8 @@ void SystemClock_Config(void);
 void BP_User_Callback(void);
 void LPTIM1_User_Callback(void);
 
-#define PeriodeSleep_Sec 10
+#define PeriodeSleep_Sec 30
+#define PlantageTimeOut 5
 
 int main(void)
 {
@@ -79,8 +87,11 @@ int main(void)
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 	SystemClock_Config();
+	/* Réglage Période RTC*/
 	LowPower_L031_RTC_Init(PeriodeSleep_Sec);
-
+	/* Réglage durée watchgog*/
+	RmDv_ErrorWDG_LPTIMConf(PlantageTimeOut,0, LPTIM1_User_Callback);
+	StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
 	/***************************************************************
 	  		Configurations I/O Remote Device
 	***************************************************************/
@@ -88,18 +99,9 @@ int main(void)
 	USART_FSK_RT606_OFF();
 	RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
 
-
-
-	/* Test LPTM1*/
-	RmDv_EnableBoost;
-	ADT7410_Init();
-	RmDv_TelecoIR_Init();
-	//Timer_Set_Duty(RmDv_TelecoIR_Timer_PWM,2,99);
-	RmDv_ErrorWDG_LPTIMConf(5,Prio_LPTIM, LPTIM1_User_Callback);
-	StartLPTMOneShot;
-	while(1);
-	/* fin Test LPTM1*/
-
+	/***************************************************************
+	  		Run code Standby
+	***************************************************************/
 	Main_StandByWkUpPgm();
 	//LowPower_L031_GoToStdbySleep();
 
@@ -122,12 +124,27 @@ void BP_User_Callback(void)
 
 
 
+char ErrorMssg[2];
 void  LPTIM1_User_Callback(void)
 {
-	//RmDv_TelecoIR_SetCmde(_Stop);
+	int i;
 
-	Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,PWM);
-	Delay_x_ms(500);
+	/* Emettre statut erreur */
+	ExchLayer_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
+	for (i=0;i<3;i++)
+	{
+		PhyUART_SendNewMssg (ErrorMssg, 2);
+		TimeManag_TimeOutStart(Chrono_3 , 100);
+		while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
+		{
+			if (MACPhyUART_IsNewMssg()==1)
+			{
+				break;
+			}
+		}
+	}
+	//LowPower_L031_GoToStdbySleep();
+
 
 }
 

@@ -10,6 +10,17 @@
 
 #include "stm32l0xx.h"
 
+typedef enum {
+	BoostActivation=0,
+	TemperatureMeasure=1,
+	WakeUpMssgToUC=2,
+	ClimUpdate=3,
+	RTCAdjust=4,
+	WarningMssg=5,
+}RmDv_WkUp_CurrentState;
+
+
+
 #define Prio_LPTIM 0
 void RmDv_ErrorWDG_LPTIMConf(int TimeOut_sec,char Prio, void (*IT_function) (void));
 
