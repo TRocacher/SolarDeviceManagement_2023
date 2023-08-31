@@ -87,6 +87,23 @@
  *_______________________________________________________________________________*/
 short int ADT7410_Init(void);
 
+
+/*______________________________________________________________________________
+*_______________________  float ADT7410_GetTemp_float(void)  __________________________
+ *
+ *   Rôle:  Renvoie la valeur de température en float.
+ *   		Opère 4 mesures consécutives, rejette le min et le max, fait la moyenne
+ *   		des deux valeurs intermédiaires
+ *
+ *   		Durée 1 seconde car 4 mesures à 250ms
+ *
+ *   Param in : _
+ *   Param out : -100.0°C si erreur !, température sinon
+ *
+ *_______________________________________________________________________________*/
+
+float ADT7410_GetTemp_float(void);
+
 /*______________________________________________________________________________
 *_______________________  ADT7410_GetTemp_fract_9_7   __________________________
  *

@@ -46,10 +46,13 @@
 
 
 /* Includes ------------------------------------------------------------------*/
+#include <ProtocoleFcts.h>
 #include "main.h"
 #include "StandByWkupPgm.h"
 
-
+#include "RmDv_IO.h"
+#include "MACPhyUART.h"
+#include "LowPower_L031.h"
 
 /* =================================================================================
 * ==================    Main pgm	     ===========================================
@@ -130,10 +133,10 @@ void  LPTIM1_User_Callback(void)
 	int i;
 
 	/* Emettre statut erreur */
-	ExchLayer_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
+	Protocole_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
 	for (i=0;i<3;i++)
 	{
-		PhyUART_SendNewMssg (ErrorMssg, 2);
+		MACPhyUART_SendNewMssg (UC_Adress,ErrorMssg, 2);
 		TimeManag_TimeOutStart(Chrono_3 , 100);
 		while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 		{

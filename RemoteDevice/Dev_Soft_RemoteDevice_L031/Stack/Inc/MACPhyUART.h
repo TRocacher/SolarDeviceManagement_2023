@@ -83,7 +83,7 @@ typedef enum {
 /**************************************************************************************************
  Configure le module PhyUART (Timer, UART, �tat initial de la FSM...
 ***************************************************************************************************/
-void PhyUART_Init(void);
+//void PhyUART_Init(void);
 
 /**************************************************************************************************
  Lance la FSM en validant la transition vers l'�tat WaitForHeader
@@ -92,9 +92,9 @@ void PhyUART_StartFSM(void);
 
 
 
-char PhyUART_IsNewMssg(void);
-PhyUART_StatusType PhyUART_Get_Status(void);
-PhyUART_ErrorType PhyUART_Get_Error(void);
+//char PhyUART_IsNewMssg(void);
+//PhyUART_StatusType PhyUART_Get_Status(void);
+//PhyUART_ErrorType PhyUART_Get_Error(void);
 
 /**************************************************************************************************
  Permet de recopier la donn�e valid�e par la couche PhyUART.
@@ -103,8 +103,8 @@ PhyUART_ErrorType PhyUART_Get_Error(void);
  Un test est donc fait pour savoir si la longueur du tableau recevant est suffisant.
  La fonction r�pond -1 en cas d'erreur sur ce test ou 0 si tout est OK
 ***************************************************************************************************/
-int PhyUART_GetNewMssg (char * AdrString, int Len); 
-int PhyUART_SendNewMssg (char * AdrString, int Len);
+//int PhyUART_GetNewMssg (char * AdrString, int Len);
+//int PhyUART_SendNewMssg (char * AdrString, int Len);
 
 #endif
 

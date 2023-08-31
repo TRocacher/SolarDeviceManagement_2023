@@ -8,7 +8,7 @@
 #ifndef INC_RMDV_BOOST_H_
 #define INC_RMDV_BOOST_H_
 
-#include "main.h"
+//#include "main.h"
 
 #define RmDv_EnableBoost LL_GPIO_ResetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin)
 #define RmDv_DisableBoost LL_GPIO_SetOutputPin(nBoost_En_GPIO_Port, nBoost_En_Pin)

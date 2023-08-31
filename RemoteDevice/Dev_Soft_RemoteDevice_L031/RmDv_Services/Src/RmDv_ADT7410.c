@@ -43,7 +43,7 @@
 
 
 
-#include "TimeManagement_RmDv.h"
+
 #include "RmDv_ADT7410.h"
 
 
@@ -134,5 +134,56 @@ short int ADT7410_GetTemp_fract_9_7(void)
 	}
 
 
+float ADT7410_GetTemp_float(void)
+{
+int i,j,k;
+char Error;
+float TempSensor[4],TempSensorOrdered[4];
+float MinTemp,Temperature;
+int Temp;
 
+	Error=0;
+
+/* Acquisition 4 valeurs */
+	for (i=0;i<4;i++)
+	{
+		Temp=ADT7410_GetTemp_fract_9_7();
+		if (Temp==-32768)
+		{
+			Error=1;
+			break;
+		}
+		TempSensor[i]=((float)Temp)/128.0;
+	}
+
+/* Filtrage */
+	if (Error==0)
+	{
+		/*Classement */
+		for (j=0;j<4;j++)
+		{
+			MinTemp=50.0;
+			for (i=0;i<4;i++)
+			{
+				if  (TempSensor[i]<MinTemp)
+				{
+					TempSensorOrdered[j]=TempSensor[i];
+					MinTemp=TempSensor[i];
+					k=i;
+				}
+			}
+			/* k est le rang du min dans le tableau de départ
+			 * il faut l'exclure du classement suivant, en le mettant au max*/
+			TempSensor[k]=100.0;
+		}
+		/* Calcul sur la moyenne des éléments, min et max exclus*/
+		Temperature = (TempSensorOrdered[1]+TempSensorOrdered[2])/2.0;
+	}
+	/* si erreur I2C on renvoie une température idiote -100°C : UC doit interprêter erreur ! */
+	else
+	{
+		Temperature = -100.0;
+	}
+	return Temperature;
+}
 

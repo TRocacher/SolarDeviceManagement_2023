@@ -1,4 +1,4 @@
-#include "ExchangeLayer.h"
+#include <ProtocoleFcts.h>
 
 /* =================================================================================
 * ==================   Main_StandByWkUpPgm	     ===================================
@@ -13,7 +13,7 @@
 
 * =================================================================================*/
 
-float ExchLayer_ExtractTemperature(char * MssgTempStr)
+float Protocole_ExtractTemperature(char * MssgTempStr)
 {
 	float Value;
 	float *PtrFloat;
@@ -30,7 +30,7 @@ float ExchLayer_ExtractTemperature(char * MssgTempStr)
 	return Value;
 }
 
-void ExchLayer_BuildMssgTemp(char * MssgTempStr, float Temp)
+void Protocole_BuildMssgTemp(char * MssgTempStr, float Temp)
 {
 	float *PtrFloat;
 	char *PtrChar;
@@ -44,24 +44,24 @@ void ExchLayer_BuildMssgTemp(char * MssgTempStr, float Temp)
 	 MssgTempStr[4]=*(PtrChar+3);
 }
 
-void ExchLayer_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode WarningCode)
+void Protocole_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode WarningCode)
 {
 	MssgTempStr[0]=MssgWarningCode;
 	MssgTempStr[1]=WarningCode;
 }
 
-void ExchLayer_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode)
+void Protocole_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode)
 {
 	MssgTempStr[0]=MssgErrorCode;
 	MssgTempStr[1]=ErrorCode;
 }
 
-char ExchLayer_ExtractMssgcode(char * MssgTempStr)
+char Protocole_ExtractMssgcode(char * MssgTempStr)
 {
 	return (*MssgTempStr);
 }
 
-RmDv_TelecoIR_Cmde ExchLayer_ExtractClimOrder(char * MssgTempStr)
+RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(char * MssgTempStr)
 {
 	return (* (MssgTempStr+7));
 }

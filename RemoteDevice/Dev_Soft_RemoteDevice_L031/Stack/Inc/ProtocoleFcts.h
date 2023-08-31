@@ -5,8 +5,8 @@
  *      Author: trocache
  */
 
-#ifndef INC_EXCHANGELAYER_H_
-#define INC_EXCHANGELAYER_H_
+#ifndef INC_PROTOCOLEFCTS_H_
+#define INC_PROTOCOLEFCTS_H_
 #include "RmDv_ErrorWDG.h"
 #include "RmDv_TelecoIR.h"
 
@@ -45,11 +45,11 @@ typedef enum {
 
 }MssgCode;
 
-float ExchLayer_ExtractTemperature(char * MssgTempStr);
-void ExchLayer_BuildMssgTemp(char * MssgTempStr, float Temp);
-char ExchLayer_ExtractMssgcode(char * MssgTempStr);
-RmDv_TelecoIR_Cmde ExchLayer_ExtractClimOrder(char * MssgTempStr);
-void ExchLayer_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode Warning);
-void ExchLayer_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode);
+float Protocole_ExtractTemperature(char * MssgTempStr);
+void Protocole_BuildMssgTemp(char * MssgTempStr, float Temp);
+char Protocole_ExtractMssgcode(char * MssgTempStr);
+RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(char * MssgTempStr);
+void Protocole_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode Warning);
+void Protocole_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode);
 
-#endif /* INC_EXCHANGELAYER_H_ */
+#endif /* INC_PROTOCOLEFCTS_H_ */

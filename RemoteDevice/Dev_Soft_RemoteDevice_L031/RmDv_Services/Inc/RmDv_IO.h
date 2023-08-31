@@ -4,7 +4,8 @@
  *  Created on: Jul 3, 2022
  *      Author: trocache
  */
-#include "main.h"
+#include "stm32l0xx_ll_bus.h"
+#include "stm32l0xx_ll_gpio.h"
 #include "GPIO_L031.h"
 #ifndef INC_RMDV_IO_H_
 #define INC_RMDV_IO_H_

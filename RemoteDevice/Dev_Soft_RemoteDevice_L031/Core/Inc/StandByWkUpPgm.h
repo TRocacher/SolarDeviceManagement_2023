@@ -2,14 +2,12 @@
 * ==================   Main_StandByWkUpPgm.h     ===================================
 * =================================================================================*/
 
+#include <ProtocoleFcts.h>
 #include "RmDv_ADT7410.h"
 #include "RmDv_Boost.h"
 #include "RmDv_IO.h"
 #include "MACPhyUART.h"
 #include "RmDv_TelecoIR.h"
-#include "LowPower_L031.h"
-#include "RmDv_ErrorWDG.h"
-#include "ExchangeLayer.h"
 
 
 #ifndef INC_STANDBYWKUPPGM_H_
