@@ -47,9 +47,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <ProtocoleFcts.h>
+#include <RmDv_WDG_LPTM.h>
 #include "main.h"
 #include "StandByWkupPgm.h"
-
 #include "RmDv_IO.h"
 #include "MACPhyUART.h"
 #include "LowPower_L031.h"
@@ -78,7 +78,7 @@ void SystemClock_Config(void);
 void BP_User_Callback(void);
 void LPTIM1_User_Callback(void);
 
-#define PeriodeSleep_Sec 30
+#define PeriodeSleep_Sec 120
 #define PlantageTimeOut 5
 
 int main(void)
@@ -106,7 +106,7 @@ int main(void)
 	  		Run code Standby
 	***************************************************************/
 	Main_StandByWkUpPgm();
-	//LowPower_L031_GoToStdbySleep();
+	LowPower_L031_GoToStdbySleep();
 
   while(1)
   {
@@ -132,21 +132,11 @@ void  LPTIM1_User_Callback(void)
 {
 	int i;
 
-	/* Emettre statut erreur */
-	Protocole_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
-	for (i=0;i<3;i++)
-	{
-		MACPhyUART_SendNewMssg (UC_Adress,ErrorMssg, 2);
-		TimeManag_TimeOutStart(Chrono_3 , 100);
-		while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
-		{
-			if (MACPhyUART_IsNewMssg()==1)
-			{
-				break;
-			}
-		}
-	}
-	//LowPower_L031_GoToStdbySleep();
+	/* Remplir un log erreur ds backup register pour next wakeup*/
+	//Protocole_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
+
+
+	LowPower_L031_GoToStdbySleep();
 
 
 }

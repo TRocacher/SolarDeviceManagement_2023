@@ -6,19 +6,12 @@
  */
 
 #include "Timer_L031.h"
+#include "ProtocoleFcts.h"
 
 #ifndef INC_RMDV_TELECOIR_H_
 #define INC_RMDV_TELECOIR_H_
 
-typedef enum {
-	_Chaud_18_VanBas_FanAuto,
-	_Chaud_19_VanBas_FanAuto,
-	_Chaud_20_VanBas_FanAuto,
-	_Chaud_21_VanBas_FanAuto,
-	_Chaud_22_VanBas_FanAuto,
-	_Chaud_23_VanBas_FanAuto,
-	_Stop
-}RmDv_TelecoIR_Cmde;
+
 
 
 #define RmDv_TelecoIR_Timer_PWM TIM2

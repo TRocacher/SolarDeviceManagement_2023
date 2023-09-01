@@ -56,8 +56,6 @@ Trame :
 			TimeClimOrderCode		|Value = String formaté HHMnSec ; Clim Order
 			|TimeClimOrderCode|Hdiz|Hunit|Mndiz|Mnunit|Secdiz|Secunit|ClimOrder|  longueur 8
 
-			|MssgWarningCode|RmDv_WarningCode|
-
 			Ack   		|Value = no value
 	*/
 
@@ -71,14 +69,11 @@ typedef enum {
 
 }MssgCode;
 
-MssgCode Protocole_ExtractMssgcode(char * MssgTempStr);
 float Protocole_ExtractTemperature(char * MssgTempStr);
-RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(char * MssgTempStr);
-RmDv_WarningCode Protocole_ExtractWarningCode(char * MssgTempStr);
-
 void Protocole_BuildMssgTemp(char * MssgTempStr, float Temp);
+char Protocole_ExtractMssgcode(char * MssgTempStr);
+RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(char * MssgTempStr);
 void Protocole_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode Warning);
 void Protocole_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode);
-void Protocole_BuildMssgTelecoHeure(char * MssgStr, RmDv_TelecoIR_Cmde Cmde);
 
 #endif /* INC_PROTOCOLEFCTS_H_ */

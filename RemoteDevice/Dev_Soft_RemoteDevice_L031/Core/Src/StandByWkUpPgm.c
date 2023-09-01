@@ -123,25 +123,20 @@ void Main_StandByWkUpPgm(void)
 			Mise à jour Climatiseur
 	***************************************************************/
 
-//////// TRUCAGE ///////////
-	Stop=0;
-//////// FIN TRUCAGE ///////////
 	if (Stop==0) /* on poursuit la transaction*/
 	{
-		//////// TRUCAGE ///////////	 	if (Protocole_ExtractMssgcode(ReceivedMssg)==MssgTimeClimOrderCode)
+		if (Protocole_ExtractMssgcode(ReceivedMssg)==MssgTimeClimOrderCode)
 	 	{
 			StandByWkUpPgm_CurrentState=ClimUpdate;
 		 	ReceivedCodeClim=Protocole_ExtractClimOrder(ReceivedMssg);
 		 	RmDv_TelecoIR_Init();
-		 	//RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
-		 	RmDv_TelecoIR_SetCmde(_Stop);
+		 	RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
 		 	RmDv_TelecoIR_DeInit();
 	 	}
-	 	//////// TRUCAGE ///////////	 	else
-	 	//////// TRUCAGE ///////////	 	{
-	 	//////// TRUCAGE ///////////	 		StandByWkUpPgm_WCode=WrongCmdeWhenReceivingTimeClimCode;
-	 	//////// TRUCAGE ///////////	 		Stop=1;
-	 	//////// TRUCAGE ///////////	 	}
+	 	else
+	 	{
+	 		StandByWkUpPgm_WCode=WrongCmdeWhenReceivingTimeClimCode;
+	 	}
 
 	}
 
@@ -159,6 +154,7 @@ void Main_StandByWkUpPgm(void)
 	StandByWkUpPgm_CurrentState=WarningMssg;
 	Protocole_BuildMssgWarning(TransmitMssg, StandByWkUpPgm_WCode);
 
+	Stop=1; /* On stoppe par défaut*/
 	for (i=0;i<3;i++)
 	{
 		MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 2);
@@ -169,9 +165,11 @@ void Main_StandByWkUpPgm(void)
 			{
 				Long=MACPhyUART_GetLen();
 				MACPhyUART_GetNewMssg(ReceivedMssg, Long);
+				Stop=0;
 				break;
 			}
 		}
+		if (Stop==0) break;
 	}
 	/***************************************************************
 				go sleep standby (ds le main)

@@ -36,7 +36,7 @@ void Protocole_BuildMssgTemp(char * MssgTempStr, float Temp)
 	char *PtrChar;
 
 	 PtrFloat=&Temp;
-	 PtrChar=(char *)PtrFloat;
+	 PtrChar=(char*)PtrFloat;
 	 MssgTempStr[0]=MssgTempCode;
 	 MssgTempStr[1]=*PtrChar;
 	 MssgTempStr[2]=*(PtrChar+1);
@@ -56,13 +56,66 @@ void Protocole_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCo
 	MssgTempStr[1]=ErrorCode;
 }
 
-char Protocole_ExtractMssgcode(char * MssgTempStr)
+MssgCode Protocole_ExtractMssgcode(char * MssgTempStr)
 {
-	return (*MssgTempStr);
+	char Val;
+	Val=(*MssgTempStr);
+	return ((MssgCode)Val);
 }
 
-RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(RmDv_TelecoIR_Cmde * MssgTempStr)
+RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(char * MssgTempStr)
 {
-	return (*(MssgTempStr+7));
+	char Val;
+	Val= *(MssgTempStr+7);
+	return ((RmDv_TelecoIR_Cmde)Val);
 }
+
+void Protocole_BuildMssgTelecoHeure(char * MssgStr, RmDv_TelecoIR_Cmde Cmde)
+{
+	
+	int i;
+	MssgStr[0]=MssgTimeClimOrderCode;
+	// for = heure bidon pour l'instant
+	for (i=1;i<7;i++)
+	{
+		MssgStr[i]=i;
+	}
+	MssgStr[7]=Cmde;
+}
+
+RmDv_WarningCode Protocole_ExtractWarningCode(char * MssgTempStr)
+{
+	char Val;
+	Val= *(MssgTempStr+1);
+	return ((RmDv_WarningCode)Val);
+}
+
+void Protocole_BuildMssgAck(char * MssgTempStr)
+{	
+	MssgTempStr[0]=MssgAckCode;	
+}
+
+
+
+/*
+Stop=1; /* On stoppe par défaut
+		 for (i=0;i<3;i++)
+		 {
+			 MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 5);
+			 TimeManag_TimeOutStart(Chrono_3 , 100);
+			 while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
+			 {
+				 if (MACPhyUART_IsNewMssg()==1)
+				 {
+					 Long=MACPhyUART_GetLen();
+					 MACPhyUART_GetNewMssg(ReceivedMssg, Long);
+					 Stop=0;
+					 break;
+				 }
+			 }
+			 if (Stop==0) break;
+			 else StandByWkUpPgm_WCode=Transm_1_Attempt+i;
+		 }
+*/
+
 
