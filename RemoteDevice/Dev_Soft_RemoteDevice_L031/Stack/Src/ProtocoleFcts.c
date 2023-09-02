@@ -91,8 +91,8 @@ RmDv_WarningCode Protocole_ExtractWarningCode(char * MssgTempStr)
 }
 
 
-/*
-Stop=1; /* On stoppe par défaut
+/* GESTION des n essais successifs.... Ã  faire
+Stop=1;  On stoppe par dï¿½faut
 		 for (i=0;i<3;i++)
 		 {
 			 MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 5);

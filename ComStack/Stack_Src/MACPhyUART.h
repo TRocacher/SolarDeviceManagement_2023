@@ -17,6 +17,10 @@ void MACPhyUART_Init(char My);
 #define MACPhyUART_Get_Status PhyUART_Get_Status 
 #define MACPhyUART_Get_Error PhyUART_Get_Error
 
+/* Remet à 0 les attributs d'échanges de l'interface
+   ne modifie pas l'@ My */
+void MACPhyUART_Reset_Restart_KeepMy(void);
+
 char MACPhyUART_IsNewMssg(void);
 
 int MACPhyUART_GetNewMssg (char * AdrString, int Len); 

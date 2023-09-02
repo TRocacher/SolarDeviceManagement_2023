@@ -8,7 +8,7 @@
 
 #include "StringFct.h"
 
-char StringFct_Int2Str(int Value,char * DigitTab)
+void StringFct_Int2Str(int Value,char * DigitTab)
 {
 	int Q,R;
 	Q=Value/10000;

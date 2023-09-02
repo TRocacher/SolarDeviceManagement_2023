@@ -130,7 +130,7 @@ void BP_User_Callback(void)
 char ErrorMssg[2];
 void  LPTIM1_User_Callback(void)
 {
-	int i;
+
 
 	/* Remplir un log erreur ds backup register pour next wakeup*/
 	//Protocole_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());

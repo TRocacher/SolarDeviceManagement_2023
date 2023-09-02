@@ -475,7 +475,7 @@ switch (PhyUART_FSM_State)
 			PhyUART_Mssg.Status=SendingMssg;
 			USART_FSK_SetTransmAntenna();
 			Delay_x_ms(4);
-			USART_FSK_Print("1234",4);      // envoie de quelques caractères car le premier byte est souvent dégradé.
+			USART_FSK_Print("123456789",9);      // envoie de quelques caractères car le premier byte est souvent dégradé.
 																		// Voir avec l'expérience si on peut diminuer le nbre.
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en réception
@@ -830,4 +830,39 @@ int  PhyUART_GetNewMssg (char * AdrString, int Len)
 	}
 }
 
+
+/*----------------- Ajout 02/09/23 ----------------------*/
+void MACPhyUART_Reset_Restart_KeepMy()
+{
+	int i;
+	for (i=0;i<StringLenMax-2;i++)
+	{
+		PhyUART_Mssg.StrReceived[i]=0;
+	}
+	PhyUART_Mssg.LenStrReceived=0;
+	PhyUART_Mssg.NewStrReceived=0;
+	PhyUART_Mssg.MACMatch=0;
+	for (i=0;i<StringLenMax-4;i++)
+	{
+		PhyUART_Mssg.MACStrReceived[i]=0;
+	}
+	PhyUART_Mssg.MACLenStrReceived=0;
+	PhyUART_Mssg.MACNewStrReceived=0;
+	PhyUART_Mssg.MACSrcAdress=0;
+	for (i=0;i<StringLenMax;i++)
+	{
+		PhyUART_Mssg.StrToSend[i]=0;
+	}
+	
+	PhyUART_Mssg.LenStrToSend=0;
+	PhyUART_Mssg.NewStrToSend=0;
+	PhyUART_Mssg.Status=Ready;	
+	PhyUART_Mssg.Error=NoError;
+		
+	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
+	PhyUART_FSM_State=Init;
+	PhyUART_Mssg.Status=Ready;
+	MACPhyUART_StartFSM();
+	
+}
 

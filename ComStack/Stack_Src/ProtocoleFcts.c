@@ -97,8 +97,8 @@ void Protocole_BuildMssgAck(char * MssgTempStr)
 
 
 
-/*
-Stop=1; /* On stoppe par défaut
+/* POUR FAIRE L'envoie sous n essais ...
+Stop=1; On stoppe par défaut
 		 for (i=0;i<3;i++)
 		 {
 			 MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 5);

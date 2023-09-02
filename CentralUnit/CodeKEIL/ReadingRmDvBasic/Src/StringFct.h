@@ -10,7 +10,7 @@
 
 
 /* ATTENTION DigitTab doit être de 5 !!!!!! si en dessous effet de bord garanti*/
-char StringFct_Int2Str(int Value,char * DigitTab);
+void StringFct_Int2Str(int Value,char * DigitTab);
 
 
 

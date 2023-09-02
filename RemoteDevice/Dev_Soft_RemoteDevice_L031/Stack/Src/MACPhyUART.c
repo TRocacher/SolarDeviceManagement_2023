@@ -8,9 +8,9 @@
  *  ------------------------------------------------------------------------------
  *  Pile de communication Xbee Like (@My, @Dest).
  *  Fonctionne en UART Half duplex avec un module FSK (RT606), 38400 Bd max
- *  "réseau" identifié par une préampbule ##### démarrant toute trame.
+ *  "rï¿½seau" identifiï¿½ par une prï¿½ampbule ##### dï¿½marrant toute trame.
  *  
- *  Lire pdf associé "LaPile_FSK_COM_STACK_UG_Light.pdf"
+ *  Lire pdf associï¿½ "LaPile_FSK_COM_STACK_UG_Light.pdf"
  *
 * =================================================================================*/
 
@@ -29,8 +29,8 @@ Architecture du module :
 -> Gestion du temps par Systick (TimeOut)
 -> API COUCHE MAC
 -> USART Callback
--> FSM PhyUART (réception/émission)
--> API COUCHE PHY UART (utilisation déconseillée, préférer API couche MAC)
+-> FSM PhyUART (rï¿½ception/ï¿½mission)
+-> API COUCHE PHY UART (utilisation dï¿½conseillï¿½e, prï¿½fï¿½rer API couche MAC)
 */
 
 
@@ -49,7 +49,7 @@ Architecture du module :
 
 
 /*---------------------------------
- états possibles de la FSM
+ ï¿½tats possibles de la FSM
 ----------------------------------*/
 
 typedef enum {
@@ -69,22 +69,22 @@ typedef enum {
 ----------------------------------*/
 
 
-// la structure d'échange MACPhyUART
+// la structure d'ï¿½change MACPhyUART
 struct PhyUART_Mssg_type
 {
-	char StrReceived[StringLenMax-2];				// |Org@|Dest@|Data|  : On enlève la longueur Len (premier octet) et Checksum (dernier octet), 28 octets typiquement
+	char StrReceived[StringLenMax-2];				// |Org@|Dest@|Data|  : On enlï¿½ve la longueur Len (premier octet) et Checksum (dernier octet), 28 octets typiquement
 	char LenStrReceived;
 	char NewStrReceived;
 	// ---< Ajout MAC >-----//
-	char MACMatch;													// flag indiquant que l'adresse destination du message est celle de My, utile à la mise à jour
-	char My;																// My : Adresse MAC propre du module
-	char MACStrReceived[StringLenMax-4];    // |Data| : on enlève les adresses d'origines et de destination, 26 octets typiquement
-																					// NB : StrReceived : string en sortie couche Phy incluant les deux
-																					// adresses + datas. Sont enlevées la longeur du message initial 
-																					// reçu par l'UART (LEN) et le checksum (d'où le -2 dans la longueur 
+	char MACMatch;													// flag indiquant que l'adresse destination du message est celle de My, utile ï¿½ la mise ï¿½ jour
+	char My;																// Myï¿½: Adresse MAC propre du module
+	char MACStrReceived[StringLenMax-4];    // |Data| : on enlï¿½ve les adresses d'origines et de destination, 26 octets typiquement
+																					// NBï¿½: StrReceivedï¿½: string en sortie couche Phy incluant les deux
+																					// adresses + datas. Sont enlevï¿½es la longeur du message initial 
+																					// reï¿½u par l'UART (LEN) et le checksum (d'oï¿½ le -2 dans la longueur 
 																					// et le -4 dans la longueur MAC String)
 	char MACLenStrReceived;
-	char MACNewStrReceived;									// passe à 1 	près remplissage de MACStrReceived
+	char MACNewStrReceived;									// passe ï¿½ 1 	prï¿½s remplissage de MACStrReceived
 	char MACSrcAdress;
 	// ---< Fin Ajout MAC >-----//
 	char StrToSend[StringLenMax];
@@ -103,13 +103,13 @@ int j=0;
 #endif
 
 /*---------------------------------
-Gestion détection header
+Gestion dï¿½tection header
 ----------------------------------*/
-// flag indiquant que lee header est reçu en phase scrutation
+// flag indiquant que lee header est reï¿½u en phase scrutation
 char UART_HeaderDetected;
-// flag indiquant l'arrivée d'un octer
+// flag indiquant l'arrivï¿½e d'un octer
 char UART_Receiv;
-// cpteur de caractère Header
+// cpteur de caractï¿½re Header
 char PhyUART_HeaderCarCpt;
 
 #define HeaderCar '#'
@@ -120,9 +120,9 @@ char PhyUART_HeaderCarCpt;
 
 
 /*---------------------------------
-String de réception UART
+String de rï¿½ception UART
 ----------------------------------*/
-// longueur chaîne lue de la frame
+// longueur chaï¿½ne lue de la frame
 char Phy_UART_Len;
 char InComingMssg[StringLenMax];
 
@@ -153,7 +153,7 @@ void PhyUART_Init(void);
 /*______________________________________________________________________________
 _______________________ void MACPhyUART_Init(char My)	__________________________
  
-    Rôle : Initialise la pile, tout est prêt pour la lancement de la FSM à suivre
+    Rï¿½le : Initialise la pile, tout est prï¿½t pour la lancement de la FSM ï¿½ suivre
 					 macro MACPhyUART_StartFSM(), voir .h
     Param : My, l'adresse propre du module 
 
@@ -178,14 +178,14 @@ char MACPhyUART_IsNewMssg(void)
 int MACPhyUART_GetNewMssg (char * AdrString, int Len)
 {
 		
-// recopie le string stocké dans la chaîne MAC
-// mets à 0 les autres octets jusqu'à la fin de la chaîne recevant (Len)
-// retourne -1 si la longueur donnée est inférieure à la longueur
-// effective de la châine MAC
+// recopie le string stockï¿½ dans la chaï¿½ne MAC
+// mets ï¿½ 0 les autres octets jusqu'ï¿½ la fin de la chaï¿½ne recevant (Len)
+// retourne -1 si la longueur donnï¿½e est infï¿½rieure ï¿½ la longueur
+// effective de la chï¿½ine MAC
 
 	int i;
 	
-	// remise à 0 du flag de réception
+	// remise ï¿½ 0 du flag de rï¿½ception
 	PhyUART_Mssg.MACNewStrReceived=0;
 	PhyUART_Mssg.NewStrReceived=0;
 	if (Len< PhyUART_Mssg.MACLenStrReceived) 
@@ -302,20 +302,20 @@ GPIOC->ODR|=GPIO_ODR_ODR3;
 for (i=0;i<300;i++);
 #endif		
 	
-	// indication arrivée d'un octet
+	// indication arrivï¿½e d'un octet
 	UART_Receiv=1;
 
-	// détection d'un HeaderCar ('#')
+	// dï¿½tection d'un HeaderCar ('#')
 	if (USART_FSK_GetByte()==HeaderCar)
 	{
 		PhyUART_HeaderCarCpt++;
 	}
 	else PhyUART_HeaderCarCpt=0;
 	
-	// indication d'une détection du Header
+	// indication d'une dï¿½tection du Header
 	if (PhyUART_HeaderCarCpt==HeaderCarLenMax) 
 	{
-		// réglage Echantillonnage à 100µs pour ne pas manquer de caractères à 38400Bds (10*1/38400 = 260µs) 
+		// rï¿½glage Echantillonnage ï¿½ 100ï¿½s pour ne pas manquer de caractï¿½res ï¿½ 38400Bds (10*1/38400 = 260ï¿½s) 
 		TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,100);
 		UART_HeaderDetected=1;
 	}
@@ -349,7 +349,7 @@ GPIOC->ODR&=~GPIO_ODR_ODR3;
 
 /*======================================================================================================
 ========================================================================================================
-		FSM PhyUART (réception/émission)			
+		FSM PhyUART (rï¿½ception/ï¿½mission)			
 ========================================================================================================		
 =======================================================================================================*/
 
@@ -360,9 +360,9 @@ PhyUART_FSM_StateType PhyUART_FSM_State;
 
 
 /*---------------------------------
- Variables et Fct de démarrage FSM
+ Variables et Fct de dï¿½marrage FSM
 ----------------------------------*/
-// user fct pour démarrer la FSM
+// user fct pour dï¿½marrer la FSM
 char PhyUART_Start;
 
 /*---------------------------------------------------------------------
@@ -381,7 +381,7 @@ void PhyUART_Framing (void);
  PhyUART_FSM_Progress
 ----------------------------------*/
 
-// index indiquant le numéro d'octet dans la frame entrante
+// index indiquant le numï¿½ro d'octet dans la frame entrante
 char PhyUART_FrameIndex; // |Len|My@|Dest@|ID|Type_LenData|Data|Trial|CheckSum| 
 //                      0   1    2    3    4          ... 
 
@@ -415,11 +415,11 @@ switch (PhyUART_FSM_State)
 			PhyUART_Mssg.Status=Ready;
 			PhyUART_Mssg.Error=NoError;
 			PhyUART_HeaderCarCpt=0;
-			// positionnement module en réception
+			// positionnement module en rï¿½ception
 			USART_FSK_SetReceiveAntenna(); 
 			if (PhyUART_Start==1) 
 			{
-				// Remise réglage Echantillonnage à 1ms
+				// Remise rï¿½glage Echantillonnage ï¿½ 1ms
 				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=WaitForHeader;
@@ -434,7 +434,7 @@ switch (PhyUART_FSM_State)
 			//  Etape Wait for Header 
 			// *****************************
 			
-			// positionnement module en réception
+			// positionnement module en rï¿½ception
 			USART_FSK_SetReceiveAntenna(); 
 			PhyUART_Mssg.Status=Listening;
 			if (UART_HeaderDetected==1)
@@ -442,7 +442,7 @@ switch (PhyUART_FSM_State)
 				UART_HeaderDetected=0;
 				UART_Receiv=0;
 				PhyUART_HeaderCarCpt=0;
-				PhyUART_FrameIndex=0; // pour préparer le sampling frame
+				PhyUART_FrameIndex=0; // pour prï¿½parer le sampling frame
 				TimeManag_TimeOutStart(Chrono_1 ,PhyUART_TimeOut); // lancement TimeOut
 				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,100);
 				// ---< Evolution next State >-----//
@@ -452,7 +452,7 @@ switch (PhyUART_FSM_State)
 			{
 				PhyUART_Mssg.NewStrToSend=0;
 				
-				// réglage Echantillonnage 100us pour accélérer la FSM)
+				// rï¿½glage Echantillonnage 100us pour accï¿½lï¿½rer la FSM)
 				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000); 
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=Framing;					
@@ -470,15 +470,15 @@ switch (PhyUART_FSM_State)
 			break;
 		}
 		
-		case SendMssg:  // ! Maintien ds l'IT pdt toute l'émission...
+		case SendMssg:  // ! Maintien ds l'IT pdt toute l'ï¿½mission...
 		{
 			PhyUART_Mssg.Status=SendingMssg;
 			USART_FSK_SetTransmAntenna();
 			Delay_x_ms(4);
-			USART_FSK_Print("1234",4);      // envoie de quelques caractères car le premier byte est souvent dégradé.
-																		// Voir avec l'expérience si on peut diminuer le nbre.
+			USART_FSK_Print("123456789",9);      // envoie de quelques caractï¿½res car le premier byte est souvent dï¿½gradï¿½.
+																		// Voir avec l'expï¿½rience si on peut diminuer le nbre.
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
-			USART_FSK_SetReceiveAntenna();  // remise du module en réception
+			USART_FSK_SetReceiveAntenna();  // remise du module en rï¿½ception
 
 			// ---< Evolution next State >-----//
 			PhyUART_FSM_State=WaitForHeader;
@@ -511,34 +511,34 @@ switch (PhyUART_FSM_State)
 						PhyUART_FrameIndex++;
 						Phy_UART_Len=USART_FSK_GetByte();
 						if ((Phy_UART_Len>StringLenMax)||(Phy_UART_Len<StringLenMin))  // si vrai on a une frame trop longue,
-																												// ou trop courte : il faut avorter et revenir à WaitForHeader
+																												// ou trop courte : il faut avorter et revenir ï¿½ WaitForHeader
 						{
 							PhyUART_Mssg.Error=LenError;
-							// Remise réglage Echantillonnage à 1ms
+							// Remise rï¿½glage Echantillonnage ï¿½ 1ms
 							TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);			
 							// ---< Evolution next State >-----//
-							PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
+							PhyUART_FSM_State=WaitForHeader; // retour ï¿½ l'ï¿½tape d'attente	
 						}
 					}
-					// Ici, la longueur a été jugée bonne.
-					else // tous les autres bytes de la frame sont samplé jusqu'au dernier PhyUART_FrameIndex>0
-					// c'est le reste de la chaîne qu'on traîte
-					// Index = 1 à LEN-1
+					// Ici, la longueur a ï¿½tï¿½ jugï¿½e bonne.
+					else // tous les autres bytes de la frame sont samplï¿½ jusqu'au dernier PhyUART_FrameIndex>0
+					// c'est le reste de la chaï¿½ne qu'on traï¿½te
+					// Index = 1 ï¿½ LEN-1
 					{
 					// exemple : Frame = Len et 5 octets. Soit LEN = 6
 					//       LEN a b c d e 
 					//  idx   0  1 2 3 4 5 
 					//           1 ..... LEN-1
 					//   On veut obtenir
-					//  InCommingMssg ="a b c d e" soit une table [LEN-1] qui va de 0 à LEN-2
+					//  InCommingMssg ="a b c d e" soit une table [LEN-1] qui va de 0 ï¿½ LEN-2
 					//                  0 1 2 3 4    
-					//  après la dernière passe, donc après inc de Idx, Idx vaut 6 C'est la condition d'arrêt
+					//  aprï¿½s la derniï¿½re passe, donc aprï¿½s inc de Idx, Idx vaut 6 C'est la condition d'arrï¿½t
 						InComingMssg[PhyUART_FrameIndex-1]=USART_FSK_GetByte();
 						PhyUART_FrameIndex++; 
 						if (PhyUART_FrameIndex==Phy_UART_Len) 
 						{
 							PhyUART_FrameIndex=0;
-							// Remise réglage Echantillonnage à 1ms
+							// Remise rï¿½glage Echantillonnage ï¿½ 1ms
 							TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);
 							// ---< Evolution next State >-----//
 							PhyUART_FSM_State=CheckSum;
@@ -549,10 +549,10 @@ switch (PhyUART_FSM_State)
 			else // timeout
 			{
 				PhyUART_Mssg.Error=TimeOutError;
-				// Remise réglage Echantillonnage à 1ms
+				// Remise rï¿½glage Echantillonnage ï¿½ 1ms
 				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,1000);
  				// ---< Evolution next State >-----//				
-				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
+				PhyUART_FSM_State=WaitForHeader; // retour ï¿½ l'ï¿½tape d'attente	
 			}
 			
 
@@ -577,7 +577,7 @@ switch (PhyUART_FSM_State)
 			{
 				Sum=Sum+InComingMssg[i];
 			}
-			// ajoutons l'octet LEN pour être complet
+			// ajoutons l'octet LEN pour ï¿½tre complet
 			Sum=Sum+Phy_UART_Len;
 			
 			if (CRC_Val==(char)Sum) // Checksum OK
@@ -590,7 +590,7 @@ switch (PhyUART_FSM_State)
 				PhyUART_Mssg.Error=CheckSumError;		
 				
 				// ---< Evolution next State >-----//				
-				PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
+				PhyUART_FSM_State=WaitForHeader; // retour ï¿½ l'ï¿½tape d'attente	
 			}
 			break;
 		}
@@ -603,10 +603,10 @@ switch (PhyUART_FSM_State)
 			// ---< Fin Ajout MAC >-----//
 			if (PhyUART_Mssg.NewStrReceived==1) PhyUART_Mssg.Error=OverRunError;
 			
-			// recopie de la chaîne 
+			// recopie de la chaï¿½ne 
 			// de |Dest@|Org@|ID|Type_LenData|Data|Trial|CheckSum|
 			// vers |Dest@|Org@|ID|Type_LenData|Data|Trial|
-			// donc on enlève le checksum = dernier octet de IncomminMssg
+			// donc on enlï¿½ve le checksum = dernier octet de IncomminMssg
 			for (i=0;i<Phy_UART_Len-2;i++) // on ne compte pas le CheckSum ! 
 			{
 				PhyUART_Mssg.StrReceived[i]=InComingMssg[i];
@@ -636,7 +636,7 @@ switch (PhyUART_FSM_State)
 			// ---< Fin Ajout MAC >-----//
 			
 			// ---< Evolution next State >-----//
-			PhyUART_FSM_State=WaitForHeader; // retour à l'étape d'attente	
+			PhyUART_FSM_State=WaitForHeader; // retour ï¿½ l'ï¿½tape d'attente	
 			
 
 			break;
@@ -663,7 +663,7 @@ void PhyUART_Framing (void)
 		Phy_UART_TransmFrame[i]='#';
 	}
 	Phy_UART_TransmFrame[5]=Phy_UART_TransmFrameLen;
-	Sum=Phy_UART_TransmFrameLen; // on l'ajoute dès le départ avant d'ajouter les char de ArdString
+	Sum=Phy_UART_TransmFrameLen; // on l'ajoute dï¿½s le dï¿½part avant d'ajouter les char de ArdString
 	for (i=0;i<PhyUART_Mssg.LenStrToSend;i++)
 	{
 		Phy_UART_TransmFrame[i+6]= PhyUART_Mssg.StrToSend[i];  
@@ -724,7 +724,7 @@ int PhyUART_SendNewMssg (char * AdrString, int Len)
 /******************************************************************************************************************
 	PhyUART_Init
 
-Rôle :
+Rï¿½le :
 Param : 
 *****************************************************************************************************************/
 
@@ -740,12 +740,12 @@ void PhyUART_Init(void)
 #endif
 	
 	USART_FSK_Init(PhyUART_BdRate,UART_Prio_CD,UART_Prio,UART_Callback);
-	USART_FSK_SetReceiveAntenna(); // place le module FSK en réception
+	USART_FSK_SetReceiveAntenna(); // place le module FSK en rï¿½ception
 	PhyUART_FSM_State=Init;
 	PhyUART_Mssg.Status=Ready;
 
 	
-	// mise en place interruption, TIM FSM à 1ms
+	// mise en place interruption, TIM FSM ï¿½ 1ms
 	TimeManag_FSMTimerInit(TIM_PhyUART_FSM, PhyUART_FSM_Prio, PhyUART_FSM_Progress,1000);
 	
 	// Initialisation du gestionnaire de TimeOut (Systick)
@@ -765,7 +765,7 @@ void PhyUART_Init(void)
 /******************************************************************************************************************
 	IO Fcts
 
-Rôle :
+Rï¿½le :
 Param : 
 *****************************************************************************************************************/
 
@@ -799,14 +799,14 @@ PhyUART_ErrorType PhyUART_Get_Error(void)
    int  PhyUART_GetNewMssg (char * AdrString, int Len)
 -----------------------------------------------------------------------*/
 int  PhyUART_GetNewMssg (char * AdrString, int Len)
-// recopie le string stocké à l'interface MAC et 
-// mets à 0 les autres octets jusqu'à StringLenMax.
-// retourne -1 si la longueur donnée est inférieure à la longueur
-// effective de la châine
+// recopie le string stockï¿½ ï¿½ l'interface MAC et 
+// mets ï¿½ 0 les autres octets jusqu'ï¿½ StringLenMax.
+// retourne -1 si la longueur donnï¿½e est infï¿½rieure ï¿½ la longueur
+// effective de la chï¿½ine
 {
 	int i;
 	
-	// remise à 0 du flag de réception
+	// remise ï¿½ 0 du flag de rï¿½ception
 	PhyUART_Mssg.NewStrReceived=0;
 	if (Len<Phy_UART_Len-2) 
 	{
@@ -828,6 +828,42 @@ int  PhyUART_GetNewMssg (char * AdrString, int Len)
 		}
 		return 0;		
 	}
+}
+
+
+/*----------------- Ajout 02/09/23 ----------------------*/
+void MACPhyUART_Reset_Restart_KeepMy()
+{
+	int i;
+	for (i=0;i<StringLenMax-2;i++)
+	{
+		PhyUART_Mssg.StrReceived[i]=0;
+	}
+	PhyUART_Mssg.LenStrReceived=0;
+	PhyUART_Mssg.NewStrReceived=0;
+	PhyUART_Mssg.MACMatch=0;
+	for (i=0;i<StringLenMax-4;i++)
+	{
+		PhyUART_Mssg.MACStrReceived[i]=0;
+	}
+	PhyUART_Mssg.MACLenStrReceived=0;
+	PhyUART_Mssg.MACNewStrReceived=0;
+	PhyUART_Mssg.MACSrcAdress=0;
+	for (i=0;i<StringLenMax;i++)
+	{
+		PhyUART_Mssg.StrToSend[i]=0;
+	}
+
+	PhyUART_Mssg.LenStrToSend=0;
+	PhyUART_Mssg.NewStrToSend=0;
+	PhyUART_Mssg.Status=Ready;
+	PhyUART_Mssg.Error=NoError;
+
+	USART_FSK_SetReceiveAntenna(); // place le module FSK en rÃ©ception
+	PhyUART_FSM_State=Init;
+	PhyUART_Mssg.Status=Ready;
+	MACPhyUART_StartFSM();
+
 }
 
 

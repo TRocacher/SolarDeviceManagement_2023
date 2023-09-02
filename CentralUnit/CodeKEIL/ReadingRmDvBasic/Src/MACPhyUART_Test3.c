@@ -4,6 +4,7 @@
 
 #include <ProtocoleFcts.h>
 #include "StringFct.h"
+#include "TimeManagement.h"
 /******************************************************************************************************************
 	Pgm de test du Rm Device.
 	Le RmDV :
@@ -25,6 +26,19 @@ Periode = 44640 mn / 20440 = 2,18mn.
 On arrondi à 2mn.
 Durant 30sec on affiche le compteur.
 
+-> en réalité le timing est d'environ 1mn45s.
+Le tps d'affichage de la temp de l'UC est réglé à 30 seconde.
+
+Pour l'UC algo :
+- boucle d'attente réception (sans test de quel RmDv a émis (y a que 0xA0)
+- réception température (non bloquant, si n'arrive pas rien ne se passe, rien ne s'affiche)
+- réception warning (idem). C'est dans cet état que l'affichage du compteur se fait. 
+  dans cet état une tempo d 30sec est lancée qui bloque toute réception pour que l'utilisateur
+	ait le tps de lire temp et warning. Ensuite on affiche le comptage et surtout on remet à 0
+	la pile pour éviter une nouvelle boucle après la tempo dû à une seconde émission du RmDv.
+
+
+
 	
 	
 	
@@ -42,8 +56,9 @@ char IntString[5];
 char D,U;
 int i;
 char ActiveLine;
+char FinReception;
 
-float COMPTEUR_REVEIL;
+int COMPTEUR_REVEIL;
 
 
 char SrcAddr,Longueur;
@@ -81,8 +96,7 @@ int main (void)
 	MyLCD_Set_cursor(0, 1);
   MyLCD_Print("RmDv Messages ...       ");
 	
-	
-	
+
 	
 	
 	while(1)
@@ -90,25 +104,24 @@ int main (void)
 		
 		
 		
-		if (MACPhyUART_IsNewMssg()==1)
+		if (MACPhyUART_IsNewMssg()==1) 
 		{
+				
 			Longueur=MACPhyUART_GetLen();
 			MACPhyUART_GetNewMssg(Rec,Longueur); 
 			CodeMessage=Protocole_ExtractMssgcode(Rec);
 			
 			/* Réception température */
-			if (CodeMessage==MssgTempCode)
+			if ((CodeMessage==MssgTempCode))
 			{
-				/* gestion compteur*/
-				COMPTEUR_REVEIL++;
-
+			
 				/* Reception actions...*/
 				Temperature=Protocole_ExtractTemperature(Rec);
 				StringFct_Float2Str(Temperature,Temp_String, 4, 2);
 				MyLCD_Set_cursor(0, ActiveLine);	
 				MyLCD_Print("Temp °C :");
 				MyLCD_Print(Temp_String);
-				MyLCD_Print("   ");
+				MyLCD_Print("     ");
 			  ActiveLine=(ActiveLine+1)%2;
 				/*  Write back Cmde clim..*/
 				Protocole_BuildMssgTelecoHeure(Send, _Stop);
@@ -117,39 +130,43 @@ int main (void)
 			}
 			
 			/* Réception warning Mssg */
-			else if (CodeMessage==MssgWarningCode)
+			else if ((CodeMessage==MssgWarningCode)) //&& (WarningDejaRecu==0))
 			{
+				
 				/* Reception actions...*/				
 				WarningCode=Protocole_ExtractWarningCode(Rec); 
 				MyLCD_Set_cursor(0, ActiveLine);
 				switch(WarningCode)
 				{
 					case NoWarning: MyLCD_Print("No Warning          ");break;
-					case Transm_1_Attempt: MyLCD_Print("Fail try 1       ");break;
-					case Transm_2_Attempt: MyLCD_Print("Fail try 2       ");break;
-					case Transm_3_Attempt: MyLCD_Print("Fail3 No Clim Update ");break;
+					case Transm_1_Attempt: MyLCD_Print("Fail try 1        ");break;
+					case Transm_2_Attempt: MyLCD_Print("Fail try 2        ");break;
+					case Transm_3_Attempt: MyLCD_Print("Fail3 No Clim Update   ");break;
 					case Temp_Error: MyLCD_Print("Temperature Error       ");break;
 					case Transm_Error_NoTimeClimCodeReceived : MyLCD_Print("No clim cmde Rec      ");break;
-					case WrongCmdeWhenReceivingTimeClimCode : MyLCD_Print("Wrong Clim Code      ");break;
+					case WrongCmdeWhenReceivingTimeClimCode : MyLCD_Print("Wrong Clim Code       ");break;
 					
-					default:MyLCD_Print("Pb Soft sw case...       ");
-					ActiveLine=(ActiveLine+1)%2;
-								
+					default:MyLCD_Print("Pb Soft sw case...        ");
 				}
-				/* Send Ack*/
+				ActiveLine=(ActiveLine+1)%2;
+				/* Send back Ack*/
 				Protocole_BuildMssgAck(Send);
 				MACPhyUART_SendNewMssg(Adr_RmDv_1,Send,1);
+					
 				
-				
-				/* Affichage Cmpteur)
+				/* Affichage Cmpteur)*/
 				/* attente 30 sec environ*/
-				Delay_x_ms(5000);
+				Delay_x_ms(30000);
+				
 				MyLCD_Set_cursor(0, ActiveLine);
 				MyLCD_Print("COMPTEUR: ");
 				StringFct_Int2Str(COMPTEUR_REVEIL,IntString);
 				MyLCD_Print(IntString);
+				MyLCD_Print("      ");
 				ActiveLine=(ActiveLine+1)%2;
-								
+				/* gestion compteur*/
+				COMPTEUR_REVEIL++;
+				MACPhyUART_Reset_Restart_KeepMy();				
 			}
 			
 
