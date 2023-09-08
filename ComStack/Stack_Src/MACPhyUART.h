@@ -1,6 +1,7 @@
 #ifndef _PHYUART_H__
 #define _PHYUART_H__
 
+#define SpyUART
 
 #include "ModuleFSK.h"
 #include "TimeManagement.h"
@@ -10,6 +11,11 @@
 // 							COUCHE MAC
 //**************************************************************************************************************
 //**************************************************************************************************************
+#ifdef SpyUART
+char SpyUART_Is_ByteRec(void);
+void SpyUART_Clear_ByteRecFlag(void);
+char SpyUART_Get_ByteRec(void);
+#endif
 
 void MACPhyUART_Init(char My);
 

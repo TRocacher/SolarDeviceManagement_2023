@@ -48,6 +48,10 @@ Architecture du module :
 
 
 
+#ifdef SpyUART
+char SpyUART_ByteRec;
+#endif
+
 /*---------------------------------
  états possibles de la FSM
 ----------------------------------*/
@@ -136,7 +140,22 @@ char Phy_UART_TransmFrame[50];
 
 
 
+#ifdef SpyUART
+char SpyUART_Is_ByteRec(void)
+{
+	return SpyUART_ByteRec;
+}
 
+void SpyUART_Clear_ByteRecFlag(void)
+{
+	SpyUART_ByteRec=0;
+}
+
+char SpyUART_Get_ByteRec(void)
+{
+	return USART_FSK_GetByte();
+}
+#endif
 
 
 
@@ -301,6 +320,11 @@ void UART_Callback(void)
 GPIOC->ODR|=GPIO_ODR_ODR3;
 for (i=0;i<300;i++);
 #endif		
+	
+	#ifdef SpyUART
+	SpyUART_ByteRec=1;
+	#endif
+	
 	
 	// indication arrivée d'un octet
 	UART_Receiv=1;
