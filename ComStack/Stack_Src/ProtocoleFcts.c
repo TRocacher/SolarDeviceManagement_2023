@@ -1,5 +1,8 @@
 #include <ProtocoleFcts.h>
 
+
+#include "MACPhyUART.h"
+
 /* =================================================================================
 * ==================   Main_StandByWkUpPgm	     ===================================
  *
@@ -93,6 +96,38 @@ RmDv_WarningCode Protocole_ExtractWarningCode(char * MssgTempStr)
 void Protocole_BuildMssgAck(char * MssgTempStr)
 {	
 	MssgTempStr[0]=MssgAckCode;	
+}
+
+
+
+
+
+/* Retourne le nbre d'essais ou 255 si pb*/
+char Protocole_SendMACMssg(Protocole_MssgTypedef Protocole_Mssg)
+{
+	int i;
+	char StatusOK;
+	char AttemptNb;
+	
+	StatusOK=0;// fault by default
+	AttemptNb=0;
+	for (i=0;i<Protocole_Mssg.TrialNb;i++)
+	{
+		MACPhyUART_SendNewMssg (Protocole_Mssg.DestAdr,Protocole_Mssg.Mssg, Protocole_Mssg.Len);
+		TimeManag_TimeOutStart(Protocole_Mssg.BaseName, Protocole_Mssg.TimeOut_ms);
+		while(TimeManag_GetTimeOutStatus(Protocole_Mssg.BaseName)==0)
+		{
+			if (MACPhyUART_IsNewMssg()==1)
+			{
+				StatusOK=1;
+				AttemptNb=i;
+				break;
+			}
+		}
+		if (StatusOK==1) break;		
+		else AttemptNb=255;
+	}
+	return AttemptNb;
 }
 
 

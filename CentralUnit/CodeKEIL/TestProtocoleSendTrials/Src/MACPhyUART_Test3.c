@@ -78,7 +78,9 @@ char ConvQuartetToAscii(char Quartet)
 /*  RTC DS1307 déclaration*/
 DS1307_Time_Typedef UserTimeSet;
 
-
+/* Test émission protocole*/
+Protocole_MssgTypedef Protocole_Mssg;
+char trial;
 
 int main (void)
 {
@@ -119,7 +121,20 @@ int main (void)
   MyLCD_Print("RmDv Messages ...       ");
 	
 
-  
+  /* TEST envoie multiple*/
+	Protocole_Mssg.BaseName=Chrono_5;
+	Protocole_Mssg.TimeOut_ms=500;
+	Protocole_Mssg.DestAdr=0xA0;
+	Protocole_Mssg.Len=6;
+	Protocole_Mssg.Mssg="Coucou";
+	Protocole_Mssg.TrialNb=250;
+
+	trial=Protocole_SendMACMssg(Protocole_Mssg);
+	
+	while(1)
+	{
+	}
+	
 	
 	
 	while(1)

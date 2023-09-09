@@ -8,6 +8,33 @@
 #ifndef INC_PROTOCOLEFCTS_H_
 #define INC_PROTOCOLEFCTS_H_
 
+#include "TimeManagement.h"
+
+typedef struct
+{
+	char * Mssg;
+	char Len;
+	char DestAdr;
+	char TrialNb;
+	TimeBaseName BaseName;
+	int TimeOut_ms;
+}Protocole_MssgTypedef;
+
+
+
+/**************************************************************************************************
+Permet l'envoie d'un message (@char + longueur de chaîne + @destinataire ) avec en plus :
+- le nombre de tentatives à faire (254 maximum) 
+- la durée entre chaque tentatives (le timeout)
+- le chronomètre utilisé
+
+Renvoie le nombre d'essais. Si la valeur vaut 255 c'est qu'il y a eu échec.
+
+Si la valeur est différente de 255, c'est qu'une donnée MAC a été reçue (flag détecté). 
+Il convient à l'application de lire cette donnée.
+***************************************************************************************************/
+char Protocole_SendMACMssg(Protocole_MssgTypedef Protocole_Mssg);
+
 
 /* Donne l'état courant de la phase de réveil
  * Utilisé si WDog pour identifier le lieu du plantage*/

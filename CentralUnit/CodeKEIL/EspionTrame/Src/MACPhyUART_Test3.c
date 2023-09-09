@@ -55,7 +55,8 @@ typedef enum {
 
 TerminalMode Mode;
 char TerminalString[50];
-
+int Date_ms; /* affichage ms modulo 10 000 devant chaque trame*/
+char Date_Str[5]; /* tableau d'ascii pour affichage date*/
 
 float Temperature;
 char Temp_String[9];
@@ -133,7 +134,7 @@ int main (void)
 	MyLCD_Init();
 	MyLCD_Clear();
 	
-	USART_Init(USART1,  PhyUART_BdRate, 15, toto);
+	USART_Init(USART1,  115200, 15, toto);
 
 	/* Config UserBP*/
 	//GPIO_Configure(GPIOC,13, INPUT, INPUT_FLOATING);
@@ -141,9 +142,9 @@ int main (void)
 	
 		
   MyLCD_Set_cursor(0, 0);
-  MyLCD_Print("Connect Serial &      ");
+  MyLCD_Print("HF38400/PC115200 ");
   MyLCD_Set_cursor(0, 1);
-  MyLCD_Print("Push User Button...     ");
+  MyLCD_Print("Push User But...     ");
 
 	
 	
@@ -165,7 +166,13 @@ int main (void)
 			{
 				if (PhyUART_IsNewMssg()==1)
 				{
-					PhyUART_GetNewMssg(TerminalString, 30);
+					Date_ms=(SystickGet()/10)%10000;
+  				PhyUART_GetNewMssg(TerminalString, 30);
+					/* affichage date*/
+					StringFct_Int2Str(Date_ms,Date_Str);
+					USART_Print(USART1,Date_Str,5);
+					USART_Print(USART1," : ",3);
+					/* affichage Trame*/
 					USART_Print(USART1,TerminalString,20);
 					USART1->DR=0x0D;
 					//USART_Print(USART1,"\r",2);
@@ -175,75 +182,5 @@ int main (void)
 			default:break;
 		}
 	}	
-	{	
-		
-		if (MACPhyUART_IsNewMssg()==1) 
-		{
-				
-			Longueur=MACPhyUART_GetLen();
-			MACPhyUART_GetNewMssg(Rec,Longueur); 
-			CodeMessage=Protocole_ExtractMssgcode(Rec);
-			
-			/* Réception température */
-			if ((CodeMessage==MssgTempCode))
-			{
-			
-				/* Reception actions...*/
-				Temperature=Protocole_ExtractTemperature(Rec);
-				StringFct_Float2Str(Temperature,Temp_String, 4, 2);
-				MyLCD_Set_cursor(0, ActiveLine);	
-				MyLCD_Print("Temp °C :");
-				MyLCD_Print(Temp_String);
-				MyLCD_Print("     ");
-			  ActiveLine=(ActiveLine+1)%2;
-				/*  Write back Cmde clim..*/
-				Protocole_BuildMssgTelecoHeure(Send, _Stop);
-				MACPhyUART_SendNewMssg(Adr_RmDv_1,Send,8);
-				
-			}
-			
-			/* Réception warning Mssg */
-			else if ((CodeMessage==MssgWarningCode)) //&& (WarningDejaRecu==0))
-			{
-				
-				/* Reception actions...*/				
-				WarningCode=Protocole_ExtractWarningCode(Rec); 
-				MyLCD_Set_cursor(0, ActiveLine);
-				switch(WarningCode)
-				{
-					case NoWarning: MyLCD_Print("No Warning          ");break;
-					case Transm_1_Attempt: MyLCD_Print("Fail try 1        ");break;
-					case Transm_2_Attempt: MyLCD_Print("Fail try 2        ");break;
-					case Transm_3_Attempt: MyLCD_Print("Fail3 No Clim Update   ");break;
-					case Temp_Error: MyLCD_Print("Temperature Error       ");break;
-					case Transm_Error_NoTimeClimCodeReceived : MyLCD_Print("No clim cmde Rec      ");break;
-					case WrongCmdeWhenReceivingTimeClimCode : MyLCD_Print("Wrong Clim Code       ");break;
-					
-					default:MyLCD_Print("Pb Soft sw case...        ");
-				}
-				ActiveLine=(ActiveLine+1)%2;
-				/* Send back Ack*/
-				Protocole_BuildMssgAck(Send);
-				MACPhyUART_SendNewMssg(Adr_RmDv_1,Send,1);
-					
-				
-				/* Affichage Cmpteur)*/
-				/* attente 30 sec environ*/
-				Delay_x_ms(30000);
-				
-				MyLCD_Set_cursor(0, ActiveLine);
-				MyLCD_Print("COMPTEUR: ");
-				StringFct_Int2Str(COMPTEUR_REVEIL,IntString);
-				MyLCD_Print(IntString);
-				MyLCD_Print("      ");
-				ActiveLine=(ActiveLine+1)%2;
-				/* gestion compteur*/
-				COMPTEUR_REVEIL++;
-				MACPhyUART_Reset_Restart_KeepMy();				
-			}
-			
 
-		}
-		
-	}
 }
