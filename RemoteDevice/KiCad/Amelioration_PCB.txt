@@ -1,3 +1,10 @@
+
+Version 2.0 : ajout des résistances de pull up au niveau du RT606 + nouveau design de contour des masses
+			: ajout de deux résistances 0 Ohm à la place des diodes.
+
+----------------------------------------------
+
+
 ROUTAGE
 
 pads apparents, option...

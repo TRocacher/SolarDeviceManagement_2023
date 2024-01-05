@@ -1,3 +1,10 @@
+**** Jan 2024 ****
+Système repensé avec Raspy et passerelle.
+
+
+
+**** avant Jan 2024 ****
+RmDv a été validé sur 1 mois d'acitivité équivalent à 2 ans
 En cours :
 /CentralUnit :
  Contiendra tout les aspects soft/hard de l'unité centrale

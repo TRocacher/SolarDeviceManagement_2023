@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name "NRJ_TR")(type "KiCad")(uri "C:/Users/trocache/Documents/Thierry/2013_2016/LibKicadPerso/LibKiCad_NRJ/NRJ_TR.kicad_sym")(options "")(descr ""))
+  (lib (name "LibKiCad_PjtDeviceManagePV")(type "KiCad")(uri "C:/Users/trocache/Documents/Thierry/2013_2016/LibKicadPerso/LibKiCad_PjtDeviceManagePV/LibKiCad_PjtDeviceManagePV.kicad_sym")(options "")(descr ""))
+  (lib (name "Insa")(type "KiCad")(uri "C:/Users/trocache/Documents/Thierry/2013_2016/LibKicadPerso/LibKiCad_INSA/Insa.kicad_sym")(options "")(descr ""))
+)
