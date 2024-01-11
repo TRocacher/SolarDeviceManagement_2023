@@ -75,7 +75,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>1</IsCurrentTarget>
+        <IsCurrentTarget>0</IsCurrentTarget>
       </OPTFL>
       <CpuCode>18</CpuCode>
       <DebugOpt>
@@ -309,7 +309,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>0</IsCurrentTarget>
+        <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>18</CpuCode>
       <DebugOpt>
@@ -495,7 +495,7 @@
       <GroupNumber>1</GroupNumber>
       <FileNumber>1</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Src\MACPhyUART_Test3.c</PathWithFileName>
@@ -518,8 +518,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\ComStack\Stack_Src\MACPhyUART.c</PathWithFileName>
-      <FilenameWithoutPath>MACPhyUART.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\ComStack\FSK_Stack\Stack_Src\ModuleFSK.c</PathWithFileName>
+      <FilenameWithoutPath>ModuleFSK.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -530,8 +530,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\ComStack\Stack_Src\ModuleFSK.c</PathWithFileName>
-      <FilenameWithoutPath>ModuleFSK.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\ComStack\FSK_Stack\Stack_Src\ProtocoleFcts.c</PathWithFileName>
+      <FilenameWithoutPath>ProtocoleFcts.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -542,8 +542,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\ComStack\Stack_Src\ProtocoleFcts.c</PathWithFileName>
-      <FilenameWithoutPath>ProtocoleFcts.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\ComStack\FSK_Stack\Stack_Src\TimeManagement.c</PathWithFileName>
+      <FilenameWithoutPath>TimeManagement.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -551,11 +551,11 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>5</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\ComStack\Stack_Src\TimeManagement.c</PathWithFileName>
-      <FilenameWithoutPath>TimeManagement.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\ComStack\FSK_Stack\Stack_Src\FSKStack.c</PathWithFileName>
+      <FilenameWithoutPath>FSKStack.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -618,8 +618,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\ComStack\KEIL_F103\Stack_Src_103\UART_F103.c</PathWithFileName>
-      <FilenameWithoutPath>UART_F103.c</FilenameWithoutPath>
+      <PathWithFileName>..\Service_RTC_DS1307\MyI2C.c</PathWithFileName>
+      <FilenameWithoutPath>MyI2C.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -630,8 +630,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\ComStack\KEIL_F103\Stack_Src_103\Timer_F103.c</PathWithFileName>
-      <FilenameWithoutPath>Timer_F103.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\GPIO_F103.c</PathWithFileName>
+      <FilenameWithoutPath>GPIO_F103.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -642,8 +642,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\ComStack\KEIL_F103\Stack_Src_103\GPIO_F103.c</PathWithFileName>
-      <FilenameWithoutPath>GPIO_F103.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\Timer_F103.c</PathWithFileName>
+      <FilenameWithoutPath>Timer_F103.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -654,8 +654,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Service_RTC_DS1307\MyI2C.c</PathWithFileName>
-      <FilenameWithoutPath>MyI2C.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\UART_F103.c</PathWithFileName>
+      <FilenameWithoutPath>UART_F103.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

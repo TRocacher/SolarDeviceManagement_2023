@@ -46,12 +46,12 @@
 
 
 /* Includes ------------------------------------------------------------------*/
+#include <FSKStack.h>
 #include <ProtocoleFcts.h>
 #include <RmDv_WDG_LPTM.h>
 #include "main.h"
 #include "StandByWkupPgm.h"
 #include "RmDv_IO.h"
-#include "MACPhyUART.h"
 #include "LowPower_L031.h"
 
 /* =================================================================================

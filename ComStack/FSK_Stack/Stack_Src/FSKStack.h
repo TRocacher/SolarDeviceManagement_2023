@@ -1,37 +1,41 @@
-#ifndef _PHYUART_H__
-#define _PHYUART_H__
+#ifndef _FSK_STACK_H__
+#define _FSK_STACK_H__
 
+#define SpyUART
 
-#include <ModuleFSK_RmDv.h>
-#include <TimeManagement_RmDv.h>
+#include "ModuleFSK.h"
+#include "TimeManagement.h"
 
 //**************************************************************************************************************
 //**************************************************************************************************************
-// 							COUCHE MAC
+// 							API FSK_Stack
 //**************************************************************************************************************
 //**************************************************************************************************************
+#ifdef SpyUART
+char SpyUART_Is_ByteRec(void);
+void SpyUART_Clear_ByteRecFlag(void);
+char SpyUART_Get_ByteRec(void);
+#endif
 
-void MACPhyUART_Init(char My);
+void FSKStack_Init(char My);
 
 
+#define FSKStack_Get_Status PhyUART_Get_Status 
+#define FSKStack_Get_Error PhyUART_Get_Error
 
-#define MACPhyUART_StartFSM PhyUART_StartFSM
-#define MACPhyUART_Get_Status PhyUART_Get_Status 
-#define MACPhyUART_Get_Error PhyUART_Get_Error
-
-/* Remet Ã  0 les attributs d'Ã©changes de l'interface
+/* Remet à 0 les attributs d'échanges de l'interface
    ne modifie pas l'@ My */
-void MACPhyUART_Reset_Restart_KeepMy(void);
+void FSKStack_Reset_Restart_KeepMy(void);
 
-char MACPhyUART_IsNewMssg(void);
+char FSKStack_IsNewMssg(void);
 
-int MACPhyUART_GetNewMssg (char * AdrString, int Len); 
+int FSKStack_GetNewMssg (char * AdrString, int Len); 
 
-char MACPhyUART_GetSrcAdress(void);
+char FSKStack_GetSrcAdress(void);
 
-char MACPhyUART_GetLen(void);
+char FSKStack_GetLen(void);
 
-int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
+int FSKStack_SendNewMssg (char DestAdr, char * AdrString, int Len);
 
 
 //**************************************************************************************************************
@@ -40,25 +44,25 @@ int MACPhyUART_SendNewMssg (char DestAdr, char * AdrString, int Len);
 //**************************************************************************************************************
 //**************************************************************************************************************
 
-// Prioritï¿½ d'interruption
-// USER DEFINE (recommandï¿½)
-#define UART_Prio_CD 1							// prioritï¿½ au niveau de l'UART , Carrier Detect (par dï¿½faut prioritï¿½ maximale)
+// Priorité d'interruption
+// USER DEFINE (recommandé)
+#define UART_Prio_CD 0							// priorité au niveau de l'UART , Carrier Detect (par défaut priorité maximale)	
 // NE PAS TOUCHER
-#define UART_Prio (UART_Prio_CD+1) 	// prioritï¿½ au niveau de l'UART (juste au dessous de CD)
-#define PhyUART_FSM_Prio (UART_Prio+1)  // prioritï¿½ de la FSM (par dï¿½faut juste en dessous de celle de l'UART)
+#define UART_Prio (UART_Prio_CD+1) 	// priorité au niveau de l'UART (juste au dessous de CD)
+#define PhyUART_FSM_Prio (UART_Prio+1)  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
 
 // USER DEFINE
-#define TIM_PhyUART_FSM TIM22
+#define TIM_PhyUART_FSM TIM2
 
 // USER DEFINE
 #define PhyUART_BdRate 38400
 
 // USER DEFINE
-// longueur max des chaï¿½nes
-#define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantitï¿½ de data (dont Src@ et Dest @) est donc de 28 octets
+// longueur max des chaïnes
+#define StringLenMax 30   // |Len | data (dont @) |Checksum| , la quantité de data (dont Src@ et Dest @) est donc de 28 octets
 #define StringLenMin 5    // Len + Src@ + Dest@ + 1 octet Data + Checksum| 
 
-	// calcul time Out on prï¿½voit la durï¿½e d'une chaï¿½ne maximale +10% 
+	// calcul time Out on prévoit la durée d'une chaîne maximale +10% 
 	// calcul en ms : T = NbBit*NbMaxOctet*1.1*Tbit = NbBit*NbMaxOctet*1.1/R 
 	//			            = 1000*10*NbMaxOctet*1.1/R = (1100*NbBit*NbMaxOctet1)/R
 	
@@ -87,14 +91,10 @@ typedef enum {
 
 
 /**************************************************************************************************
- Configure le module PhyUART (Timer, UART, ï¿½tat initial de la FSM...
+ Configure le module PhyUART (Timer, UART, état initial de la FSM...
+UTILE UNIQUEMENT SI LA PILE N EST PAS UTILISE JUSQU AU BOUT 	(Couche MAC, cad FSKStack non utilisé)
 ***************************************************************************************************/
 //void PhyUART_Init(void);
-
-/**************************************************************************************************
- Lance la FSM en validant la transition vers l'ï¿½tat WaitForHeader
-***************************************************************************************************/
-void PhyUART_StartFSM(void);
 
 
 
@@ -103,13 +103,13 @@ void PhyUART_StartFSM(void);
 //PhyUART_ErrorType PhyUART_Get_Error(void);
 
 /**************************************************************************************************
- Permet de recopier la donnï¿½e validï¿½e par la couche PhyUART.
+ Permet de recopier la donnée validée par la couche PhyUART.
  Len est la longueur Maximale pour cette recopie.
- ATTENTION ! la chaï¿½ne samplï¿½e par l'UART est entiï¿½rement recopiï¿½e ï¿½ partir de l'adresse pointï¿½e.
+ ATTENTION ! la chaîne samplée par l'UART est entièrement recopiée à partir de l'adresse pointée.
  Un test est donc fait pour savoir si la longueur du tableau recevant est suffisant.
- La fonction rï¿½pond -1 en cas d'erreur sur ce test ou 0 si tout est OK
+ La fonction répond -1 en cas d'erreur sur ce test ou 0 si tout est OK
 ***************************************************************************************************/
-//int PhyUART_GetNewMssg (char * AdrString, int Len);
+//int PhyUART_GetNewMssg (char * AdrString, int Len); 
 //int PhyUART_SendNewMssg (char * AdrString, int Len);
 
 #endif

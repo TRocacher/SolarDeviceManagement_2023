@@ -94,21 +94,21 @@ void Main_StandByWkUpPgm(void)
 	 {
 		 StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
 		 TimeManag_TimeOutInit();
-		 MACPhyUART_Init(My);
-		 MACPhyUART_StartFSM();
+		 FSKStack_Init(My);
+		 //FSKStack_StartFSM(); devenu inutile car inclu ds Init (ligne dessus)
 
 
 		 Stop=1; /* On stoppe par défaut*/
 		 for (i=0;i<3;i++)
 		 {
-			 MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 5);
+			 FSKStack_SendNewMssg (UC_Adress,TransmitMssg, 5);
 			 TimeManag_TimeOutStart(Chrono_3 , 100);
 			 while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 			 {
-				 if (MACPhyUART_IsNewMssg()==1)
+				 if (FSKStack_IsNewMssg()==1)
 				 {
-					 Long=MACPhyUART_GetLen();
-					 MACPhyUART_GetNewMssg(ReceivedMssg, Long);
+					 Long=FSKStack_GetLen();
+					 FSKStack_GetNewMssg(ReceivedMssg, Long);
 					 Stop=0;
 					 break;
 				 }
@@ -157,14 +157,14 @@ void Main_StandByWkUpPgm(void)
 	Stop=1; /* On stoppe par défaut*/
 	for (i=0;i<3;i++)
 	{
-		MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 2);
+		FSKStack_SendNewMssg (UC_Adress,TransmitMssg, 2);
 		TimeManag_TimeOutStart(Chrono_3 , 100);
 		while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 		{
-			if (MACPhyUART_IsNewMssg()==1)
+			if (FSKStack_IsNewMssg()==1)
 			{
-				Long=MACPhyUART_GetLen();
-				MACPhyUART_GetNewMssg(ReceivedMssg, Long);
+				Long=FSKStack_GetLen();
+				FSKStack_GetNewMssg(ReceivedMssg, Long);
 				Stop=0;
 				break;
 			}

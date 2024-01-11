@@ -1,7 +1,7 @@
 #include <ProtocoleFcts.h>
 
 
-#include "MACPhyUART.h"
+#include "FSKStack.h"
 
 /* =================================================================================
 * ==================   Main_StandByWkUpPgm	     ===================================
@@ -113,11 +113,11 @@ char Protocole_SendMACMssg(Protocole_MssgTypedef Protocole_Mssg)
 	AttemptNb=0;
 	for (i=0;i<Protocole_Mssg.TrialNb;i++)
 	{
-		MACPhyUART_SendNewMssg (Protocole_Mssg.DestAdr,Protocole_Mssg.Mssg, Protocole_Mssg.Len);
+		FSKStack_SendNewMssg (Protocole_Mssg.DestAdr,Protocole_Mssg.Mssg, Protocole_Mssg.Len);
 		TimeManag_TimeOutStart(Protocole_Mssg.BaseName, Protocole_Mssg.TimeOut_ms);
 		while(TimeManag_GetTimeOutStatus(Protocole_Mssg.BaseName)==0)
 		{
-			if (MACPhyUART_IsNewMssg()==1)
+			if (FSKStack_IsNewMssg()==1)
 			{
 				StatusOK=1;
 				AttemptNb=i;
@@ -136,14 +136,14 @@ char Protocole_SendMACMssg(Protocole_MssgTypedef Protocole_Mssg)
 Stop=1; On stoppe par défaut
 		 for (i=0;i<3;i++)
 		 {
-			 MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 5);
+			 FSKStack_SendNewMssg (UC_Adress,TransmitMssg, 5);
 			 TimeManag_TimeOutStart(Chrono_3 , 100);
 			 while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 			 {
-				 if (MACPhyUART_IsNewMssg()==1)
+				 if (FSKStack_IsNewMssg()==1)
 				 {
-					 Long=MACPhyUART_GetLen();
-					 MACPhyUART_GetNewMssg(ReceivedMssg, Long);
+					 Long=FSKStack_GetLen();
+					 FSKStack_GetNewMssg(ReceivedMssg, Long);
 					 Stop=0;
 					 break;
 				 }

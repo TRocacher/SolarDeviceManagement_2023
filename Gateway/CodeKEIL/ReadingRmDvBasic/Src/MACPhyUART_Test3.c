@@ -1,4 +1,4 @@
-#include "MACPhyUART.h"
+#include "FSKStack.h"
 #include "Timer_F103.h"
 #include "MyLCD.h"
 
@@ -86,8 +86,7 @@ int main (void)
 
 	ActiveLine=0;
 	SystickStart(); // obligatoire pour la gestion des TimeOut à tous les étages...
-	MACPhyUART_Init(My);
-	MACPhyUART_StartFSM();
+	FSKStack_Init(My);
 	
 	MyLCD_Init();
 	MyLCD_Clear();
@@ -127,15 +126,15 @@ int main (void)
 		
 		
 		
-		if (MACPhyUART_IsNewMssg()==1) 
+		if (FSKStack_IsNewMssg()==1) 
 		{
 				
-			Longueur=MACPhyUART_GetLen();
-			MACPhyUART_GetNewMssg(Rec,Longueur); 
+			Longueur=FSKStack_GetLen();
+			FSKStack_GetNewMssg(Rec,Longueur); 
 			CodeMessage=Protocole_ExtractMssgcode(Rec);
 			
 			/* Réception température */
-			if ((CodeMessage==MssgTempCode))
+			if (CodeMessage==MssgTempCode)
 			{
 			
 				/* Reception actions...*/
@@ -148,12 +147,12 @@ int main (void)
 			  ActiveLine=(ActiveLine+1)%2;
 				/*  Write back Cmde clim..*/
 				Protocole_BuildMssgTelecoHeure(Send, _Stop);
-				MACPhyUART_SendNewMssg(Adr_RmDv_1,Send,8);
+				FSKStack_SendNewMssg(Adr_RmDv_1,Send,8);
 				
 			}
 			
 			/* Réception warning Mssg */
-			else if ((CodeMessage==MssgWarningCode)) //&& (WarningDejaRecu==0))
+			else if (CodeMessage==MssgWarningCode) //&& (WarningDejaRecu==0))
 			{
 				
 				/* Reception actions...*/				
@@ -174,7 +173,7 @@ int main (void)
 				ActiveLine=(ActiveLine+1)%2;
 				/* Send back Ack*/
 				Protocole_BuildMssgAck(Send);
-				MACPhyUART_SendNewMssg(Adr_RmDv_1,Send,1);
+				FSKStack_SendNewMssg(Adr_RmDv_1,Send,1);
 					
 				
 				/* Affichage Cmpteur)*/
@@ -189,7 +188,7 @@ int main (void)
 				ActiveLine=(ActiveLine+1)%2;
 				/* gestion compteur*/
 				COMPTEUR_REVEIL++;
-				MACPhyUART_Reset_Restart_KeepMy();				
+				FSKStack_Reset_Restart_KeepMy();				
 			}
 			
 
