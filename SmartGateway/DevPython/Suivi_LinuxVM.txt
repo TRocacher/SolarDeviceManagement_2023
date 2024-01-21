@@ -1,0 +1,30 @@
+repertoire de travail :
+
+/PycharmProjects/PremierPas
+
+IHM.py : la page home s'affiche avec deux boutons, Param et Diag. Ces fenêtres s'ouvrent et peuvent se refermer
+utilisation de :
+- Toplevel
+- Destroy
+
+Hello.py : montre l'utilisation des requêtes HTTP en python.
+
+
+Horloge.py : fait une petite horloge tkinter (merci ChatGPT) et en plus imprime un int qui s'incrémente
+utilisation de :
+- module time
+- .after
+Remarque : à 10ms de périodicité, on est pas en temps réel !! ça rame trop.
+
+
+HomePageClass.py : regroupe les attributs de la page Home. J'ai mis ici des attributs de classe, 
+cad non définis via self. Du coup ce sont des variables non attenignables de l'extérieurs.
+J'ai fait une classe pour faire du set et du get, ça marche, mais ça sert à rien !!!
+Mieux vaut faire une classe avec des attribut d'objet qui eux sont atteignables !!
+
+
+
+==> OK ==> HomePageFieldClass.py : contient la classe (et la sous classe clim) qui correspond au champs de data de la HomeWindows
+
+
+

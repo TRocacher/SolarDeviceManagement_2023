@@ -9,3 +9,9 @@ Pour brancher la RTC. NB : pas possible avec la carte réseau capt car les deux 
 
 /TestProtocoleSendTrials
 Ajout d'une fonction clé en main pour envoyer plusieurs essais.
+
+/SerialKEIL_MCBSTM32
+Petit pgm rapide pour lire et renvoyer un caractère série USART2. Ecriture
+du char sur LCD
+
+/
