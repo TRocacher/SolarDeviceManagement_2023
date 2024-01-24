@@ -430,6 +430,8 @@ if (OldState!=PhyUART_FSM_State)
 }
 #endif
 
+
+	
 switch (PhyUART_FSM_State)
 	{
 		case Init:

@@ -5,6 +5,7 @@
 
 #include "ModuleFSK.h"
 #include "TimeManagement.h"
+#include "RessourcesPeriph.h"
 
 //**************************************************************************************************************
 //**************************************************************************************************************
@@ -25,6 +26,8 @@ void FSKStack_Init(char My);
 
 /* Remet à 0 les attributs d'échanges de l'interface
    ne modifie pas l'@ My */
+	
+
 void FSKStack_Reset_Restart_KeepMy(void);
 
 char FSKStack_IsNewMssg(void);
@@ -51,8 +54,6 @@ int FSKStack_SendNewMssg (char DestAdr, char * AdrString, int Len);
 #define UART_Prio (UART_Prio_CD+1) 	// priorité au niveau de l'UART (juste au dessous de CD)
 #define PhyUART_FSM_Prio (UART_Prio+1)  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
 
-// USER DEFINE
-#define TIM_PhyUART_FSM TIM2
 
 // USER DEFINE
 #define PhyUART_BdRate 38400

@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103;..\..\..\ComStack\Stack_TimeManagement;.\OtherServices;.\Service_RTC_DS1307;.\StackUART;.\Src</IncludePath>
+              <IncludePath>..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103;.\OtherServices;.\Service_RTC_DS1307;.\StackUART;..\..\..\ComStack\Stack_TimeManagement</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -540,7 +540,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>Reel</TargetName>
+      <TargetName>STlink</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
@@ -872,7 +872,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103;..\..\..\ComStack\Stack_TimeManagement;.\OtherServices;.\Service_RTC_DS1307;.\StackUART;.\Src</IncludePath>
+              <IncludePath>..\Service_RTC_DS1307;..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1080,14 +1080,14 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.4.0" condition="ARMv6_7_8-M Device">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.7.0"/>
         <targetInfos>
-          <targetInfo name="Reel"/>
+          <targetInfo name="STlink"/>
           <targetInfo name="Simu103"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="STM32F1xx CMSIS">
         <package name="STM32F1xx_DFP" schemaVersion="1.4.0" url="http://www.keil.com/pack/" vendor="Keil" version="2.3.0"/>
         <targetInfos>
-          <targetInfo name="Reel"/>
+          <targetInfo name="STlink"/>
           <targetInfo name="Simu103"/>
         </targetInfos>
       </component>
@@ -1098,7 +1098,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="STM32F1xx CMSIS"/>
         <package name="STM32F1xx_DFP" schemaVersion="1.4.0" url="http://www.keil.com/pack/" vendor="Keil" version="2.3.0"/>
         <targetInfos>
-          <targetInfo name="Reel"/>
+          <targetInfo name="STlink"/>
           <targetInfo name="Simu103"/>
         </targetInfos>
       </file>
@@ -1107,7 +1107,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="STM32F1xx CMSIS"/>
         <package name="STM32F1xx_DFP" schemaVersion="1.4.0" url="http://www.keil.com/pack/" vendor="Keil" version="2.3.0"/>
         <targetInfos>
-          <targetInfo name="Reel"/>
+          <targetInfo name="STlink"/>
           <targetInfo name="Simu103"/>
         </targetInfos>
       </file>
@@ -1116,7 +1116,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="STM32F1xx CMSIS"/>
         <package name="STM32F1xx_DFP" schemaVersion="1.4.0" url="http://www.keil.com/pack/" vendor="Keil" version="2.3.0"/>
         <targetInfos>
-          <targetInfo name="Reel"/>
+          <targetInfo name="STlink"/>
           <targetInfo name="Simu103"/>
         </targetInfos>
       </file>

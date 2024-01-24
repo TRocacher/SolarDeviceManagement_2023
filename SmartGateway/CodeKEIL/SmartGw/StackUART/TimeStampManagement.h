@@ -13,6 +13,7 @@
 
 
 #include "Timer_F103.h"
+#include "RessourcesPeriph.h"
 
 /* =============================================
 				TimeStampManagement
@@ -23,7 +24,7 @@
  ============================================= */
 
 
-#define TIMER_TimeStamp TIM4
+
 
 #define Janv 1
 #define Fev 2
@@ -70,5 +71,12 @@ TimeStampTypedef * TimeStamp_GetClock(void);
   * @retval pointeur sur la variable TimeStamp, TimeStampClock
   **/
 int TimeStamp_2_Sec(TimeStampTypedef * Ptr);
+
+/**
+* @brief  Détermine la différence en secondes entre le TimeStamp A et le B
+	*	Resultat = Sec A - Sec B
+  * @retval le nombre de seconde
+  **/
+int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB );
 
 #endif

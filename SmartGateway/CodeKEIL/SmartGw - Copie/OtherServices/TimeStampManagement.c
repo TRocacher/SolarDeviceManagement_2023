@@ -20,25 +20,16 @@ TimeStampTypedef TimeStampClock={0,0,0,1,1,2024};
 const int BissextilDayPerMonth[12]={31,29,31,30,31,30,31,31,30,31,30,31};
 const int NonBissextilDayPerMonth[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 
+
 void TimeStamp_SecInc(TimeStampTypedef * Ptr);
+void TimeStamp_Update(void); // Callback 1 sec
+int TimeStamp_GetDayAbsolute(TimeStampTypedef * Ptr);
 
 
 
 /*---------------------------------
- FONCTIONS
+ FONCTIONS PUBLIQUES
 ----------------------------------*/
-
-/**
-  * @brief  Callback privé. Incrémente le TimeStamp en temps réel
-	*					appelé par TIMER_TimeStamp réglé à 1 sec de période
-  **/
-void TimeStamp_Update(void)
-{
-	TimeStamp_SecInc(&TimeStampClock);
-}
-
-
-
 
 /**
   * @brief  Initialise TIMER_TimeStamp à une seconde et le lance.
@@ -49,7 +40,6 @@ void TimerStamp_Start(void)
 	Timer_CkEnable(TIMER_TimeStamp);
 	Timer_Set_Period(TIMER_TimeStamp, 10000-1, 7200-1 ); // période 1 sec
 	Timer_IT_Enable( TIMER_TimeStamp, 0, TimeStamp_Update);
-
 }
 
 
@@ -62,6 +52,48 @@ TimeStampTypedef * TimeStamp_GetClock(void)
 	return &TimeStampClock;
 }
 
+
+/**
+* @brief  convertit le timestamp en seconde à partir du 1 Jan 2024, 00:00:00
+  * @retval pointeur sur la variable TimeStamp, TimeStampClock
+  **/
+int TimeStamp_2_Sec(TimeStampTypedef * Ptr)
+{
+	int Duree_Sec;
+	Duree_Sec=(Ptr->Sec)+(Ptr->Min)*60+(Ptr->Hour)*3600\
+	+ 24*3600*TimeStamp_GetDayAbsolute(Ptr) ;
+	return Duree_Sec;
+}
+
+
+/**
+* @brief  Détermine la différence en secondes entre le TimeStamp A et le B
+	*	Resultat = Sec A - Sec B
+  * @retval le nombre de seconde
+  **/
+int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB )
+{
+	return (TimeStamp_2_Sec(PtrA)-TimeStamp_2_Sec(PtrB));
+}
+
+
+
+
+
+
+/*---------------------------------
+ FONCTIONS PRIVEES
+----------------------------------*/
+
+
+/**
+  * @brief  Callback privé. Incrémente le TimeStamp en temps réel
+	*					appelé par TIMER_TimeStamp réglé à 1 sec de période
+  **/
+void TimeStamp_Update(void)
+{
+	TimeStamp_SecInc(&TimeStampClock);
+}
 
 /**
   * @brief  Private Incrémente de 1 seconde le timestamp donné en argument
@@ -170,14 +202,6 @@ int TimeStamp_GetDayAbsolute(TimeStampTypedef * Ptr)
 	return (DayAbs);
 }
 
-/**
-* @brief  convertit le timestamp en seconde à partir du 1 Jan 2024, 00:00:00
-  * @retval pointeur sur la variable TimeStamp, TimeStampClock
-  **/
-int TimeStamp_2_Sec(TimeStampTypedef * Ptr)
-{
-	int Duree_Sec;
-	Duree_Sec=(Ptr->Sec)+(Ptr->Min)*60+(Ptr->Hour)*3600\
-	+ 24*3600*TimeStamp_GetDayAbsolute(Ptr) ;
-	return Duree_Sec;
-}
+
+
+

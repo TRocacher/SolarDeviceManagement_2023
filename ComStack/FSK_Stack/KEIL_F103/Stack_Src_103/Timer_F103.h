@@ -12,5 +12,9 @@ void Timer_IT_Enable( TIM_TypeDef *Timer, char Prio, void (*IT_function) (void))
 void Timer_CkEnable(TIM_TypeDef *Timer);
 void Timer_Set_Period(TIM_TypeDef *Timer, int ARR, int PSC );
 
+#define TimerOn(Timer) (Timer->CR1|=1)
+#define TimerOff(Timer) (Timer->CR1&=~1)
+
+
 #endif
 

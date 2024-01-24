@@ -5,6 +5,7 @@
 
 #include "GPIO_F103.h"
 #include "UART_F103.h"
+#include "RessourcesPeriph.h"
 
 /* =================================================================================
 * ==================   Module_FSK.c	     =================================
@@ -35,8 +36,6 @@
 
 
 
-// Choix de l'UART
-#define UART_FSK USART3
 
 // Autorisation UART IT seulement si CD est détecté.
 #define UseCarrierDetect  

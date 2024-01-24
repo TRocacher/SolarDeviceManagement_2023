@@ -9,10 +9,40 @@
 
 
 #include "TimeStampManagement.h"
-#include "UARTStack.h"
 
 /******************************************************************************************************************
+	Pgm de test du Rm Device.
+	Le RmDV :
+	- se réveille 
+	- mesure la temp
+	- l'envoie au UC
+	- il attend l'ordre de clim
+	- met à jour l'ordre de clim
+	- envoie statut warning
+	- se rendord
 	
+Si plabntage, -> go to sleep, pour l'instant l'UC ne peut pas le savoir clairement
+
+Fct normal = mise à jour toutes les 30mn. Durée 2ans.
+Tourne la journée de 9h00 à 23h = 14h = 28 réveils par jour.
+Doit donc tenir 28*365*2 = 20440 réveils.
+On réduit à 1 mois = 1*31*24*60=44640 mn.
+Periode = 44640 mn / 20440 = 2,18mn.
+On arrondi à 2mn.
+Durant 30sec on affiche le compteur.
+
+-> en réalité le timing est d'environ 1mn45s.
+Le tps d'affichage de la temp de l'UC est réglé à 30 seconde.
+
+Pour l'UC algo :
+- boucle d'attente réception (sans test de quel RmDv a émis (y a que 0xA0)
+- réception température (non bloquant, si n'arrive pas rien ne se passe, rien ne s'affiche)
+- réception warning (idem). C'est dans cet état que l'affichage du compteur se fait. 
+  dans cet état une tempo d 30sec est lancée qui bloque toute réception pour que l'utilisateur
+	ait le tps de lire temp et warning. Ensuite on affiche le comptage et surtout on remet à 0
+	la pile pour éviter une nouvelle boucle après la tempo dû à une seconde émission du RmDv.
+
+
 
 	
 	
@@ -60,9 +90,6 @@ short int val1;
 int Secondes;
 TimeStampTypedef TimeStampTest={0,0,0,1,1,2024}; 
 TimeStampTypedef TimeStampTestB={0,0,0,24,1,2024}; 
-
-UARTStack_ErrorType MyError;
-
 int main (void)
 {
 
@@ -77,26 +104,9 @@ int main (void)
 	val2=PtrOnMyStrut->deux;
 	Val3=PtrOnMyStrut->trois;
 	
-	MyLCD_Init ();
-	MyLCD_Clear();
-	MyLCD_Set_cursor(0, 0);
-	MyLCD_Print(" LCD Now OK...");
-	MyLCD_Set_cursor(0, 1);
 	
-	UARTStack_Init();
-	
-while(1)
+	while(1)
 	{
-		if (UARTStack_IsHMIMssg()==1)
-		{
-			PtrOnString=UARTStack_GetHMIMssg();
-			MyError=UARTStack_GetErrorStatus();
-		  MyLCD_Set_cursor(0, 1);	
-			MyLCD_Print("                ");
-		  MyLCD_Set_cursor(0, 1);	
-			MyLCD_Print_n (PtrOnString+1,*PtrOnString); // +1 pour ne pas afficher le nbre de bytes
-			
-		}
-		
+	
 	}
 }
