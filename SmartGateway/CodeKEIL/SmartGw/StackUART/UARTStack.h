@@ -16,7 +16,8 @@
  * Format de trame UART : 
  
      |NbOctets| Data Bytes|CheckSum|
-		  NbOctets = Data byte nb + 1 (checksum). Le byte NbOctets n'est pas compté
+		  NbOctets = Data byte nb + 1 (checksum). Le byte NbOctets est compté
+			dans le checksum, 
 			
 			La chaîne récupéré ressemble à ceci :
 			|5|'T'|'O'|'T'|'O'| checkS|
@@ -25,9 +26,46 @@
  * L'UART fonctionne en IT sur réception byte.
    à la première réception, on capte la longueur
 	 au bytes suivant la chaîne se construit
-	 si elle est incomplète alors un timout stoppe le processus
+	 
+	 Systématiquement un timer est lancé au début du processus.
+	 Arrivé à échéance, si la chaîne a été acquise, pas d'erreur
+	 Sinon, le statut d'erreur passe à Timeout.
+	 
+	 NB : si le premier octet de longueur est n et si le nbre d'octets
+	 envoyés est supérieur à n, aucune erreur se produira. La réception sera
+	 un succès
+	 
 	 
 	 des getter permettent d'accéder au erreurs et au tableau de 256 bytes
+	 
+********* GESTION DE LA RECEPTION ********
+	 Se fait par la fonction char UARTStack_IsHMIMssg(void);
+	 La fonction renvoie le flag HMIStringComplete
+	 
+	 HMIStringComplete est mis à 1 :
+	 - lorsque le nombre de caractères est atteint.
+			NB : l'UART est dès lors bloquée.
+
+	 HMIStringComplete est mis à 0 :
+	 - Lors d'nue lecture du string de réception
+	 - au début du processus de réception (lecture du nb d'octet à saisir)
+	 
+	 L'UART est validée :
+	 - à l'init
+	 - après un timeout (défini en multiple de 100ms)
+	 
+	 L'UART est invalidée :
+	 - Lors de la réception de n octets.
+ 
+
+********* GESTION DEs ERREURS ********
+_NoError, : a l'init et uniquement à réception de la chaîne, si pas d'erreur Checksum
+_CheckSumError, : à la réception complète de la chaïne, si erreur Checksum
+_TimeOut,  : si le timer est arrivé à échéance et sur la chaîne est incomplète
+
+
+
+
  *
 * =================================================================================*/
 
@@ -45,7 +83,7 @@ typedef enum {
 
 
 #define Chrono_TimeOut_UARTStack Chrono_5
-
+#define TimeOut_x100ms 5
 
 /**
   * @brief  Initialise la stack (UART et TimeOut. Voir .h pour

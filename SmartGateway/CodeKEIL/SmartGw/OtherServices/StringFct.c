@@ -19,6 +19,16 @@ char ConvQuartetToAscii(char Quartet)
 
 
 
+void StringFct_Int2Str_99(int Value,char * DigitTab)
+{
+	int Q,R;
+	Q=Value/10;
+	R=Value-Q*10;
+	*DigitTab=Q+0x30;
+	*(DigitTab+1)=R+0x30;
+}
+
+
 void StringFct_Int2Str(int Value,char * DigitTab)
 {
 	int Q,R;

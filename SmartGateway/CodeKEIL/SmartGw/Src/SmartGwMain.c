@@ -49,9 +49,10 @@ typedef struct
 
 //MyStructDef MyStruct={40000,1973,3.14};
 char Phrase[8]={0x40,0x9C, 0xB5,0x07,0xC3,0xF5,0x48,0x40};
-
+char LCD_Sentence[20];
 MyStructDef * PtrOnMyStrut;
 char * PtrOnString;
+char * PtrChar;
 
 float Val3;
 short int val2;
@@ -60,12 +61,14 @@ short int val1;
 int Secondes;
 TimeStampTypedef TimeStampTest={0,0,0,1,1,2024}; 
 TimeStampTypedef TimeStampTestB={0,0,0,24,1,2024}; 
+TimeStampTypedef TimeStampIHM;
+TimeStampTypedef * PtrTimeStamp;
 
 UARTStack_ErrorType MyError;
 
 int main (void)
 {
-
+	int i,L;
 
 	SystickStart(); // obligatoire pour la gestion des TimeOut à tous les étages...
 	FSKStack_Init(My);
@@ -90,11 +93,37 @@ while(1)
 		if (UARTStack_IsHMIMssg()==1)
 		{
 			PtrOnString=UARTStack_GetHMIMssg();
+			L=*PtrOnString-1; // L = celle de la payload
 			MyError=UARTStack_GetErrorStatus();
 		  MyLCD_Set_cursor(0, 1);	
 			MyLCD_Print("                ");
 		  MyLCD_Set_cursor(0, 1);	
-			MyLCD_Print_n (PtrOnString+1,*PtrOnString); // +1 pour ne pas afficher le nbre de bytes
+			
+			/* Remplissage structure*/
+			PtrTimeStamp=&TimeStampIHM;
+			PtrChar=(char *)PtrTimeStamp;
+			for (i=0;i<L;i++)
+			{
+				PtrOnString++; /* tout de suite on saute le premier octet de longueur*/
+				*PtrChar=*PtrOnString;
+				PtrChar++;
+			}
+			// Conversion explooitable pour LCD
+			PtrChar=LCD_Sentence;
+			StringFct_Int2Str_99(TimeStampIHM.Hour,PtrChar);
+			PtrChar=PtrChar+2;
+			*PtrChar=':';
+			PtrChar++;
+			StringFct_Int2Str_99(TimeStampIHM.Min,PtrChar);
+			PtrChar=PtrChar+2;
+			*PtrChar=':';			
+			PtrChar++;
+			StringFct_Int2Str_99(TimeStampIHM.Sec,PtrChar);
+			PtrChar=PtrChar+2;
+			*PtrChar=':';	
+			
+			
+			MyLCD_Print_n (LCD_Sentence,16); // +1 pour ne pas afficher le nbre de bytes
 			
 		}
 		

@@ -362,7 +362,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(100=-1,-1,-1,-1,0)(110=-1,-1,-1,-1,0)(111=-1,-1,-1,-1,0)(1011=-1,-1,-1,-1,0)(180=-1,-1,-1,-1,0)(120=-1,-1,-1,-1,0)(121=-1,-1,-1,-1,0)(122=-1,-1,-1,-1,0)(123=-1,-1,-1,-1,0)(140=-1,-1,-1,-1,0)(240=-1,-1,-1,-1,0)(190=-1,-1,-1,-1,0)(200=-1,-1,-1,-1,0)(170=-1,-1,-1,-1,0)(130=-1,-1,-1,-1,0)(131=-1,-1,-1,-1,0)(132=-1,-1,-1,-1,0)(133=-1,-1,-1,-1,0)(160=-1,-1,-1,-1,0)(161=-1,-1,-1,-1,0)(162=-1,-1,-1,-1,0)(210=-1,-1,-1,-1,0)(211=-1,-1,-1,-1,0)(220=-1,-1,-1,-1,0)(221=-1,-1,-1,-1,0)(230=-1,-1,-1,-1,0)(231=-1,-1,-1,-1,0)(232=-1,-1,-1,-1,0)(233=-1,-1,-1,-1,0)(150=-1,-1,-1,-1,0)(151=-1,-1,-1,-1,0)</Name>
+          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(100=-1,-1,-1,-1,0)(110=-1,-1,-1,-1,0)(111=-1,-1,-1,-1,0)(1011=-1,-1,-1,-1,0)(180=-1,-1,-1,-1,0)(120=-1,-1,-1,-1,0)(121=-1,-1,-1,-1,0)(122=-1,-1,-1,-1,0)(123=-1,-1,-1,-1,0)(140=-1,-1,-1,-1,0)(240=-1,-1,-1,-1,0)(190=-1,-1,-1,-1,0)(200=-1,-1,-1,-1,0)(170=-1,-1,-1,-1,0)(130=-1,-1,-1,-1,0)(131=-1,-1,-1,-1,0)(132=-1,-1,-1,-1,0)(133=-1,-1,-1,-1,0)(160=-1,-1,-1,-1,0)(161=165,202,613,616,0)(162=-1,-1,-1,-1,0)(210=-1,-1,-1,-1,0)(211=-1,-1,-1,-1,0)(220=-1,-1,-1,-1,0)(221=-1,-1,-1,-1,0)(230=-1,-1,-1,-1,0)(231=-1,-1,-1,-1,0)(232=-1,-1,-1,-1,0)(233=-1,-1,-1,-1,0)(150=-1,-1,-1,-1,0)(151=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -395,27 +395,32 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>TimeStampClock,0x0A</ItemText>
+          <ItemText>Secondes,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>day,0x0A</ItemText>
+          <ItemText>UART_Stack_Sum,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Year,0x0A</ItemText>
+          <ItemText>TimeStampIHM,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Secondes,0x0A</ItemText>
+          <ItemText>PtrChar</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>TimeStampTest,0x0A</ItemText>
+          <ItemText>PtrOnString</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>LCD_Sentence</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -427,12 +432,12 @@
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>HMISting</ItemText>
+          <ItemText>UARTStackErrorStatus</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>2</WinNumber>
-          <ItemText>UARTStackErrorStatus</ItemText>
+          <ItemText>HMIStringComplete</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
@@ -442,14 +447,19 @@
         <Ww>
           <count>4</count>
           <WinNumber>2</WinNumber>
-          <ItemText>HMIStringComplete</ItemText>
+          <ItemText>HMISting,0x10</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>UART_Stack_Sum</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x20000000</ItemText>
+          <ItemText>0x200000B8</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -515,7 +525,7 @@
       <GroupNumber>1</GroupNumber>
       <FileNumber>1</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Src\SmartGwMain.c</PathWithFileName>
@@ -651,7 +661,7 @@
       <GroupNumber>3</GroupNumber>
       <FileNumber>11</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\OtherServices\StringFct.c</PathWithFileName>

@@ -29,7 +29,15 @@ char ConvQuartetToAscii(char Quartet);
 /* ATTENTION DigitTab doit être de 5 !!!!!! si en dessous effet de bord garanti*/
 void StringFct_Int2Str(int Value,char * DigitTab);
 
-
+/**
+  * @brief  Transforme un int 16 bits de 0 à 99 !!  en un string  ASCII.
+  * @Note 1 : Max 99 donc il faut 2 caractères ASCII
+  * @Note 2 : fonction mal nommée, puisqu'il s'agit d'un short int et non un int !!
+  * @Note 3 :  ATTENTION DigitTab doit être de 2 !!!!!! si en dessous effet de bord garanti
+  * @param  Valeur, celle du int
+	* @param  pointeur sur la chaine de caractère
+  **/
+void StringFct_Int2Str_99(int Value,char * DigitTab);
 
 /**
   * @brief  Transforme un nombre float dans un format supposé en un suite

@@ -12,7 +12,8 @@
  * Format de trame UART : 
  
      |NbOctets| Data Bytes|CheckSum|
-		  NbOctets = Data byte nb + 1 (checksum). Le byte NbOctets n'est pas compté
+		  NbOctets = Data byte nb + 1 (checksum). Le byte NbOctets est compté
+			dans le checksum, 
 			
 			La chaîne récupéré ressemble à ceci :
 			|5|'T'|'O'|'T'|'O'| checkS|
@@ -21,16 +22,53 @@
  * L'UART fonctionne en IT sur réception byte.
    à la première réception, on capte la longueur
 	 au bytes suivant la chaîne se construit
-	 si elle est incomplète alors un timout stoppe le processus
+	 
+	 Systématiquement un timer est lancé au début du processus.
+	 Arrivé à échéance, si la chaîne a été acquise, pas d'erreur
+	 Sinon, le statut d'erreur passe à Timeout.
+	 
+	 NB : si le premier octet de longueur est n et si le nbre d'octets
+	 envoyés est supérieur à n, aucune erreur se produira. La réception sera
+	 un succès
+	 
 	 
 	 des getter permettent d'accéder au erreurs et au tableau de 256 bytes
+	 
+********* GESTION DE LA RECEPTION ********
+	 Se fait par la fonction char UARTStack_IsHMIMssg(void);
+	 La fonction renvoie le flag HMIStringComplete
+	 
+	 HMIStringComplete est mis à 1 :
+	 - lorsque le nombre de caractères est atteint.
+			NB : l'UART est dès lors bloquée.
+
+	 HMIStringComplete est mis à 0 :
+	 - Lors d'nue lecture du string de réception
+	 - au début du processus de réception (lecture du nb d'octet à saisir)
+	 
+	 L'UART est validée :
+	 - à l'init
+	 - après un timeout (défini en multiple de 100ms)
+	 
+	 L'UART est invalidée :
+	 - Lors de la réception de n octets.
+ 
+
+********* GESTION DEs ERREURS ********
+_NoError, : a l'init et uniquement à réception de la chaîne, si pas d'erreur Checksum
+_CheckSumError, : à la réception complète de la chaïne, si erreur Checksum
+_TimeOut,  : si le timer est arrivé à échéance et sur la chaîne est incomplète
+
+
+
+
  *
 * =================================================================================*/
 
 
 #include "UARTStack.h"
 
-char HMISting[256];
+char HMISting[25]; ////////////passer à 256 ?
 int char_pos;
 int charNbToread;
 char UARTStack_Error;
@@ -41,6 +79,7 @@ UARTStack_ErrorType UARTStackErrorStatus;
 int UARTStack_TimeOutCpt;
 
 
+char Checksum(char * Ptr);
 
 void UARTStack_Restart(void)
 {
@@ -54,7 +93,7 @@ void UARTStack_Restart(void)
 void UARTStack_TimeOut(void) /* Systématique même si bonne réception*/
 {
 	UARTStack_TimeOutCpt++;
-	if (UARTStack_TimeOutCpt==5)
+	if (UARTStack_TimeOutCpt==TimeOut_x100ms)
 	{
 		UARTStack_TimeOutCpt=0;
 		if (HMIStringComplete_NoTimOut==0)
@@ -68,29 +107,40 @@ void UARTStack_TimeOut(void) /* Systématique même si bonne réception*/
 
 void HMI_UART_Callback(void)
 {
-	char poubelle;
+	char Character;
+	Character=USART_GetByte(UART_HMI); /* Lecture systématique pour éviter boucle IT*/
+	
 	if (char_pos==0) // Première lecture
 	{
 		HMIStringComplete=0;
 		HMIStringComplete_NoTimOut=0;
-		charNbToread=USART_GetByte(UART_HMI);
+		charNbToread=Character;
 	  HMISting[char_pos]=charNbToread;
-		UARTStack_TimeOutCpt=0; /* réarmement timeout à 500ms*/
+		UARTStack_TimeOutCpt=0; /* réarmement timeout */
 		TimerOn(TIM_UARTStack);
-		
+		char_pos++;
 	}
-	else 
+	else if (char_pos<=charNbToread)
 	{
-		 HMISting[char_pos]=USART_GetByte(UART_HMI);
-		 if (char_pos==charNbToread)
+		 HMISting[char_pos]=Character; 
+		 if (char_pos==charNbToread) /*  NB octets lu completed*/
 		 {
+			 if (Checksum(HMISting)==1) UARTStackErrorStatus=_NoError;
+			 else UARTStackErrorStatus=_CheckSumError;
+			 
 			 HMIStringComplete=1;					// flag user
 			 HMIStringComplete_NoTimOut=1; // spécifique gestion timeout
-			 UARTStackErrorStatus=_NoError;
 			 USART_ReceivDisable(UART_HMI); // blocage UART
 		 }
+		 char_pos++;
 	}
-	char_pos++;
+  else
+	{
+		while(1); /* PLANTAGE */
+	}
+		
+
+	
 	
 }
 
@@ -147,3 +197,43 @@ char * UARTStack_GetHMIMssg(void)
 	return  HMISting;
 }
 
+
+
+/**
+  * @brief  PRIVATE Calcul du checksum (Nb octets + payload)
+	*  Principe : on somme tous les bytes (sauf checksum evidemment)
+	*  cad nbre bytes + payload. On ne garde que l'octet de pds faible.
+	* @ret   1 si OK 0 sinon
+**/
+
+char Checksum(char * Ptr)
+{
+	char UART_Stack_CRC_Val;
+	char i;
+	char UART_Stack_CRCResult;
+	int UART_Stack_Sum;
+	
+	UART_Stack_CRCResult=0;
+	// reconstruction de la valeur du checksum = dernier octet lu
+	UART_Stack_CRC_Val=*(Ptr +charNbToread);
+	// |5|'T'|'O'|'T'|'O'| checkS|
+  //   0  1  2   3   4    5
+	// chaîne la plus courte
+	// |1|checkS|
+   //  0  1  
+	UART_Stack_Sum=0;
+	for (i=0;i<charNbToread;i++) // on ne compte pas le CheckSum ! 
+	{
+		UART_Stack_Sum=UART_Stack_Sum+*(Ptr +i);
+	}
+		
+	if (UART_Stack_CRC_Val==(char)UART_Stack_Sum) // Checksum OK
+	{
+		UART_Stack_CRCResult=1;
+	}
+	else
+	{
+		UART_Stack_CRCResult=0;	
+	}
+	return 	UART_Stack_CRCResult;	
+}

@@ -14,4 +14,6 @@ Ajout d'une fonction clé en main pour envoyer plusieurs essais.
 Petit pgm rapide pour lire et renvoyer un caractère série USART2. Ecriture
 du char sur LCD
 
-/
+/SmartGw
+Développement du code en vue du prjet final
+En cours liaison série/horodatage
