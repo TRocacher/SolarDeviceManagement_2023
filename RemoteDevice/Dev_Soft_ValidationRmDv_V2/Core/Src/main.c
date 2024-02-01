@@ -96,7 +96,7 @@ int main(void)
 	***************************************************************/
 	RmDv_IO_Init();
 	USART_FSK_RT606_OFF();
-	RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
+
 
 	/***************************************************************
 	  		Run code Standby

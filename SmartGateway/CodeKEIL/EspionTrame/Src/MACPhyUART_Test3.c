@@ -1,4 +1,4 @@
-#include "MACPhyUART.h"
+#include "FSKStack.h"
 #include "Timer_F103.h"
 #include "MyLCD.h"
 
@@ -128,8 +128,8 @@ int main (void)
 	
 	ActiveLine=0;
 	SystickStart(); // obligatoire pour la gestion des TimeOut à tous les étages...
-	MACPhyUART_Init(My);
-	MACPhyUART_StartFSM();
+	FSKStack_Init(My);
+
 	
 	MyLCD_Init();
 	MyLCD_Clear();
@@ -142,7 +142,7 @@ int main (void)
 	
 		
   MyLCD_Set_cursor(0, 0);
-  MyLCD_Print("HF38400/PC115200 ");
+  MyLCD_Print("HF 9600/PC115200 ");
   MyLCD_Set_cursor(0, 1);
   MyLCD_Print("Push User But...     ");
 
@@ -164,10 +164,10 @@ int main (void)
 			}
 			case EachRzoMssg:
 			{
-				if (PhyUART_IsNewMssg()==1)
+				if (FSKStack_IsNewMssg()==1)
 				{
 					Date_ms=(SystickGet()/10)%10000;
-  				PhyUART_GetNewMssg(TerminalString, 30);
+  				FSKStack_GetNewMssg(TerminalString, 30);
 					/* affichage date*/
 					StringFct_Int2Str(Date_ms,Date_Str);
 					USART_Print(USART1,Date_Str,5);
@@ -176,6 +176,9 @@ int main (void)
 					USART_Print(USART1,TerminalString,20);
 					USART1->DR=0x0D;
 					//USART_Print(USART1,"\r",2);
+					Delay_x_ms(200);
+					/* send back */
+					FSKStack_SendNewMssg (0xA0, "Hello", 5);
 				}
 				break;
 			}

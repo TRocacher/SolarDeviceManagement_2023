@@ -115,8 +115,8 @@ void RmDv_IO_Init(void)
 
 
   /* NOUVEAU user BP input pull up + conf EXTI IT (TC 3,3V)*/
-  NVIC_Ext_IT (User_BP_GPIO_Port, User_BP_Pin, FALLING_EGDE,55 , RmDv_IO_Prio_UserBP, UserBP_Callback);
-
+  //NVIC_Ext_IT (User_BP_GPIO_Port, User_BP_Pin, FALLING_EGDE,55 , RmDv_IO_Prio_UserBP, UserBP_Callback);
+  // bug à régler...
 
   /* UART 2  */
   /**USART2 GPIO Configuration

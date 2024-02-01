@@ -44,8 +44,9 @@ Architecture du module :
 
 
 //#define MyDebug
-//#define Log
+#define Log
 
+const char Preambule[4]={0xFF,0xFF,0xFF,0xFF};
 
 
 /*---------------------------------
@@ -477,8 +478,9 @@ switch (PhyUART_FSM_State)
 			PhyUART_Mssg.Status=SendingMssg;
 			USART_FSK_SetTransmAntenna();
 			Delay_x_ms(4);
-			USART_FSK_Print("123456789",9);      // envoie de quelques caract�res car le premier byte est souvent d�grad�.
+			//USART_FSK_Print("123456789",9);      // envoie de quelques caract�res car le premier byte est souvent d�grad�.
 																		// Voir avec l'exp�rience si on peut diminuer le nbre.
+			USART_FSK_Print((char*)Preambule,4);
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en r�ception
 

@@ -394,24 +394,24 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>MACPhyUART.c</FileName>
+              <FileName>FSKStack.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\MACPhyUART.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\FSKStack.c</FilePath>
             </File>
             <File>
               <FileName>ModuleFSK.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\ModuleFSK.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\ModuleFSK.c</FilePath>
             </File>
             <File>
               <FileName>ProtocoleFcts.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\ProtocoleFcts.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\ProtocoleFcts.c</FilePath>
             </File>
             <File>
               <FileName>TimeManagement.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\TimeManagement.c</FilePath>
+              <FilePath>..\..\..\ComStack\Stack_TimeManagement\TimeManagement.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -424,24 +424,24 @@
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>UART_F103.c</FileName>
+              <FileName>StringFct.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\KEIL_F103\Stack_Src_103\UART_F103.c</FilePath>
-            </File>
-            <File>
-              <FileName>Timer_F103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\KEIL_F103\Stack_Src_103\Timer_F103.c</FilePath>
+              <FilePath>.\Src\StringFct.c</FilePath>
             </File>
             <File>
               <FileName>GPIO_F103.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\KEIL_F103\Stack_Src_103\GPIO_F103.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\GPIO_F103.c</FilePath>
             </File>
             <File>
-              <FileName>StringFct.c</FileName>
+              <FileName>Timer_F103.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\StringFct.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\Timer_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\UART_F103.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -786,7 +786,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Src;..\..\..\Stack_Src;..\..\Stack_Src_103;..\..\..\ComStack\Stack_Src;..\..\..\ComStack\KEIL_F103\Stack_Src_103</IncludePath>
+              <IncludePath>.\Src;..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103;..\..\..\ComStack\Stack_TimeManagement</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -892,24 +892,24 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>MACPhyUART.c</FileName>
+              <FileName>FSKStack.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\MACPhyUART.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\FSKStack.c</FilePath>
             </File>
             <File>
               <FileName>ModuleFSK.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\ModuleFSK.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\ModuleFSK.c</FilePath>
             </File>
             <File>
               <FileName>ProtocoleFcts.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\ProtocoleFcts.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\ProtocoleFcts.c</FilePath>
             </File>
             <File>
               <FileName>TimeManagement.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\Stack_Src\TimeManagement.c</FilePath>
+              <FilePath>..\..\..\ComStack\Stack_TimeManagement\TimeManagement.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -922,24 +922,24 @@
               <FilePath>.\Src\MyLCD.c</FilePath>
             </File>
             <File>
-              <FileName>UART_F103.c</FileName>
+              <FileName>StringFct.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\KEIL_F103\Stack_Src_103\UART_F103.c</FilePath>
-            </File>
-            <File>
-              <FileName>Timer_F103.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\KEIL_F103\Stack_Src_103\Timer_F103.c</FilePath>
+              <FilePath>.\Src\StringFct.c</FilePath>
             </File>
             <File>
               <FileName>GPIO_F103.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\ComStack\KEIL_F103\Stack_Src_103\GPIO_F103.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\GPIO_F103.c</FilePath>
             </File>
             <File>
-              <FileName>StringFct.c</FileName>
+              <FileName>Timer_F103.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\StringFct.c</FilePath>
+              <FilePath>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\Timer_F103.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART_F103.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103\UART_F103.c</FilePath>
             </File>
           </Files>
         </Group>

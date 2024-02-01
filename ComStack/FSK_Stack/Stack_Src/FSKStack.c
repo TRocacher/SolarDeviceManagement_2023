@@ -44,8 +44,9 @@ Architecture du module :
 
 
 //#define MyDebug
-//#define Log
+#define Log
 
+const char Preambule[4]={0xFF,0xFF,0xFF,0xFF};
 
 
 #ifdef SpyUART
@@ -502,8 +503,9 @@ switch (PhyUART_FSM_State)
 			PhyUART_Mssg.Status=SendingMssg;
 			USART_FSK_SetTransmAntenna();
 			Delay_x_ms(4);
-			USART_FSK_Print("123456789",9);      // envoie de quelques caractères car le premier byte est souvent dégradé.
+			//USART_FSK_Print("123456789",9);      // envoie de quelques caractères car le premier byte est souvent dégradé.
 																		// Voir avec l'expérience si on peut diminuer le nbre.
+			USART_FSK_Print((char*)Preambule,4);
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en réception
 
