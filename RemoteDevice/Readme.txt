@@ -17,43 +17,49 @@ En 38400 + CD désactivé sur la carte IS = gros pépin de transmission (25%...)
 -> Test de validation 
 
 **** CARTE n°1 OK ****
+-Portée +++++ (portail / bureau 10/10)
 - Prog :OK
 - Reset :OK
 - LED pushPull clignotant :OK
 - Transm HF : OK 9600 dans les deux sens
 - Test BP callback : Non fait, bug logiciel.
 
-**** CARTE n°2 ****
-- Prog :à faire
-- Reset :à faire
-- LED pushPull clignotant :à faire
-- Transm HF :à faire
-- Test BP callback : à faire
+**** CARTE n°2 OK ****
+- Portée moyenne
+- Prog :OK
+- Reset :OK
+- LED pushPull clignotant :OK
+- Transm HF : OK 9600 dans les deux sens
+- Test BP callback : Non fait, bug logiciel.
 
 **** CARTE n°3 ****
-- Prog :à faire
-- Reset :à faire
-- LED pushPull clignotant :à faire
-- Transm HF :à faire
-- Test BP callback : à faire
+- Portée moyenne
+- Prog :OK
+- Reset :OK
+- LED pushPull clignotant :OK
+- Transm HF : OK 9600 dans les deux sens
+- Test BP callback : Non fait, bug logiciel.
 
 **** CARTE n°4 ****
-- Prog :à faire
-- Reset :à faire
-- LED pushPull clignotant :à faire
-- Transm HF :à faire
-- Test BP callback : à faire
+- Portée moyenne
+- Prog :OK
+- Reset :OK
+- LED pushPull clignotant :OK
+- Transm HF : OK 9600 dans les deux sens
+- Test BP callback : Non fait, bug logiciel.
 
 **** CARTE n°5 ****
-- Prog :à faire
-- Reset :à faire
-- LED pushPull clignotant :à faire
-- Transm HF :à faire
-- Test BP callback : à faire
+- Portée moyenne
+- Prog :OK
+- Reset :OK
+- LED pushPull clignotant :OK
+- Transm HF : OK 9600 dans les deux sens
+- Test BP callback : Non fait, bug logiciel.
 
 **** CARTE n°6 ****
-- Prog :à faire
-- Reset :à faire
-- LED pushPull clignotant :à faire
-- Transm HF :à faire
-- Test BP callback : à faire
+-Portée ++++
+- Prog :OK
+- Reset :OK
+- LED pushPull clignotant :OK
+- Transm HF : OK 9600 dans les deux sens
+- Test BP callback : Non fait, bug logiciel.
