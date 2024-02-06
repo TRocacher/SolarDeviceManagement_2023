@@ -10,6 +10,7 @@
 
 #include "TimeStampManagement.h"
 #include "UARTStack.h"
+#include "DataFromHMI.h"
 
 /******************************************************************************************************************
 	
@@ -70,6 +71,9 @@ int main (void)
 {
 	int i,L;
 
+	Test();
+	
+	
 	SystickStart(); // obligatoire pour la gestion des TimeOut à tous les étages...
 	FSKStack_Init(My);
 	
@@ -92,8 +96,11 @@ while(1)
 	{
 		if (UARTStack_IsHMIMssg()==1)
 		{
+			/* Mise à jour IHM Central Data */
 			PtrOnString=UARTStack_GetHMIMssg();
-			L=*PtrOnString-1; // L = celle de la payload
+			DFH_UpdateModeAuto(PtrOnString);
+			
+			L=UARTStack_GetLen();
 			MyError=UARTStack_GetErrorStatus();
 		  MyLCD_Set_cursor(0, 1);	
 			MyLCD_Print("                ");
@@ -104,8 +111,8 @@ while(1)
 			PtrChar=(char *)PtrTimeStamp;
 			for (i=0;i<L;i++)
 			{
-				PtrOnString++; /* tout de suite on saute le premier octet de longueur*/
 				*PtrChar=*PtrOnString;
+				PtrOnString++;
 				PtrChar++;
 			}
 			// Conversion explooitable pour LCD

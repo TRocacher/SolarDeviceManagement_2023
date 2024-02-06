@@ -26,6 +26,7 @@
 /*  UART Stack  */
 #define UART_HMI USART2				/* Pour l'HMI PA2 (Tx)  et ¨PA3 (Rx) donc */
 #define TIM_UARTStack TIM3 		/* Pour gérer le timeout : used in UARTStack.c*/
+#define UART_HMI_BaudRate 9600
 
 #endif
 

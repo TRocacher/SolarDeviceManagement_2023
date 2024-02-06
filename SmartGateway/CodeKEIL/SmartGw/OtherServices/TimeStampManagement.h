@@ -40,13 +40,13 @@
 
 typedef struct 
 {
-	short int Sec; 
-	short int Min;
-	short int Hour;
-	short int Day; 
-	short int Month;
-	short int Year;
-}TimeStampTypedef;
+	short int Sec; 				/* 16 bits*/
+	short int Min;				/* 16 bits*/
+	short int Hour;				/* 16 bits*/
+	short int Day; 				/* 16 bits*/
+	short int Month;			/* 16 bits*/
+	short int Year;				/* 16 bits*/
+}TimeStampTypedef;			/* Total 12 bytes*/	
 
 
 

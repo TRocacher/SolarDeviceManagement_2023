@@ -82,7 +82,7 @@ typedef enum {
 }UARTStack_ErrorType;
 
 
-#define Chrono_TimeOut_UARTStack Chrono_5
+
 #define TimeOut_x100ms 5
 
 /**
@@ -109,6 +109,13 @@ UARTStack_ErrorType UARTStack_GetErrorStatus(void);
 
 
 /**
+  * @brief  Renvoie la longueur de la chaîne récupérée (Payload uniquement)
+	* @ret   la longueur
+**/
+char UARTStack_GetLen(void);
+
+
+/**
   * @brief  Getter mssg 
 	* @ret    @ de string de réception (256 max).
 	* @Note   la longueur est inscrite dans le premier byte
@@ -116,5 +123,12 @@ UARTStack_ErrorType UARTStack_GetErrorStatus(void);
 char * UARTStack_GetHMIMssg(void);
 
 
+/**
+  * @brief  Envoie par scrutation une chaîne de caractère
+	*         respectant la trame : |NbOctets| Data Bytes|CheckSum|
+  * @param  adresse de la chaîne à envoyer
+	* @param  Nmbre de caractère de la payload
+**/
+void UARTStack_SendNewMssg (char * AdrString, int Len);
 
 #endif

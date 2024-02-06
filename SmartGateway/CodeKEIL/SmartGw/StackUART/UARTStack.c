@@ -68,9 +68,10 @@ _TimeOut,  : si le timer est arrivé à échéance et sur la chaîne est incomplète
 
 #include "UARTStack.h"
 
-char HMISting[25]; ////////////passer à 256 ?
+char HMISting[256]; 
 int char_pos;
 int charNbToread;
+char HMI_MssgLEN;
 char UARTStack_Error;
 char HMIStringComplete;
 char HMIStringComplete_NoTimOut;
@@ -119,6 +120,7 @@ void HMI_UART_Callback(void)
 		UARTStack_TimeOutCpt=0; /* réarmement timeout */
 		TimerOn(TIM_UARTStack);
 		char_pos++;
+		HMI_MssgLEN=0; // provisoire...
 	}
 	else if (char_pos<=charNbToread)
 	{
@@ -131,6 +133,7 @@ void HMI_UART_Callback(void)
 			 HMIStringComplete=1;					// flag user
 			 HMIStringComplete_NoTimOut=1; // spécifique gestion timeout
 			 USART_ReceivDisable(UART_HMI); // blocage UART
+			 HMI_MssgLEN=charNbToread-1;  // on enlève 1 car on exclut le checksum.
 		 }
 		 char_pos++;
 	}
@@ -156,7 +159,7 @@ void UARTStack_Init(void)
 	HMIStringComplete=0;
 	UARTStackErrorStatus=_NoError;
 	charNbToread=0;
-	USART_Init(UART_HMI, 9600, 0, HMI_UART_Callback); 
+	USART_Init(UART_HMI, UART_HMI_BaudRate, 0, HMI_UART_Callback); 
 	USART_ReceivEnable(UART_HMI);
 	
 	Timer_CkEnable(TIM_UARTStack);
@@ -186,6 +189,16 @@ UARTStack_ErrorType UARTStack_GetErrorStatus(void)
 	return UARTStackErrorStatus;
 }
 
+
+/**
+  * @brief  Renvoie la longueur de la chaîne récupérée (Payload uniquement)
+	* @ret   la longueur
+**/
+char UARTStack_GetLen(void)
+{
+	return HMI_MssgLEN;
+}
+
 /**
   * @brief  Getter mssg 
 	* @ret    @ de string de réception (256 max).
@@ -194,7 +207,7 @@ UARTStack_ErrorType UARTStack_GetErrorStatus(void)
 char * UARTStack_GetHMIMssg(void)
 {
 	HMIStringComplete=0; 
-	return  HMISting;
+	return  (HMISting+1); // on recale le pointeur sur le premier élément de la payload
 }
 
 
@@ -236,4 +249,32 @@ char Checksum(char * Ptr)
 		UART_Stack_CRCResult=0;	
 	}
 	return 	UART_Stack_CRCResult;	
+}
+
+
+/**
+  * @brief  Envoie par scrutation une chaîne de caractère
+	*         respectant la trame : |NbOctets| Data Bytes|CheckSum|
+  * @param  adresse de la chaîne à envoyer
+	* @param  Nmbre de caractère de la payload
+**/
+void UARTStack_SendNewMssg (char * AdrString, int Len)
+{
+	char * Ptr;
+	char Longueur;
+	/* calcul checksum*/
+	char i;
+	int UART_Stack_Sum;
+	char UART_Stack_Sum_Char;
+	
+	Ptr=AdrString;
+	UART_Stack_Sum=Longueur;  /* inclusion de la longueur dans le checksum*/
+	for (i=0;i<Len;i++) 
+	{
+		UART_Stack_Sum=UART_Stack_Sum+*(Ptr +i);
+	}
+  UART_Stack_Sum_Char=(char)UART_Stack_Sum;
+  USART_Print(UART_HMI,&Longueur, 1);
+	USART_Print(UART_HMI,AdrString, Len);
+	USART_Print(UART_HMI,&UART_Stack_Sum_Char, 1);
 }
