@@ -29,41 +29,42 @@
 /* Mode automatique */
 typedef struct 
 {
-	float TempMinExt;							/* 32 bits*/
-	float PowExcessStart;					/* 32 bits*/
-	float PowExcessStop;					/* 32 bits*/
-	char ClimPrio[4];							/* 32 bits*/
-	short int TempMinHC;					/* 16 bits*/
-	short int TempMinHP;					/* 16 bits*/	
-}DFH_AutoModeDataTypedef; 			/* Total 20 bytes*/
+	int 	SetTempMin;				/* 32 bits*/   /* |SetTempMinHP (16bits)|SetTempMinHC (16bits)| */
+	float TempMinExt;				/* 32 bits*/
+	float PowExcessStart;		/* 32 bits*/
+	float PowExcessStop;		/* 32 bits*/
+	int		ClimPrio;					/* 32 bits*/	/* |Clim1stPrio|Clim2dPrio|Clim3rdPrio|Clim4thPrio| */
+
+}DFH_AutoModeDataTypedef; /* Total 20 bytes*/
 
 /* Mode program */
 typedef struct 
 {
-	char Temperature_6h[4];					/* Total 24 bytes*/
-	char Temperature_8h[4];
-	char Temperature_10h[4];	
-	char Temperature_15h[4];	
-	char Temperature_18h[4];
-	char Temperature_23h[4];		
-}DFH_ProgramModeDataTypedef;
+	int TempPerHour[6];							/* Total 24 bytes*/ 	/* TempPerHour[0]= |Temp3h00||Temp2h00||Temp1h00||Temp0h00| */
+}DFH_ProgramModeDataTypedef;														/* TempPerHour[1]= |Temp7h00||Temp6h00||Temp5h00||Temp4h00| etc ...*/ 
+
+/* Mode forcé */
+typedef struct 
+{
+	int SetTemp;										/* Total 4 bytes*/				/* |0x 00 00 00 SetTemp |  */
+}DFH_ForcedModeDataTypedef;
 
 
 /* Mode Hollidays */
 typedef struct 
 {
-	int Temp_ArrRedWhiteBlue;			/* 32 bits (Arrival MinRouge MinBanc MinBleu */
-	TimeStampTypedef ArrivalDate;	/* 12 bytes*/	
-}DFH_HollidaysModeDataTypedef;  /* Total 16 bytes*/
+	int Temp_ArrRedWhiteBlue;					/* 4 bytes */       /*|SetTempArrival | SetTempHC_Rouge| SetTempHC_Banc | SetTempHC_Bleu | */
+	TimeStampTypedef ArrivalDate;			/* 12 bytes*/	
+}DFH_HollidaysModeDataTypedef;  		/* Total 16 bytes*/
 
 /* Power data & Option  */
 typedef struct 
 {
-	float PowExcess;							/* 32 bits*/
-	float PowL1_Home;							/* 32 bits*/
-	float PowInverter;						/* 32 bits*/
-	char  Option[4];							/* 32 bits*/
-}DFH_PowDataOptTypedef;					/* Total 16 bytes*/
+	float PowExcess;					/* 32 bits*/
+	float PowL1_Home;					/* 32 bits*/
+	int  Option;							/* 32 bits*/
+}DFH_PowDataOptTypedef;			/* Total 12 bytes*/
+
 
 
 
@@ -74,64 +75,58 @@ struct
 	DFH_HMIMode Mode; 													/* Total 4 bytes*/
 	DFH_AutoModeDataTypedef Auto;								/* Total 20 bytes*/
 	DFH_ProgramModeDataTypedef Program;					/* Total 24 bytes*/
-	//DFH_ForcedModeDataTypedef Forced;						/* Total 4 bytes*/
+	DFH_ForcedModeDataTypedef Forced;						/* Total 4 bytes*/
 	DFH_HollidaysModeDataTypedef Hollidays;			/* Total 16 bytes*/
-	DFH_PowDataOptTypedef OptPowData;						/* Total 16 bytes*/
-																				/* TOTAL 92 bytes*/
+	DFH_PowDataOptTypedef OptPowData;						/* Total 12 bytes*/
+	
 
-}DFH_CentralData, test;														
+		
 
-
+	
+	
+}DFH_CentralData;															/* Total 88 bytes*/	
 
 
 
 void Test(void)
 {
-//	int i;
+	int i;
 	
-	test.LastHMITimeStamp.Sec=01;
-	test.LastHMITimeStamp.Min=02;
-	test.LastHMITimeStamp.Hour=03;
-	test.LastHMITimeStamp.Day=4;
-	test.LastHMITimeStamp.Month=5;
-	test.LastHMITimeStamp.Year=2024;
+	DFH_CentralData.LastHMITimeStamp.Sec=01;
+	DFH_CentralData.LastHMITimeStamp.Min=02;
+	DFH_CentralData.LastHMITimeStamp.Hour=03;
+	DFH_CentralData.LastHMITimeStamp.Day=4;
+	DFH_CentralData.LastHMITimeStamp.Month=5;
+	DFH_CentralData.LastHMITimeStamp.Year=2024;
 	
-	test.Mode=HMI_Mode_Auto;
+	DFH_CentralData.Mode=HMI_Mode_Auto;
 	
-	test.Auto.TempMinExt=3.14159;
-	test.Auto.PowExcessStart=3.14159;
-	test.Auto.PowExcessStop=3.14159;
-	test.Auto.ClimPrio[0]=4;
-	test.Auto.ClimPrio[1]=3;
-	test.Auto.ClimPrio[2]=2;
-	test.Auto.ClimPrio[3]=1;
-	test.Auto.TempMinHC=01;
-	test.Auto.TempMinHP=02;
 	
-//	for (i=0;i<24;i++)
-//	{
-//		test.Program.TempPerHour[i]=i;
-//	}
+	DFH_CentralData.Auto.SetTempMin=0x0B0B0A0A;
+	DFH_CentralData.Auto.TempMinExt=3.14159;
+	DFH_CentralData.Auto.PowExcessStart=3.14159;
+	DFH_CentralData.Auto.PowExcessStop=3.14159;
+	DFH_CentralData.Auto.ClimPrio=0x01020304;
+
 	
-	//test.Forced.Temp=15;
+	for (i=0;i<6;i++)
+	{
+		DFH_CentralData.Program.TempPerHour[i]=i;
+	}
 	
-	test.Hollidays.Temp_ArrRedWhiteBlue=0x00332211;
-	test.Hollidays.ArrivalDate.Sec=01;
-	test.Hollidays.ArrivalDate.Min=02;
-	test.Hollidays.ArrivalDate.Hour=03;
-	test.Hollidays.ArrivalDate.Day=4;
-	test.Hollidays.ArrivalDate.Month=5;
-	test.Hollidays.ArrivalDate.Year=2024;
+	DFH_CentralData.Forced.SetTemp=15;
 	
-	test.OptPowData.PowExcess=3.14159;
-	test.OptPowData.PowL1_Home=3.14159;
-	test.OptPowData.PowInverter=3.14159;
-	test.OptPowData.Option[0]=9;
-	test.OptPowData.Option[1]=8;
-	test.OptPowData.Option[2]=7;
-	test.OptPowData.Option[3]=6;
+	DFH_CentralData.Hollidays.Temp_ArrRedWhiteBlue=0x0F0E0D0C;
+	DFH_CentralData.Hollidays.ArrivalDate.Sec=01;
+	DFH_CentralData.Hollidays.ArrivalDate.Min=02;
+	DFH_CentralData.Hollidays.ArrivalDate.Hour=03;
+	DFH_CentralData.Hollidays.ArrivalDate.Day=4;
+	DFH_CentralData.Hollidays.ArrivalDate.Month=5;
+	DFH_CentralData.Hollidays.ArrivalDate.Year=2024;
 	
-	DFH_Update_All((char*)&test, 96);
+	DFH_CentralData.OptPowData.PowExcess=3.14159;
+	DFH_CentralData.OptPowData.PowL1_Home=3.14159;
+	DFH_CentralData.OptPowData.Option=0x00123456;
 	
 }
 
@@ -159,28 +154,6 @@ char DFH_ExtractReqCode(char * AdrString)
 {
 	return (*AdrString);
 	
-}
-
-
-
-/**
-  * @brief  
-  * @Note
-  * @param  
-  * @retval 
-  **/
-void DFH_Update_All(char * AdrString, int Long)
-{
-	char * PtrChar;
-	int i;
-	
-	PtrChar= (char*)&DFH_CentralData; 
-	for (i=0;i<Long;i++)
-	{
-		*PtrChar=*AdrString;
-		PtrChar++;
-		AdrString++;
-	}
 }
 
 
@@ -282,8 +255,7 @@ void DFH_UpdateModeAuto(char * AdrString)
 	}
 	/* Mode/TempMinHC/TempMinHP   */	
 	DFH_CentralData.Mode=*(AdrString+OFFSET_AUTO_Mode);
-	DFH_CentralData.Auto.TempMinHC=*(AdrString+OFFSET_AUTO_TempMinHC);
-	DFH_CentralData.Auto.TempMinHP=*(AdrString+OFFSET_AUTO_TempMinHP);
+
 	
 	/* Time stamp fill*/
 	PtrTime=&(DFH_CentralData.LastHMITimeStamp);

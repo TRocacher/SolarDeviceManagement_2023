@@ -71,6 +71,7 @@ int main (void)
 {
 	int i,L;
 
+	
 	Test();
 	
 	
@@ -98,9 +99,12 @@ while(1)
 		{
 			/* Mise à jour IHM Central Data */
 			PtrOnString=UARTStack_GetHMIMssg();
-			DFH_UpdateModeAuto(PtrOnString);
+			//DFH_UpdateModeAuto(PtrOnString);
+			
 			
 			L=UARTStack_GetLen();
+			DFH_Update_All(PtrOnString,L);
+			
 			MyError=UARTStack_GetErrorStatus();
 		  MyLCD_Set_cursor(0, 1);	
 			MyLCD_Print("                ");
@@ -115,7 +119,7 @@ while(1)
 				PtrOnString++;
 				PtrChar++;
 			}
-			// Conversion explooitable pour LCD
+			// Conversion exploitable pour LCD
 			PtrChar=LCD_Sentence;
 			StringFct_Int2Str_99(TimeStampIHM.Hour,PtrChar);
 			PtrChar=PtrChar+2;

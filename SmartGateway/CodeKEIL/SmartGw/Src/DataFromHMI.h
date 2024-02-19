@@ -7,7 +7,12 @@
  *   Target : STM32F103RTB6
  *   Dépendance : 
  *  ------------------------------------------------------------------------------
- 
+ * Gère la data centrale qui est chargée par les données transmise par la HMI.
+ * 
+ * Le module fait aussi office de protocole au dessus de la couche UARTStack.
+ * La payload est ainsi constituée :
+ * 
+ *		| Code Transmission | data alignées sur la structure correspondante|
 
  *
 * =================================================================================*/
@@ -21,12 +26,22 @@ typedef enum {
 	HMI_Mode_Off = 0xA0,
 	HMI_Mode_Auto=0xA1,
 	HMI_Mode_Program=0xA2,
-	HMI_Mode_Forced = 0xA3,
-	HMI_Mode_Hollidays = 0xA4,
-	HMI_Option_PowData = 0xA5,
+	HMI_Mode_Hollidays = 0xA3,
 }DFH_HMIMode;
 
 
+/* Code des trames émises par la HMI */
+#define HMICode_UpdateAll
+#define HMICode_UpdateTime
+#define HMICode_UpdateMode
+#define HMICode_UpdateAuto
+#define HMICode_UpdateProgram
+#define HMICode_UpdateForced
+#define HMICode_UpdateHolliday
+#define HMICode_UpdatePowerOption
+
+
+/* Ident des 4 climatisations */
 #define	ID_Clim_Salon 1
 #define	ID_Clim_SaManger 2
 #define	ID_Clim_Entree 3
@@ -41,6 +56,14 @@ void Test(void);
   * @retval 
   **/
 void DFH_Update_CentralData(char * AdrString);
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+void DFH_Update_All(char * AdrString, int Long);
 
 
 /**
