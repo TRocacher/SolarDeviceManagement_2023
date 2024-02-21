@@ -52,7 +52,10 @@ typedef struct
 /* Mode Hollidays */
 typedef struct 
 {
-	int Temp_ArrRedWhiteBlue;			/* 32 bits (Arrival MinRouge MinBanc MinBleu */
+	char Mode;	/* */
+	char TempHG_bleu;
+	char TempHG_blanc;
+	char TempHG_rouge;
 	TimeStampTypedef ArrivalDate;	/* 12 bytes*/	
 }DFH_HollidaysModeDataTypedef;  /* Total 16 bytes*/
 
@@ -62,7 +65,10 @@ typedef struct
 	float PowExcess;							/* 32 bits*/
 	float PowL1_Home;							/* 32 bits*/
 	float PowInverter;						/* 32 bits*/
-	char  Option[4];							/* 32 bits*/
+	char  ReapeatBeep;						/* 8 bits*/
+	char  PrioVE;									/* 8 bits*/
+	char  CoupureNuit;						/* 8 bits*/
+	char  CouleurTempo;						/* 8 bits*/
 }DFH_PowDataOptTypedef;					/* Total 16 bytes*/
 
 
@@ -115,7 +121,7 @@ void Test(void)
 	
 	//test.Forced.Temp=15;
 	
-	test.Hollidays.Temp_ArrRedWhiteBlue=0x00332211;
+	//test.Hollidays.Temp_ArrRedWhiteBlue=0x00332211;
 	test.Hollidays.ArrivalDate.Sec=01;
 	test.Hollidays.ArrivalDate.Min=02;
 	test.Hollidays.ArrivalDate.Hour=03;
@@ -126,10 +132,10 @@ void Test(void)
 	test.OptPowData.PowExcess=3.14159;
 	test.OptPowData.PowL1_Home=3.14159;
 	test.OptPowData.PowInverter=3.14159;
-	test.OptPowData.Option[0]=9;
-	test.OptPowData.Option[1]=8;
-	test.OptPowData.Option[2]=7;
-	test.OptPowData.Option[3]=6;
+//	test.OptPowData.Option[0]=9;
+//	test.OptPowData.Option[1]=8;
+//	test.OptPowData.Option[2]=7;
+//	test.OptPowData.Option[3]=6;
 	
 	DFH_Update_All((char*)&test, 96);
 	
