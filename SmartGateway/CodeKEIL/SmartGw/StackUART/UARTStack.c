@@ -68,7 +68,7 @@ _TimeOut,  : si le timer est arrivé à échéance et sur la chaîne est incomplète
 
 #include "UARTStack.h"
 
-char HMISting[100]; // régler en fct de la châine max !!
+char HMISting[120]; // régler en fct de la châine max !!
 int char_pos;
 int charNbToread;
 char HMI_MssgLEN;

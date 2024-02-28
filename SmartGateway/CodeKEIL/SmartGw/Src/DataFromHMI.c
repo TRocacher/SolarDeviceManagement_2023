@@ -80,7 +80,6 @@ struct
 	DFH_HMIMode Mode; 													/* Total 4 bytes*/
 	DFH_AutoModeDataTypedef Auto;								/* Total 20 bytes*/
 	DFH_ProgramModeDataTypedef Program;					/* Total 24 bytes*/
-	//DFH_ForcedModeDataTypedef Forced;						/* Total 4 bytes*/
 	DFH_HollidaysModeDataTypedef Hollidays;			/* Total 16 bytes*/
 	DFH_PowDataOptTypedef OptPowData;						/* Total 16 bytes*/
 																				/* TOTAL 92 bytes*/

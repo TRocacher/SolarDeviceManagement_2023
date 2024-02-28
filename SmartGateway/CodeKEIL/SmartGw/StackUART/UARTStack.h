@@ -97,7 +97,9 @@ void UARTStack_Init(void);
   * @brief  Permet de savoir si un message est reçu.
 	* @ret   1 si un message est reçu, 0 sinon
 **/
-char UARTStack_IsHMIMssg(void);
+char UARTStack_IsHMIMssg(void);  /* ATTENTION, un nouveau mssg peut être faux (erreur checksum par ex )*/
+															   /* il faut donc lancer un geterrorstatus pour savoir si pas d'erreur...
+																	avant de lire le résultat ! */
 
 
 

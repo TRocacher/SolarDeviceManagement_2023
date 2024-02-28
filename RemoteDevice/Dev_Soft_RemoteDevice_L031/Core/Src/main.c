@@ -47,7 +47,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <FSKStack.h>
-#include <ProtocoleFcts.h>
+#include <RmDv_SGw_Protocol.h>
 #include <RmDv_WDG_LPTM.h>
 #include "main.h"
 #include "StandByWkupPgm.h"

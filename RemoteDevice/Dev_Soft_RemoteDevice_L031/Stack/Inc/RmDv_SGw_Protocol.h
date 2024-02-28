@@ -5,8 +5,8 @@
  *      Author: trocache
  */
 
-#ifndef INC_PROTOCOLEFCTS_H_
-#define INC_PROTOCOLEFCTS_H_
+#ifndef INC_RMDV_SGW_PROTOCOL_H_
+#define INC_RMDV_SGW_PROTOCOL_H_
 
 
 /* Donne l'état courant de la phase de réveil
@@ -81,4 +81,4 @@ void Protocole_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode Warning);
 void Protocole_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode);
 void Protocole_BuildMssgTelecoHeure(char * MssgStr, RmDv_TelecoIR_Cmde Cmde);
 
-#endif /* INC_PROTOCOLEFCTS_H_ */
+#endif /* INC_RMDV_SGW_PROTOCOL_H_ */

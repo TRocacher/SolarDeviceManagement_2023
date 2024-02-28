@@ -5,8 +5,8 @@
  *      Author: trocache
  */
 
+#include <RmDv_SGw_Protocol.h>
 #include "Timer_L031.h"
-#include "ProtocoleFcts.h"
 
 #ifndef INC_RMDV_TELECOIR_H_
 #define INC_RMDV_TELECOIR_H_

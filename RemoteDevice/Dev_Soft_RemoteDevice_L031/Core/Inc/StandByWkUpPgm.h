@@ -3,7 +3,7 @@
 * =================================================================================*/
 
 #include <FSKStack.h>
-#include <ProtocoleFcts.h>
+#include <RmDv_SGw_Protocol.h>
 #include "RmDv_ADT7410.h"
 #include "RmDv_Boost.h"
 #include "RmDv_IO.h"
