@@ -1,6 +1,7 @@
 #ifndef _FSK_STACK_H__
 #define _FSK_STACK_H__
 
+#include <GLOBAL_RmDv.h>
 #include <ModuleFSK_RmDv.h>
 #include <TimeManagement_RmDv.h>
 
@@ -39,16 +40,16 @@ int FSKStack_SendNewMssg (char DestAdr, char * AdrString, int Len);
 
 // Priorit� d'interruption
 // USER DEFINE (recommand�)
-#define UART_Prio_CD 1							// priorit� au niveau de l'UART , Carrier Detect (par d�faut priorit� maximale)
+#define UART_Prio_CD Prio_FSKStack_UART_CD							// priorit� au niveau de l'UART , Carrier Detect (par d�faut priorit� maximale)
 // NE PAS TOUCHER
-#define UART_Prio (UART_Prio_CD+1) 	// priorit� au niveau de l'UART (juste au dessous de CD)
-#define PhyUART_FSM_Prio (UART_Prio+1)  // priorit� de la FSM (par d�faut juste en dessous de celle de l'UART)
+#define UART_Prio Prio_FSKStack_UART_Rec	// priorit� au niveau de l'UART (juste au dessous de CD)
+#define PhyUART_FSM_Prio Prio_FSKStack_TimerFSM  // priorit� de la FSM (par d�faut juste en dessous de celle de l'UART)
 
 // USER DEFINE
-#define TIM_PhyUART_FSM TIM22
+#define TIM_PhyUART_FSM Timer_FSK_Stack_FSM
 
 // USER DEFINE
-#define PhyUART_BdRate 9600
+#define PhyUART_BdRate  Rate_UART_FSK
 
 // USER DEFINE
 // longueur max des cha�nes

@@ -5,31 +5,17 @@
  *      Author: trocache
  */
 
-#ifndef INC_RMDV_SGW_PROTOCOL_H_
-#define INC_RMDV_SGW_PROTOCOL_H_
+#ifndef RMDV_SGW_P_H_
+#define RMDV_SGW_P_H_
 
+#include "TimeManagement_RmDv.h"
 
-/* Donne l'état courant de la phase de réveil
- * Utilisé si WDog pour identifier le lieu du plantage*/
-typedef enum {
-	BoostActivation=0,
-	TemperatureMeasure=1,
-	WakeUpMssgToUC=2,
-	ClimUpdate=3,
-	RTCAdjust=4,
-	WarningMssg=5,
-}RmDv_WkUp_CurrentState;
+#define AckToRmDv 0xAB
 
-/* Liste des code de télécommande */
-typedef enum {
-	_Chaud_18_VanBas_FanAuto = 0xC1,
-	_Chaud_19_VanBas_FanAuto = 0xC2,
-	_Chaud_20_VanBas_FanAuto = 0xC3,
-	_Chaud_21_VanBas_FanAuto = 0xC4,
-	_Chaud_22_VanBas_FanAuto = 0xC5,
-	_Chaud_23_VanBas_FanAuto = 0xC6,
-	_Stop = 0xC0,
-}RmDv_TelecoIR_Cmde;
+#define TimeOutProtocole_ms  50 /* 50ms en supposant 10byte de payload à 9600bds 
+																		à utiliser au niveau Req RmDv*/
+#define TimeOutProtocole_x6_ms  (6*TimeOutProtocole_ms) /* Timeout au niveau gateway */
+
 
 /* Liste des warnings, fonctionnement normal*/
 typedef enum {
@@ -37,48 +23,96 @@ typedef enum {
 	Transm_1_Attempt=11,
 	Transm_2_Attempt=12,
 	Transm_3_Attempt=13,
-	Temp_Error=14,
-	Transm_Error_NoTimeClimCodeReceived=15,
-	WrongCmdeWhenReceivingTimeClimCode=16,
+	Error_TempI2C=14,
+	Error_NewTempSetNotReceived=15,
+	Error_NoStatusReceived=16,
+	Error_RmDvSignal=17,
 }RmDv_WarningCode;
 
 
 /*
-Trame :
+TRAME QUELCONQUE :
+
 			|Code 		| Value |
 
-			Error 		|Value = code erreur string
 
-			Temp 		|Value = float brut
+
+
+TRAME MssgReq_SendInfo
+		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
+		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
+
+TRAME MssgAns_SendInfo
+		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière| NextTimeInterval_sec (unsigned short int) |
+		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4
+
+TRAME MssgReq_SendStatus
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 2
+
+TRAME MssgAns_Ack
+		|MssgAns_Ack		|Value = AckToRmDv |
+		|MssgAns_Ack		|byte 0 |  Longueur = 2
+
+
+
+
+
+
+!!! Les codes suivants ne sont plus utilisés !!!
+
+TRAME ERREUR :
+		|Code : MssgErrorCode 		|Value = RmDv_WarningCode
+
+TRAME TEMPERATURE
+			|MssgTempCode		|Value = float brut
 			|MssgTempCode|byte0|byte1|byte2|byte3| longueur 5 // byte0..3 = float
 
 
-			TimeClimOrderCode		|Value = String formaté HHMnSec ; Clim Order
+TRAME CLIM ORDER CODE
+			|TimeClimOrderCode		|Value = String formaté HHMnSec ; Clim Order
 			|TimeClimOrderCode|Hdiz|Hunit|Mndiz|Mnunit|Secdiz|Secunit|ClimOrder|  longueur 8
 
-			|MssgWarningCode|RmDv_WarningCode|
 
-			Ack   		|Value = no value
+			
+			
 	*/
 
 /* Liste des des codes d'identification de trame*/
 typedef enum {
+	MssgReq_SendInfo = 0x50,
+	MssgAns_SendInfo = 0x51,
+	MssgReq_SendStatus = 0x52,
+	MssgAns_Ack = 0x51,
+		
 	MssgWarningCode=100,
 	MssgTempCode=101,
 	MssgTimeClimOrderCode=102,
 	MssgAckCode=103,
-	MssgErrorCode=104,
-
+	MssgErrorCode=104,	
 }MssgCode;
 
-MssgCode Protocole_ExtractMssgcode(char * MssgTempStr);
-float Protocole_ExtractTemperature(char * MssgTempStr);
-RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(char * MssgTempStr);
-RmDv_WarningCode Protocole_ExtractWarningCode(char * MssgTempStr);
 
-void Protocole_BuildMssgTemp(char * MssgTempStr, float Temp);
-void Protocole_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode Warning);
-void Protocole_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode);
-void Protocole_BuildMssgTelecoHeure(char * MssgStr, RmDv_TelecoIR_Cmde Cmde);
 
-#endif /* INC_RMDV_SGW_PROTOCOL_H_ */
+/* Liste des fonction d'émission */
+void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet);
+void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned short int NextWupInterval);
+void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr,  char Status);
+void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr);
+
+
+
+
+
+/* Liste des fonctions d'extraction de champs */
+MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr);
+float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr);
+char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr);
+char  RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr);
+unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr);
+RmDv_WarningCode   RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr);
+
+
+
+
+#endif /* INC_PROTOCOLEFCTS_H_ */

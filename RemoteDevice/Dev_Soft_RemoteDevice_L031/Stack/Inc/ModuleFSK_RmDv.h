@@ -5,7 +5,7 @@
 
 
 
-
+#include <GLOBAL_RmDv.h>
 #include "GPIO_L031.h"
 #include "UART_L031.h"
 
@@ -31,10 +31,9 @@
 
 
 // Choix de l'UART
-#define UART_FSK USART2
+#define UART_FSK UART_FSKStack
 
-// Autorisation UART IT seulement si CD est d�tect�.
-#define UseCarrierDetect  
+
 
 // Redefinitions des E/S spécifiques au module pour utilisation
 // Pour ce module, _CD_Pin = 15, alors que dans RmDv_IO CD_Pin = 1<<15 !!

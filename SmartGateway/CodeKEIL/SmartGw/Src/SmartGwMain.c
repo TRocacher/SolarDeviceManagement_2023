@@ -151,33 +151,34 @@ void Transaction_RmDv(char ID)
 		RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,NewSet, NewInterval_sec);
 		status=Error_NoStatusReceived; /* par défaut avant polling*/
 		
-		while(FSKStack_IsNewMssg()==0) /* boucle d'attente réception nveau FSK mssg */
+		
+		while(TimeManag_GetTimeOutStatus(Chrono_2)==0) // tant que le time out n'est pas passé
 		{
-			RmDv_ID=FSKStack_GetSrcAdress();
-			if (RmDv_ID == ID) /* le message provient du même RmDv */
-			{
-				/* Ici, en permanence on vient lire la requête (info ou status) et on y répond 
-				à concurrence du TimeOutx6*/
-				
-				Code=RmDv_SGw_FSKP_ExtractMssgcode(FSKMssgRec);
-				if (Code == MssgReq_SendInfo) /* le message est une nouvelle tentative */
+				while(FSKStack_IsNewMssg()==0) // blocage, attente message de n'importe quel RmDv ...
+				{}
+				/* Recopie locale du message*/
+				L=FSKStack_GetLen();
+				FSKStack_GetNewMssg(FSKMssgRec,L);
+				RmDv_ID=FSKStack_GetSrcAdress();
+				if (RmDv_ID==ID)  // C'est bien mon RmDv qui parle...
 				{
-					/* Réponse vers le RmDv correspondant toujours à la première requête */
-					RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,NewSet, NewInterval_sec);
+					Code=RmDv_SGw_FSKP_ExtractMssgcode(FSKMssgRec);
+					if (Code == MssgReq_SendInfo) /* le message est une nouvelle tentative */
+					{
+						/* Réponse vers le RmDv correspondant toujours à la première requête */
+						RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,NewSet, NewInterval_sec);
+					}
+					else if (Code == MssgReq_SendStatus) /* le message est la requête de status */
+					{
+						/*Traitement de la seconde req*/
+						status=RmDv_SGw_FSKP_ExtracStatus(FSKMssgRec);
+						RmDv_SGw_FSKP_SendMssgAns_Ack(ID);
+					}
 				}
-				else if (Code == MssgReq_SendStatus) /* le message est la requête de status */
-				{
-					/*Traitement de la seconde req*/
-					status=RmDv_SGw_FSKP_ExtracStatus(FSKMssgRec);
-					RmDv_SGw_FSKP_SendMssgAns_Ack(ID);
-				}
-			}
-			if (TimeManag_GetTimeOutStatus(Chrono_2)==1) /* Time out*/
-			{
-				break; // sortie du while
-			}
 		
 		}
+		
+
 
 		/* Mise à jour des données d'entrée et d'état de la RmDvData considérée  */
 		RmDvData_Update(Tab_RmDvData[(ID-ID_Clim_Salon)], TemperatureMesuree, lastTempSet, NewSet, status,NewInterval_sec); 
@@ -187,7 +188,7 @@ void Transaction_RmDv(char ID)
 		MyLCD_Set_cursor(0, 0);
     StringFct_Float2Str(TemperatureMesuree,LCD_RmDv_Str, 3, 1);
 		MyLCD_Print("Temp = ");
-		MyLCD_Print_n (LCD_RmDv_Str,3);
+		MyLCD_Print_n (LCD_RmDv_Str,5);
 		MyLCD_Set_cursor(0, 1);	
 		MyLCD_Print("                ");
 		MyLCD_Set_cursor(0, 1);
@@ -202,7 +203,6 @@ void Transaction_RmDv(char ID)
 			case Error_NoStatusReceived:MyLCD_Print("Gw:no status");break;
 			default : MyLCD_Print("bug");
 		}
-		
 		
 		
 	}

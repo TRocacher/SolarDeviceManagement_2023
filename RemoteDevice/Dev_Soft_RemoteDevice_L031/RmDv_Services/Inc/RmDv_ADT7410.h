@@ -44,9 +44,10 @@
 #ifndef INC_RMDV_ADT7410_H_
 #define INC_RMDV_ADT7410_H_
 
+#include <GLOBAL_RmDv.h>
 #include <I2C_L031.h>
 
-
+#define I2C_ADT7410 I2C_TempSensor
 
 /* Adresse I2C du ADT7410 */
 #define ADT7410_Slave8bitsAdr (0x48)

@@ -63,7 +63,7 @@ I2C_RecSendData_Typedef I2C_Data_Struct;
 short int ADT7410_Init(void)
 {
 	uint8_t data[4];
-	I2C_L031_Init(I2C1);
+	I2C_L031_Init(I2C_ADT7410);
 	uint8_t ConfRegVal;
 	ConfRegVal=ConfReg_Reso_16;
 	ConfRegVal|=ConfReg_Mode_Shutdown;

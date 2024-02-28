@@ -18,10 +18,11 @@
 * =================================================================================*/
 
 
+
 int i,j,k; /* Indice boucle*/
 int Error;
 int Stop; /* Si 1 on arrête là le processus */
-float Temperature;
+
 
 RmDv_WkUp_CurrentState StandByWkUpPgm_CurrentState;
 RmDv_WarningCode StandByWkUpPgm_WCode;
@@ -30,15 +31,18 @@ RmDv_WarningCode StandByWkUpPgm_WCode;
 /***************************************************************
 		Définitions des variables messages pour la stack
 ***************************************************************/
-char TransmitMssg[30];
+//char TransmitMssg[30];
+float Temperature;
 char ReceivedMssg[30];
 char Long;
-char ReceivedCodeClim;
+char ReceivedCodeClim,ReceivedTempSet;
+unsigned short int Interval_sec;
 
 RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 {
 	return StandByWkUpPgm_CurrentState;
 }
+
 
 void Main_StandByWkUpPgm(void)
 {
@@ -70,11 +74,8 @@ void Main_StandByWkUpPgm(void)
 	else
 	{
 		Stop=1;
-		StandByWkUpPgm_WCode=Temp_Error;
+		StandByWkUpPgm_WCode = Error_TempI2C;
 	}
-
-	Protocole_BuildMssgTemp(TransmitMssg, Temperature);
-
 
 
 	 /***************************************************************
@@ -94,49 +95,53 @@ void Main_StandByWkUpPgm(void)
 	 {
 		 StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
 		 TimeManag_TimeOutInit();
-		 FSKStack_Init(My);
+		 FSKStack_Init(My_);
 		 //FSKStack_StartFSM(); devenu inutile car inclu ds Init (ligne dessus)
-
 
 		 Stop=1; /* On stoppe par défaut*/
 		 for (i=0;i<3;i++)
 		 {
-			 FSKStack_SendNewMssg (UC_Adress,TransmitMssg, 5);
-			 TimeManag_TimeOutStart(Chrono_3 , 100);
+			 RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, 19);
+			 TimeManag_TimeOutStart(Chrono_3 , TimeOutProtocole_ms);
 			 while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 			 {
 				 if (FSKStack_IsNewMssg()==1)
 				 {
 					 Long=FSKStack_GetLen();
 					 FSKStack_GetNewMssg(ReceivedMssg, Long);
-					 Stop=0;
-					 break;
+					 if (RmDv_SGw_FSKP_ExtractMssgcode(ReceivedMssg)==MssgAns_SendInfo)
+					 {
+						 Stop=0;
+						 break;
+					 }
 				 }
 			 }
 			 if (Stop==0) break;
 			 else StandByWkUpPgm_WCode=Transm_1_Attempt+i;
 		 }
-		 if (Stop==1) StandByWkUpPgm_WCode=Transm_Error_NoTimeClimCodeReceived;
+		 if (Stop==1) StandByWkUpPgm_WCode=Error_NewTempSetNotReceived;
 	 }
 
 	/***************************************************************
 			Mise à jour Climatiseur
 	***************************************************************/
 
-	if (Stop==0) /* on poursuit la transaction*/
+	if (Stop==0) /* on poursuit la transaction, la chaine est une ans info*/
 	{
-		if (Protocole_ExtractMssgcode(ReceivedMssg)==MssgTimeClimOrderCode)
-	 	{
-			StandByWkUpPgm_CurrentState=ClimUpdate;
-		 	ReceivedCodeClim=Protocole_ExtractClimOrder(ReceivedMssg);
-		 	RmDv_TelecoIR_Init();
-		 	RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
-		 	RmDv_TelecoIR_DeInit();
-	 	}
-	 	else
-	 	{
-	 		StandByWkUpPgm_WCode=WrongCmdeWhenReceivingTimeClimCode;
-	 	}
+
+		StandByWkUpPgm_CurrentState=ClimUpdate;
+		ReceivedTempSet = RmDv_SGw_FSKP_ExtracNewTempSet(ReceivedMssg);
+		Interval_sec = RmDv_SGw_FSKP_ExtractNextWupInterval(ReceivedMssg);
+		RmDv_TelecoIR_Init();
+		if (ReceivedTempSet == 18) ReceivedCodeClim = _Chaud_18_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 19) ReceivedCodeClim = _Chaud_19_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 20) ReceivedCodeClim = _Chaud_20_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 21) ReceivedCodeClim = _Chaud_21_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 22) ReceivedCodeClim = _Chaud_22_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 23) ReceivedCodeClim = _Chaud_23_VanBas_FanAuto;
+		else ReceivedCodeClim = _Stop;
+		 RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
+		 RmDv_TelecoIR_DeInit();
 
 	}
 
@@ -152,21 +157,23 @@ void Main_StandByWkUpPgm(void)
 				Attente retour quelqu'il soit
 	***************************************************************/
 	StandByWkUpPgm_CurrentState=WarningMssg;
-	Protocole_BuildMssgWarning(TransmitMssg, StandByWkUpPgm_WCode);
 
 	Stop=1; /* On stoppe par défaut*/
 	for (i=0;i<3;i++)
 	{
-		FSKStack_SendNewMssg (UC_Adress,TransmitMssg, 2);
-		TimeManag_TimeOutStart(Chrono_3 , 100);
+		RmDv_SGw_FSKP_SenddMssgReq_SendStatus(SGw_,  StandByWkUpPgm_WCode);
+		TimeManag_TimeOutStart(Chrono_3 , TimeOutProtocole_ms);
 		while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 		{
 			if (FSKStack_IsNewMssg()==1)
 			{
 				Long=FSKStack_GetLen();
 				FSKStack_GetNewMssg(ReceivedMssg, Long);
-				Stop=0;
-				break;
+				if (RmDv_SGw_FSKP_ExtractMssgcode(ReceivedMssg)==MssgAns_Ack)
+				{
+					Stop=0;
+					break;
+				}
 			}
 		}
 		if (Stop==0) break;

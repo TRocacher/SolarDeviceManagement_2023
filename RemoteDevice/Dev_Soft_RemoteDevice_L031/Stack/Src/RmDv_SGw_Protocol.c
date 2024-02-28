@@ -1,4 +1,7 @@
-#include <RmDv_SGw_Protocol.h>
+#include "RmDv_SGw_Protocol.h"
+
+
+#include "FSKStack.h"
 
 /* =================================================================================
 * ==================   Main_StandByWkUpPgm	     ===================================
@@ -13,7 +16,140 @@
 
 * =================================================================================*/
 
-float Protocole_ExtractTemperature(char * MssgTempStr)
+
+
+
+
+/* =================================================================================
+
+				Fonction d'�missions de requ�tes ou de r�ponse
+
+   ================================================================================*/
+
+
+/**
+  * @brief  
+  * @Note
+	TRAME MssgReq_SendInfo
+		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val enti�re|
+		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
+  * @param  
+  * @retval 
+  **/
+void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet)
+{
+	float *PtrFloat;
+	char *PtrChar;
+	char MssgToSend[10];
+
+	PtrFloat=&Temp;
+	PtrChar=(char*)PtrFloat;
+	MssgToSend[0]=MssgReq_SendInfo;
+	MssgToSend[1]=*PtrChar;
+	MssgToSend[2]=*(PtrChar+1);
+	MssgToSend[3]=*(PtrChar+2);
+	MssgToSend[4]=*(PtrChar+3);
+	MssgToSend[5]=LastSet;
+	
+	 /*�mission effective*/
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 6);
+}
+
+
+/**
+  * @brief  
+  * @Note
+TRAME MssgAns_SendInfo
+		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val enti�re | NextTimeInterval_sec (unsigned short int) |
+		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+  * @param  
+  * @retval 
+  **/
+void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned short int NextWupInterval)
+{
+	unsigned short int *PtrShort;
+	char *PtrChar;
+	char MssgToSend[10];
+	PtrShort=&NextWupInterval;
+	PtrChar=(char*)PtrShort;
+	MssgToSend[0]=MssgAns_SendInfo;
+	MssgToSend[1]=NewSet;
+	MssgToSend[2]=*(PtrChar);
+	MssgToSend[3]=*(PtrChar+1);
+	/*�mission effective*/
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 4);
+}
+
+
+
+/**
+  * @brief  
+  * @Note
+TRAME MssgReq_SendStatus
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 2							
+  * @param  
+  * @retval 
+  **/
+void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr, char Status)
+{
+	char MssgToSend[10]; 
+	MssgToSend[0]=MssgReq_SendStatus;
+	MssgToSend[1]=Status;
+	/*�mission effective*/
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 2);
+}
+
+
+
+/**
+  * @brief  
+  * @Note
+TRAME MssgAns_Ack
+		|MssgAns_Ack		|Value = AckToRmDv |
+		|MssgAns_Ack		|byte 0 |  Longueur = 2	
+  * @param  
+  * @retval 
+  **/
+void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr)
+{
+	char MssgToSend[10];
+	MssgToSend[0]=MssgAns_Ack;
+	MssgToSend[1]=AckToRmDv;
+	/*�mission effective*/
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 2);
+}
+
+
+
+/* =================================================================================
+
+				Fonction d'extraction de champs de donn�es
+
+   ================================================================================*/
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr)
+{
+	char Val;
+	Val=(*MssgTempStr);
+	return ((MssgCode)Val);
+}
+
+/**
+  * @brief  
+  * @Note
+		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val enti�re|
+		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
+  * @param  
+  * @retval 
+  **/
+float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr)
 {
 	float Value;
 	float *PtrFloat;
@@ -27,63 +163,69 @@ float Protocole_ExtractTemperature(char * MssgTempStr)
 	*(PtrChar+2)=*(MssgTempStr+3);
 	*(PtrChar+3)=*(MssgTempStr+4);
 
-	return Value;
+	return Value;	
 }
 
-void Protocole_BuildMssgTemp(char * MssgTempStr, float Temp)
-{
-	float *PtrFloat;
-	char *PtrChar;
 
-	 PtrFloat=&Temp;
-	 PtrChar=(char*)PtrFloat;
-	 MssgTempStr[0]=MssgTempCode;
-	 MssgTempStr[1]=*PtrChar;
-	 MssgTempStr[2]=*(PtrChar+1);
-	 MssgTempStr[3]=*(PtrChar+2);
-	 MssgTempStr[4]=*(PtrChar+3);
+/**
+  * @brief  
+  * @Note
+		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val enti�re|
+		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
+  * @param  
+  * @retval 
+  **/
+char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr)
+{
+	return *(MssgTempStr+5);
 }
-
-void Protocole_BuildMssgWarning(char * MssgTempStr, RmDv_WarningCode WarningCode)
-{
-	MssgTempStr[0]=MssgWarningCode;
-	MssgTempStr[1]=WarningCode;
-}
-
-void Protocole_BuildMssgError(char * MssgTempStr, RmDv_WkUp_CurrentState ErrorCode)
-{
-	MssgTempStr[0]=MssgErrorCode;
-	MssgTempStr[1]=ErrorCode;
-}
-
-MssgCode Protocole_ExtractMssgcode(char * MssgTempStr)
-{
-	char Val;
-	Val=(*MssgTempStr);
-	return ((MssgCode)Val);
-}
-
-RmDv_TelecoIR_Cmde Protocole_ExtractClimOrder(char * MssgTempStr)
-{
-	char Val;
-	Val= *(MssgTempStr+7);
-	return ((RmDv_TelecoIR_Cmde)Val);
-}
-
-void Protocole_BuildMssgTelecoHeure(char * MssgStr, RmDv_TelecoIR_Cmde Cmde)
-{
 	
-	int i;
-	MssgStr[0]=MssgTimeClimOrderCode;
-	// for = heure bidon pour l'instant
-	for (i=1;i<7;i++)
-	{
-		MssgStr[i]=i;
-	}
-	MssgStr[7]=Cmde;
+
+/**
+  * @brief  
+  * @Note
+		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val enti�re | NextTimeInterval_sec (unsigned short int) |
+		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+  * @param  
+  * @retval 
+  **/
+char RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr)
+{
+	return *(MssgTempStr+1);
 }
 
-RmDv_WarningCode Protocole_ExtractWarningCode(char * MssgTempStr)
+
+/**
+  * @brief  
+  * @Note
+		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val enti�re | NextTimeInterval_sec (unsigned short int) |
+		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+  * @param  
+  * @retval 
+  **/
+unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr)
+{
+	unsigned short int Value;
+	unsigned short int *PtrShort;
+	char *PtrChar;
+	PtrShort=&Value;
+	PtrChar=(char*)PtrShort; /* volontaire */
+	/* Reconstruction float octet par octet ...*/
+	*(PtrChar)=*(MssgTempStr+2); /* low byte */
+	*(PtrChar+1)=*(MssgTempStr+3); /* high byte */
+	return Value;	
+}
+
+
+/**
+  * @brief  
+  * @Note
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 2
+  * @param  
+  * @retval 
+  **/
+RmDv_WarningCode  RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr)
 {
 	char Val;
 	Val= *(MssgTempStr+1);
@@ -91,25 +233,11 @@ RmDv_WarningCode Protocole_ExtractWarningCode(char * MssgTempStr)
 }
 
 
-/* GESTION des n essais successifs.... à faire
-Stop=1;  On stoppe par d�faut
-		 for (i=0;i<3;i++)
-		 {
-			 MACPhyUART_SendNewMssg (UC_Adress,TransmitMssg, 5);
-			 TimeManag_TimeOutStart(Chrono_3 , 100);
-			 while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
-			 {
-				 if (MACPhyUART_IsNewMssg()==1)
-				 {
-					 Long=MACPhyUART_GetLen();
-					 MACPhyUART_GetNewMssg(ReceivedMssg, Long);
-					 Stop=0;
-					 break;
-				 }
-			 }
-			 if (Stop==0) break;
-			 else StandByWkUpPgm_WCode=Transm_1_Attempt+i;
-		 }
-*/
+
+
+
+
+
+
 
 

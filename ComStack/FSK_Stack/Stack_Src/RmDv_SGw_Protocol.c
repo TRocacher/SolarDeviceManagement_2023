@@ -177,7 +177,7 @@ float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr)
   **/
 char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr)
 {
-	return (*MssgTempStr+5);
+	return *(MssgTempStr+5);
 }
 	
 
@@ -191,7 +191,7 @@ char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr)
   **/
 char RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr)
 {
-	return (*MssgTempStr+1);
+	return *(MssgTempStr+1);
 }
 
 

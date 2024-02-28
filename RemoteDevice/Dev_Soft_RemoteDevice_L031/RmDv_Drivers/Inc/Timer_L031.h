@@ -1,10 +1,10 @@
 #ifndef _TIMER_L031_H__
 #define _TIMER_L031_H__
 
-
+#include <GLOBAL_RmDv.h>
 #include "stm32l0xx.h"
 
-#define PrioSystick 0
+#define PrioSystick Prio_FSKStack_SystickTimeOut
 
 void SystickStart(void);
 int SystickGet(void);

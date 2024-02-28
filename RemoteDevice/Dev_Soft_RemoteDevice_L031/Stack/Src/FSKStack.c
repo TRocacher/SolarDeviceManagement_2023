@@ -44,7 +44,7 @@ Architecture du module :
 
 
 //#define MyDebug
-//#define Log
+#define Log
 
 
 
@@ -99,7 +99,7 @@ struct PhyUART_Mssg_type
 PhyUART_FSM_StateType OldState;
 PhyUART_FSM_StateType LogTab[20];
 //PhyUART_FSM_StateType LogTab[100];
-int j=0;
+int j_=0;
 #endif
 
 /*---------------------------------
@@ -399,10 +399,10 @@ char CRC_Val;
 if (OldState!=PhyUART_FSM_State)
 {
 	//LogTab[j].Time_100us=SystickGet();
-	LogTab[j]=PhyUART_FSM_State;
+	LogTab[j_]=PhyUART_FSM_State;
 	//LogTab[j]=PhyUART_FSM_State;
-	j++;
-	if (j==20) j=0;
+	j_++;
+	if (j_==20) j_=0;
 	OldState=PhyUART_FSM_State;
 }
 #endif

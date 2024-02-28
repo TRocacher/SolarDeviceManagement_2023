@@ -53,6 +53,7 @@
 #include "StandByWkupPgm.h"
 #include "RmDv_IO.h"
 #include "LowPower_L031.h"
+#include <GLOBAL_RmDv.h>
 
 /* =================================================================================
 * ==================    Main pgm	     ===========================================
@@ -92,9 +93,13 @@ int main(void)
 	SystemClock_Config();
 	/* Réglage Période RTC*/
 	LowPower_L031_RTC_Init(PeriodeSleep_Sec);
+
 	/* Réglage durée watchgog*/
-	RmDv_ErrorWDG_LPTIMConf(PlantageTimeOut,0, LPTIM1_User_Callback);
-	StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
+	RmDv_ErrorWDG_LPTIMConf(PlantageTimeOut,prio_WDG, LPTIM1_User_Callback);
+	// !!! revoir la prio si utilisé en watchdog. En IT simple, prio à 2 pour pas bloquer
+	// le systick
+	StartLPTM;
+	//StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
 	/***************************************************************
 	  		Configurations I/O Remote Device
 	***************************************************************/
@@ -105,8 +110,8 @@ int main(void)
 	/***************************************************************
 	  		Run code Standby
 	***************************************************************/
-	Main_StandByWkUpPgm();
-	LowPower_L031_GoToStdbySleep();
+	//Main_StandByWkUpPgm();
+	//LowPower_L031_GoToStdbySleep();
 
   while(1)
   {
@@ -134,9 +139,9 @@ void  LPTIM1_User_Callback(void)
 
 	/* Remplir un log erreur ds backup register pour next wakeup*/
 	//Protocole_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
+	Main_StandByWkUpPgm();
 
-
-	LowPower_L031_GoToStdbySleep();
+	//LowPower_L031_GoToStdbySleep();
 
 
 }
