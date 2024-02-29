@@ -94,8 +94,8 @@
  	 	 	 	 	 	 	 	- voir FSKStack.h
  	 	 	 	 	 	 	 	- voir RmDv_SGw_Protocol */
 /*--  Les timeout  --*/
-// Chrono_1 : file FSKStack.c (timeout Wait for header, FSM)
-// Chrono_3 : file StandByWkUpPgm.c (timeout au niveau protocole)
+#define  Chrono_FSKStack Chrono_1 // file FSKStack.c (timeout Wait for header, FSM)
+#define  Chrono_Protocole Chrono_2 // file StandByWkUpPgm.c (timeout au niveau protocole)
 
 
 

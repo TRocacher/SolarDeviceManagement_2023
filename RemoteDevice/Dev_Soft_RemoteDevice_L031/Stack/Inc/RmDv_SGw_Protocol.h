@@ -11,10 +11,9 @@
 #include "TimeManagement_RmDv.h"
 
 #define AckToRmDv 0xAB
+#define RMDV_ChronoName Chrono_Protocole
 
-#define TimeOutProtocole_ms  250 /* 50ms en supposant 10byte de payload à 9600bds
-																		à utiliser au niveau Req RmDv*/
-#define TimeOutProtocole_x6_ms  (6*TimeOutProtocole_ms) /* Timeout au niveau gateway */
+
 
 
 /* Liste des warnings, fonctionnement normal*/
@@ -91,6 +90,26 @@ typedef enum {
 	MssgAckCode=103,
 	MssgErrorCode=104,	
 }MssgCode;
+
+
+
+/* Requête d'émission*/
+typedef struct
+{
+	char DestAdr;
+	float Temp;
+	char LastSet;
+	int TimeOut_ms;
+	char TrialMaxNb;
+	char TrialActualNb;
+	char success;
+	char NewSet;
+	int NextInterval;
+
+}RmDv_SGw_FSKP_ReqInfoTypedef;
+
+void RmDv_SGw_FSKP_ReqInfo(RmDv_SGw_FSKP_ReqInfoTypedef* Req);
+
 
 
 

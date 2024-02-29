@@ -445,7 +445,7 @@ switch (PhyUART_FSM_State)
 				UART_Receiv=0;
 				PhyUART_HeaderCarCpt=0;
 				PhyUART_FrameIndex=0; // pour pr�parer le sampling frame
-				TimeManag_TimeOutStart(Chrono_1 ,PhyUART_TimeOut); // lancement TimeOut
+				TimeManag_TimeOutStart(FSKStach_ChronoName ,PhyUART_TimeOut); // lancement TimeOut
 				TimeManag_SetFSMPeriod(TIM_PhyUART_FSM,100);
 				// ---< Evolution next State >-----//
 				PhyUART_FSM_State=ReadingFrame; 
@@ -496,7 +496,7 @@ switch (PhyUART_FSM_State)
 			
 			
 			PhyUART_Mssg.Error=NoError;
-			if (TimeManag_GetTimeOutStatus(Chrono_1)==0) // Traitement si on n'est pas en time out !
+			if (TimeManag_GetTimeOutStatus(FSKStach_ChronoName)==0) // Traitement si on n'est pas en time out !
 			{
 			
 				PhyUART_Mssg.Status=ReceivingMssg;

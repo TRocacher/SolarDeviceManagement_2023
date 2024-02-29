@@ -11,6 +11,7 @@
 #include "TimeManagement.h"
 
 #define AckToRmDv 0xAB
+#define RMDV_ChronoName Chrono_2
 
 #define TimeOutProtocole_ms  50 /* 50ms en supposant 10byte de payload à 9600bds 
 																		à utiliser au niveau Req RmDv*/
@@ -107,7 +108,26 @@ typedef enum {
 
 
 
-/* Liste des fonction d'émission */
+/* Requête d'émission*/
+typedef struct 
+{
+	char DestAdr;
+	float Temp;
+	char LastSet;
+	TimeBaseName ChronoName;
+	int TimeOut_ms;
+	char TrialMaxNb;
+	char TrialActualNb;
+	char success;
+	char NewSet;
+	int NextInterval;
+	
+}RmDv_SGw_FSKP_ReqInfoTypedef;
+
+void RmDv_SGw_FSKP_ReqInfo(RmDv_SGw_FSKP_ReqInfoTypedef* Req);
+
+
+/* Liste des fonction d'émission simple */
 void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet);
 void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned short int NextWupInterval);
 void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr,  char Status);

@@ -16,6 +16,7 @@ void FSKStack_Init(char My);
 #define FSKStack_StartFSM PhyUART_StartFSM
 #define FSKStack_Get_Status PhyUART_Get_Status 
 #define FSKStack_Get_Error PhyUART_Get_Error
+#define FSKStach_ChronoName Chrono_FSKStack
 
 /* Remet à 0 les attributs d'échanges de l'interface
    ne modifie pas l'@ My */

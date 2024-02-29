@@ -39,6 +39,10 @@ char ReceivedCodeClim,ReceivedTempSet;
 unsigned short int Interval_sec;
 char Index;
 
+
+RmDv_SGw_FSKP_ReqInfoTypedef Req_Data;
+
+
 RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 {
 	return StandByWkUpPgm_CurrentState;
@@ -81,30 +85,26 @@ void DevPgmWup(void)
 	StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
 	TimeManag_TimeOutInit();
 	FSKStack_Init(My_);
-	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
-	Index++;
+	/* Chargement variable Requête, ici requête info*/
+	Req_Data.DestAdr = SGw_;
+	Req_Data.Temp = Temperature;
+	Req_Data.LastSet = 19;
+	Req_Data.TimeOut_ms = 200;
+	Req_Data.TrialMaxNb = 10;
+	Req_Data.TrialActualNb =0;
+	Req_Data.success = 0;
+	Req_Data.NewSet = 0;
+	Req_Data.NextInterval = 0;
 
-	/* TEST TIMEOUT 200ms (deux autres émission */
-	/*TimeManag_TimeOutStart(Chrono_2 , TimeOutProtocole_ms);
-	while(TimeManag_GetTimeOutStatus(Chrono_2)==0)
-	{}
-	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
-	Index++;
 
-	TimeManag_TimeOutStart(Chrono_2 , TimeOutProtocole_ms);
-	while(TimeManag_GetTimeOutStatus(Chrono_2)==0)
-	{}
-	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
+
+	Req_Data.LastSet = Index;
+	RmDv_SGw_FSKP_ReqInfo(&Req_Data);
 	Index++;
-	*/
-	while (FSKStack_IsNewMssg()==0) /* attente réception*/
-	{}
-	Long=FSKStack_GetLen();
-	FSKStack_GetNewMssg(ReceivedMssg, Long);
-	if (RmDv_SGw_FSKP_ExtractMssgcode(ReceivedMssg)==MssgAns_SendInfo)
+	if (Req_Data.success == 1)
 	{
 		StandByWkUpPgm_CurrentState=ClimUpdate;
-		ReceivedTempSet = RmDv_SGw_FSKP_ExtracNewTempSet(ReceivedMssg);
+		ReceivedTempSet = Req_Data.NewSet;
 		Interval_sec = RmDv_SGw_FSKP_ExtractNextWupInterval(ReceivedMssg);
 		RmDv_TelecoIR_Init();
 		if (ReceivedTempSet == 18) ReceivedCodeClim = _Chaud_18_VanBas_FanAuto;
@@ -184,7 +184,7 @@ void Main_StandByWkUpPgm(void)
 		 for (i=0;i<3;i++)
 		 {
 			 RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, 19);
-			 TimeManag_TimeOutStart(Chrono_3 , TimeOutProtocole_ms);
+			 //TimeManag_TimeOutStart(Chrono_3 , TimeOutProtocole_ms);
 			 while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 			 {
 				 if (FSKStack_IsNewMssg()==1)
@@ -244,7 +244,7 @@ void Main_StandByWkUpPgm(void)
 	for (i=0;i<3;i++)
 	{
 		RmDv_SGw_FSKP_SenddMssgReq_SendStatus(SGw_,  StandByWkUpPgm_WCode);
-		TimeManag_TimeOutStart(Chrono_3 , TimeOutProtocole_ms);
+		//TimeManag_TimeOutStart(Chrono_3 , TimeOutProtocole_ms);
 		while(TimeManag_GetTimeOutStatus(Chrono_3)==0)
 		{
 			if (FSKStack_IsNewMssg()==1)
