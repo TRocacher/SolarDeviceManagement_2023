@@ -12,7 +12,7 @@
 
 #define AckToRmDv 0xAB
 
-#define TimeOutProtocole_ms  50 /* 50ms en supposant 10byte de payload à 9600bds 
+#define TimeOutProtocole_ms  250 /* 50ms en supposant 10byte de payload à 9600bds
 																		à utiliser au niveau Req RmDv*/
 #define TimeOutProtocole_x6_ms  (6*TimeOutProtocole_ms) /* Timeout au niveau gateway */
 

@@ -84,6 +84,19 @@ void DevPgmWup(void)
 	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
 	Index++;
 
+	/* TEST TIMEOUT 200ms (deux autres émission */
+	TimeManag_TimeOutStart(Chrono_2 , TimeOutProtocole_ms);
+	while(TimeManag_GetTimeOutStatus(Chrono_2)==0)
+	{}
+	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
+	Index++;
+
+	TimeManag_TimeOutStart(Chrono_2 , TimeOutProtocole_ms);
+	while(TimeManag_GetTimeOutStatus(Chrono_2)==0)
+	{}
+	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
+	Index++;
+
 }
 
 
