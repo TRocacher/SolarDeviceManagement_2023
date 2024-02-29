@@ -37,11 +37,58 @@ char ReceivedMssg[30];
 char Long;
 char ReceivedCodeClim,ReceivedTempSet;
 unsigned short int Interval_sec;
+char Index;
 
 RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 {
 	return StandByWkUpPgm_CurrentState;
 }
+
+
+void DevPgmWup(void)
+{
+
+	Stop=0;
+	Error=0;
+	StandByWkUpPgm_CurrentState=BoostActivation;
+	StandByWkUpPgm_WCode=NoWarning;
+
+	/***************************************************************
+	  		Activation Boost 3V -> 5V -> 3,3V
+	  		-> Alimentation 3,3V pour ADT7410, OPAmp µphone,
+	  		OpAmp LED IR Xbee (si câblé)
+	  		-> Alimentation 5V pour RT606 (FSK, si câblé)
+	***************************************************************/
+	RmDv_EnableBoost;
+	Delay_x_ms(50); /* attendre 50ms pour que le ADT7410 se réveille*/
+
+	/***************************************************************
+	  		Mesure température
+	***************************************************************/
+	StandByWkUpPgm_CurrentState=TemperatureMeasure;
+	ADT7410_Init();
+	Temperature=ADT7410_GetTemp_float();
+	if (Temperature>-100.0) Stop=0;/* pas d'erreur*/
+	else
+	{
+		Stop=1;
+		StandByWkUpPgm_WCode = Error_TempI2C;
+	}
+
+	/***************************************************************
+		  		Emission régulière
+		***************************************************************/
+	StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
+	TimeManag_TimeOutInit();
+	FSKStack_Init(My_);
+	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
+	Index++;
+
+}
+
+
+
+
 
 
 void Main_StandByWkUpPgm(void)

@@ -80,7 +80,7 @@ void BP_User_Callback(void);
 void LPTIM1_User_Callback(void);
 
 #define PeriodeSleep_Sec 120
-#define PlantageTimeOut 5
+#define PlantageTimeOut 1
 
 int main(void)
 {
@@ -139,7 +139,7 @@ void  LPTIM1_User_Callback(void)
 
 	/* Remplir un log erreur ds backup register pour next wakeup*/
 	//Protocole_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
-	Main_StandByWkUpPgm();
+	DevPgmWup();
 
 	//LowPower_L031_GoToStdbySleep();
 

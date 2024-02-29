@@ -46,7 +46,7 @@ Architecture du module :
 //#define MyDebug
 //#define Log
 
-
+const char Preambule[4]={0xFF,0xFF,0xFF,0xFF};
 
 #ifdef SpyUART
 char SpyUART_ByteRec;
@@ -502,8 +502,7 @@ switch (PhyUART_FSM_State)
 			PhyUART_Mssg.Status=SendingMssg;
 			USART_FSK_SetTransmAntenna();
 			Delay_x_ms(4);
-			USART_FSK_Print("123456789",9);      // envoie de quelques caractères car le premier byte est souvent dégradé.
-																		// Voir avec l'expérience si on peut diminuer le nbre.
+			USART_FSK_Print((char*)Preambule,4);	// Voir avec l'expérience si on peut diminuer le nbre.
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en réception
 
@@ -641,7 +640,7 @@ switch (PhyUART_FSM_State)
 				if (i==0)  PhyUART_Mssg.MACSrcAdress=InComingMssg[i];
 				else if (i==1) // filtrage @Destination
 				{
-					if ((InComingMssg[i]==PhyUART_Mssg.My)||(InComingMssg[i]==0xFF)) PhyUART_Mssg.MACMatch=1;
+					if (((unsigned char)InComingMssg[i]==PhyUART_Mssg.My)||((unsigned char)InComingMssg[i]==255)) PhyUART_Mssg.MACMatch=1;
 					// NB -1 = 0xFF, broadcast
 				}
 				else if (PhyUART_Mssg.MACMatch==1) // sampling de MACstring
