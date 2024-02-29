@@ -399,9 +399,9 @@
               <FilePath>.\Src\AlgoClim.c</FilePath>
             </File>
             <File>
-              <FileName>SmartGwMain_1_RecoitEtAffiche.c</FileName>
+              <FileName>SmartGwMain_2_RecoitEtAfficheRenvoie.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\SmartGwMain_1_RecoitEtAffiche.c</FilePath>
+              <FilePath>.\Src\SmartGwMain_2_RecoitEtAfficheRenvoie.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -952,9 +952,9 @@
               <FilePath>.\Src\AlgoClim.c</FilePath>
             </File>
             <File>
-              <FileName>SmartGwMain_1_RecoitEtAffiche.c</FileName>
+              <FileName>SmartGwMain_2_RecoitEtAfficheRenvoie.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\SmartGwMain_1_RecoitEtAffiche.c</FilePath>
+              <FilePath>.\Src\SmartGwMain_2_RecoitEtAfficheRenvoie.c</FilePath>
             </File>
           </Files>
         </Group>

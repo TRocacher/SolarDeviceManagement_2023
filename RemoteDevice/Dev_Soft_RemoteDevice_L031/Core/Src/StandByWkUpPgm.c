@@ -85,7 +85,7 @@ void DevPgmWup(void)
 	Index++;
 
 	/* TEST TIMEOUT 200ms (deux autres émission */
-	TimeManag_TimeOutStart(Chrono_2 , TimeOutProtocole_ms);
+	/*TimeManag_TimeOutStart(Chrono_2 , TimeOutProtocole_ms);
 	while(TimeManag_GetTimeOutStatus(Chrono_2)==0)
 	{}
 	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
@@ -96,6 +96,28 @@ void DevPgmWup(void)
 	{}
 	RmDv_SGw_FSKP_SendMssgReq_SendInfo(SGw_, Temperature, Index);
 	Index++;
+	*/
+	while (FSKStack_IsNewMssg()==0) /* attente réception*/
+	{}
+	Long=FSKStack_GetLen();
+	FSKStack_GetNewMssg(ReceivedMssg, Long);
+	if (RmDv_SGw_FSKP_ExtractMssgcode(ReceivedMssg)==MssgAns_SendInfo)
+	{
+		StandByWkUpPgm_CurrentState=ClimUpdate;
+		ReceivedTempSet = RmDv_SGw_FSKP_ExtracNewTempSet(ReceivedMssg);
+		Interval_sec = RmDv_SGw_FSKP_ExtractNextWupInterval(ReceivedMssg);
+		RmDv_TelecoIR_Init();
+		if (ReceivedTempSet == 18) ReceivedCodeClim = _Chaud_18_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 19) ReceivedCodeClim = _Chaud_19_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 20) ReceivedCodeClim = _Chaud_20_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 21) ReceivedCodeClim = _Chaud_21_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 22) ReceivedCodeClim = _Chaud_22_VanBas_FanAuto;
+		else if  (ReceivedTempSet == 23) ReceivedCodeClim = _Chaud_23_VanBas_FanAuto;
+		else ReceivedCodeClim = _Stop;
+		RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
+		RmDv_TelecoIR_DeInit();
+	}
+
 
 }
 
