@@ -18,8 +18,7 @@
 	MAIN PROGRAM
 	
 	Les chronomètres utilisés pour les timers :
-	Chrono_1 : file FSKStack.c (timeout Wait for header, FSM)
-	Chrono_2 : utilisé pour le timeout lors de l'attente de la requête de statut du RmDv en cours
+
 	
 *****************************************************************************************************************/
 void Transaction_RmDv(char ID);
@@ -30,6 +29,7 @@ void Transaction_HMI(void);
 
 #ifdef AfficheRmDvInfo
 char LCD_RmDv_Str[20];
+
 #endif
 
 
@@ -42,19 +42,22 @@ TimeStampTypedef TimeStampIHM;
 TimeStampTypedef * PtrTimeStamp;
 #endif
 
-char * PtrOnString;
-UARTStack_ErrorType MyError;
-char FSKMssgRec[100];
+
+char * PtrOnString;							/* pointeur pour récupérer l'adresse de string depuis UART HMI */
+UARTStack_ErrorType MyError;		/* Variable indiquant une erreur de la pile UARTStack */
+
+
+
 
 /* les données clim (RmDDv)*/
-int RmDv_ID; /* l'@ source du signal FSK reçu, qui est l'ID de la clim */
-RmDvDataTypedef* pClimSalon;
-RmDvDataTypedef* pClimSaM;
-RmDvDataTypedef* pClimEntree;
-RmDvDataTypedef* pClimCouloir;
-RmDvDataTypedef* pRmDvExt;
+int RmDv_ID; 										/* l'@ source du signal FSK en cours de réception, qui est l'ID de la clim */
+RmDvDataTypedef* pClimSalon;		/* Pointeur de données du RmDv Salon */
+RmDvDataTypedef* pClimSaM;			/* Pointeur de données du RmDv Salle à manger */
+RmDvDataTypedef* pClimEntree;		/* Pointeur de données du RmDv Entrée */
+RmDvDataTypedef* pClimCouloir;	/* Pointeur de données du RmDv Couloir */
+RmDvDataTypedef* pRmDvExt;			/* Pointeur de données du RmDv situé à l'extérieur */
 
-RmDvDataTypedef* Tab_RmDvData[5];
+RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers RmDv */
 
 
 
@@ -63,10 +66,10 @@ RmDvDataTypedef* Tab_RmDvData[5];
 int main (void)
 {
 
-	TimeManag_TimeOutInit(); /* obligatoire pour la gestion des TimeOut à tous les étages...*/
-	FSKStack_Init(My_); /* init de la stack wireless*/
-	UARTStack_Init();  /* init de la stack UART pour HMI*/
-	TimerStamp_Start(); /* obligatoire pour pouvoir gérer les horodatage*/
+	TimeManag_TimeOutInit(); 	/* obligatoire pour la gestion des TimeOut à tous les étages...*/
+	FSKStack_Init(My_);				/* init de la stack wireless*/
+	UARTStack_Init();  				/* init de la stack UART pour HMI*/
+	TimerStamp_Start(); 			/* obligatoire pour pouvoir gérer les horodatage*/
 	
 	/* initisation des "objets" data clim */
 	pClimSalon = RmDvData_GetObjectAdress(ID_Clim_Salon);
@@ -118,8 +121,8 @@ while(1)
 	TRANSACTIONS ...
 	
 *****************************************************************************************************************/
-
-/* Message en dur*/
+#ifdef AfficheRmDvInfo
+/* Message en dur pour test LCD*/
 char NoWarn[]="NoWarning";
 char Trial_2[]= "Trial 2...";
 char Trial_3[]= "Trial 3...";
@@ -133,23 +136,23 @@ char Trial_10[]= "Trial 10...";
 char Error_TempI2C[]= "Erreur Temp I2C...";
 char Error_NewSetNotRec[]= "RmDv : No New order ";
 char Error_StatusNotRec[]= "SGw : No status ";
-
+#endif
 
 
 void Transaction_RmDv(char ID)
 {
-	
-	MssgCode Code;
-	int L;
-	float TemperatureMesuree;
-	char lastTempSet;
+	char FSKMssgRec[30];				/* String de réception de la pile StackFSK */
+	MssgCode Code;							/* Code qui seea extrait du string */
+	int L;											/* Longueur du string */
+	float TemperatureMesuree;		/* Température mesurée au niveau du RmDv*/
+	char lastTempSet;						/* dernière consigne reçu par le RmDv lors de la précédente requête */
 
-	char chaine[20];
-	char Success;
-	RmDv_WarningCode Status;
+	char Success;								/* indicateur de succès de l'échange global */
+	RmDv_WarningCode Status;		/* statut final de l'échange */
 	
-	char* TabPtrString[25];
-	
+		
+#ifdef AfficheRmDvInfo	
+	char* TabPtrString[25];		/* Tableau de phrases à afficher */
 	/* Prépa pointeur de chaine*/
 	TabPtrString[Status_NoWarning]=NoWarn;
 	TabPtrString[Status_Trial_2]=Trial_2;
@@ -163,7 +166,7 @@ void Transaction_RmDv(char ID)
 	TabPtrString[Status_Error_TempI2C]=Error_TempI2C;
 	TabPtrString[Status_Error_NewTempSetNotReceived]=Error_NewSetNotRec;
 	TabPtrString[Status_NoStatusReceived]=Error_StatusNotRec;
-	
+#endif	
 	
 	/* Recopie locale du message*/
 	L=FSKStack_GetLen();
@@ -228,8 +231,10 @@ void Transaction_RmDv(char ID)
 			Status=Status_NoStatusReceived;
 		}
 		
-		/* Mise à jour de la vatiable RmDv et/ou LCD update */
-		
+		/* Mise à jour de la vatiable RmDv */
+
+#ifdef AfficheRmDvInfo		
+		/* Mise à jour LCD */
 		MyLCD_Set_cursor(0, 0);	
 		MyLCD_Print("                ");
 		MyLCD_Set_cursor(0, 0);
@@ -242,8 +247,9 @@ void Transaction_RmDv(char ID)
 		MyLCD_Print("                ");
 		MyLCD_Set_cursor(0, 1);
 		
-		StringFct_Int2Str_99(lastTempSet,chaine);
-		MyLCD_Print_n (chaine,5);
+		StringFct_Int2Str_99(lastTempSet,LCD_RmDv_Str);
+		MyLCD_Print_n (LCD_RmDv_Str,5);
+#endif
 	}
 	
 }
