@@ -79,7 +79,7 @@ void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID)
 	RmDvData->RmDvTimeStamp.Month = 0;
 	RmDvData->RmDvTimeStamp.Year =0;
 
-	RmDvData->Status = NoWarning;
+	RmDvData->Status = Status_NoWarning;
 	RmDvData->Temperature = 0.0;
 	
 	

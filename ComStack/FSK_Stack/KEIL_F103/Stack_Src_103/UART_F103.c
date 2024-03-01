@@ -174,15 +174,24 @@ Param :
 
 void USART1_IRQHandler(void)
 {
+	/* MODIF RECENTE 01/03/2024 pour être certain de ne pas rester en boucle sur l'UART
+	Effacement FlagStatus RXNE */
+	USART1->SR&=~USART_SR_RXNE;
 	UART1_ByteCallback();
 }
 
 void USART2_IRQHandler(void)
 {
+	/* MODIF RECENTE 01/03/2024 pour être certain de ne pas rester en boucle sur l'UART
+	Effacement FlagStatus RXNE */
+	USART2->SR&=~USART_SR_RXNE;
 	UART2_ByteCallback();
 }
 
 void USART3_IRQHandler(void)
 {
+		/* MODIF RECENTE 01/03/2024 pour être certain de ne pas rester en boucle sur l'UART
+	Effacement FlagStatus RXNE */
+	USART3->SR&=~USART_SR_RXNE;
 	UART3_ByteCallback();
 }

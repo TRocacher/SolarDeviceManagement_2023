@@ -3,7 +3,9 @@
 
 
 #include "stm32f10x.h"
+#include "GLOBAL_SMARTGATEWAY.h"
 
+#define PrioSystick Prio_FSKStack_SystickTimeOut
 
 void SystickStart(void);
 int SystickGet(void);

@@ -96,7 +96,17 @@
 /*--  Les timeout  --*/
 #define  Chrono_FSKStack Chrono_1 // file FSKStack.c (timeout Wait for header, FSM)
 #define  Chrono_Protocole Chrono_2 // file StandByWkUpPgm.c (timeout au niveau protocole)
+/* message max = req info =
+ *  |MssgReq_SendInfo 		| Temperature (float) | LastTempSet (char) |
+ *  soit 6 caractères.
+ *  On ajoute 4 préambules (0xFF) puis 5# puis Long 1, puis payload 6 + org/dest 2 + CRC 1
+ *  cela donne 21 caractères, margeons à N = 40 pour inclure le tps de calcul
+ *  Temps de vol = N * 10 / Debit = 400/Débit
+ *  Aller et retour (tps de calcule négligé, Temps de vol A/R = 800/débit */
 
+#define TimeOutReq (800000/Rate_UART_FSK) /* pour 9600 Bds, 83ms*/
+#define StatusReqTrialNb 3
+#define  StatusReqTrialNb 3
 
 
 /*============================================================================

@@ -34,11 +34,7 @@
 // USART_3_RX = PB11
 //=======================================================================================
 
-
-
-
-// Autorisation UART IT seulement si CD est détecté.
-//#define UseCarrierDetect  
+ 
 
 
 // Carrier Detect !! ATTENTION !! Pgm prévu seulement pour broche 5 à 9. En dehors, revoir le .c

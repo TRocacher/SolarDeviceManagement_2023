@@ -18,6 +18,10 @@
 /*  FSK Stack  */
 #define TIM_PhyUART_FSM TIM2 	/* Pour l'animation du graphe d'état : used in FSKStack.c*/
 #define UART_FSK USART3				/* Pour le module RT606 FSK  : used in ModuleFSK.c*/
+#define Rate_UART_FSK 9600
+//#define UseCarrierDetect			/* Autorisation UART IT seulement si CD est détecté. */
+
+
 // SYSTICK 										/* Pour les timeout utilisés dans la pile FSK, used in FSKStack.c*/
 
 /*  Horodatage   */

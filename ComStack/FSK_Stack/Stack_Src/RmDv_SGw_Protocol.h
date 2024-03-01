@@ -11,11 +11,7 @@
 #include "TimeManagement.h"
 
 #define AckToRmDv 0xAB
-#define RMDV_ChronoName Chrono_2
 
-#define TimeOutProtocole_ms  50 /* 50ms en supposant 10byte de payload à 9600bds 
-																		à utiliser au niveau Req RmDv*/
-#define TimeOutProtocole_x6_ms  (6*TimeOutProtocole_ms) /* Timeout au niveau gateway */
 
 
 /* Donne l'état courant de la phase de réveil
@@ -33,15 +29,22 @@ typedef enum {
 
 /* Liste des warnings, fonctionnement normal*/
 typedef enum {
-	NoWarning=10,
-	Transm_1_Attempt=11,
-	Transm_2_Attempt=12,
-	Transm_3_Attempt=13,
-	Error_TempI2C=14,
-	Error_NewTempSetNotReceived=15,
-	Error_NoStatusReceived=16,
-	Error_RmDvSignal=17,
+	Status_NoWarning=1,
+	Status_Trial_2=2,
+	Status_Trial_3=3,
+	Status_Trial_4=4,
+	Status_Trial_5=5,
+	Status_Trial_6=6,
+	Status_Trial_7=7,
+	Status_Trial_8=8,
+	Status_Trial_9=9,
+	Status_Trial_10=10,
+
+	Status_Error_TempI2C=20,
+	Status_Error_NewTempSetNotReceived=21,
+	Status_NoStatusReceived=22,
 }RmDv_WarningCode;
+
 
 
 /*
@@ -97,7 +100,7 @@ typedef enum {
 	MssgReq_SendInfo = 0x50,
 	MssgAns_SendInfo = 0x51,
 	MssgReq_SendStatus = 0x52,
-	MssgAns_Ack = 0x51,
+	MssgAns_Ack = 0x53,
 		
 	MssgWarningCode=100,
 	MssgTempCode=101,
@@ -108,26 +111,12 @@ typedef enum {
 
 
 
-/* Requête d'émission*/
-typedef struct 
-{
-	char DestAdr;
-	float Temp;
-	char LastSet;
-	TimeBaseName ChronoName;
-	int TimeOut_ms;
-	char TrialMaxNb;
-	char TrialActualNb;
-	char success;
-	char NewSet;
-	int NextInterval;
-	
-}RmDv_SGw_FSKP_ReqInfoTypedef;
-
-void RmDv_SGw_FSKP_ReqInfo(RmDv_SGw_FSKP_ReqInfoTypedef* Req);
 
 
-/* Liste des fonction d'émission simple */
+	/***************************************************************
+			  	 Liste des fonction d'émission simple
+	***************************************************************/
+
 void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet);
 void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned short int NextWupInterval);
 void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr,  char Status);
@@ -135,9 +124,10 @@ void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr);
 
 
 
+	/***************************************************************
+			  	Liste des fonctions d'extraction de champs
+	***************************************************************/
 
-
-/* Liste des fonctions d'extraction de champs */
 MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr);
 float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr);
 char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr);

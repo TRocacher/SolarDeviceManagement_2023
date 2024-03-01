@@ -1,11 +1,12 @@
 #ifndef _FSK_STACK_H__
 #define _FSK_STACK_H__
 
-#define SpyUART
+//#define SpyUART
 
 #include "ModuleFSK.h"
 #include "TimeManagement.h"
 #include "RessourcesPeriph.h"
+#include "GLOBAL_SMARTGATEWAY.h"
 
 //**************************************************************************************************************
 //**************************************************************************************************************
@@ -49,14 +50,18 @@ int FSKStack_SendNewMssg (char DestAdr, char * AdrString, int Len);
 
 // Priorité d'interruption
 // USER DEFINE (recommandé)
-#define UART_Prio_CD 0							// priorité au niveau de l'UART , Carrier Detect (par défaut priorité maximale)	
+#define UART_Prio_CD Prio_FSKStack_UART_CD	// priorité au niveau de l'UART , Carrier Detect (par défaut priorité maximale)	
 // NE PAS TOUCHER
-#define UART_Prio (UART_Prio_CD+1) 	// priorité au niveau de l'UART (juste au dessous de CD)
-#define PhyUART_FSM_Prio (UART_Prio+1)  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
+#define UART_Prio Prio_FSKStack_UART_Rec 	// priorité au niveau de l'UART (juste au dessous de CD)
+#define PhyUART_FSM_Prio Prio_FSKStack_TimerFSM  // priorité de la FSM (par défaut juste en dessous de celle de l'UART)
+
+
 
 
 // USER DEFINE
-#define PhyUART_BdRate 9600
+#define PhyUART_BdRate  Rate_UART_FSK
+
+
 
 // USER DEFINE
 // longueur max des chaïnes

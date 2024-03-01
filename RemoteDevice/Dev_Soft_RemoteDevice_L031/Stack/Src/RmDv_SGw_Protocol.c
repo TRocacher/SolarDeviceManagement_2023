@@ -284,6 +284,53 @@ void RmDv_SGw_FSKP_ReqInfo(RmDv_SGw_FSKP_ReqInfoTypedef* Req)
 
 
 
+/**
+  * @brief
+  * @Note
+	* @param
+  * @retval
+  **/
+void RmDv_SGw_FSKP_ReqStatus(RmDv_SGw_FSKP_ReqStatusTypedef* Req)
+{
+	int i;
+	int Long;
+	char ReceivedMssg[30];
+	char LocalSuccess;
+
+
+	LocalSuccess=0;
+	for (i=0;i<Req->TrialMaxNb;i++)
+	{
+		TimeManag_TimeOutStart(RMDV_ChronoName,Req->TimeOut_ms);
+		/*émission requête i*/
+		RmDv_SGw_FSKP_SenddMssgReq_SendStatus(Req->DestAdr,  Req->Status);
+		while(TimeManag_GetTimeOutStatus(RMDV_ChronoName)==0)
+		{
+				if (FSKStack_IsNewMssg()==1)
+				{
+					Long=FSKStack_GetLen();
+					FSKStack_GetNewMssg(ReceivedMssg, Long);
+					if (RmDv_SGw_FSKP_ExtractMssgcode(ReceivedMssg)==MssgAns_Ack)
+					{
+							LocalSuccess=1;
+							break;
+					}
+				}
+		}
+		if (LocalSuccess == 1) break;
+	}
+	if (i == Req->TrialMaxNb) /* Sortie de boucle sans aucun succès*/
+	{
+		Req->success=0;
+	}
+	else
+	{
+		Req->success=1;
+		Req->TrialActualNb=i+1;
+	}
+}
+
+
 
 
 
