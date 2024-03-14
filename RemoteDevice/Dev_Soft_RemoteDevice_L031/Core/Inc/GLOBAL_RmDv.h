@@ -111,16 +111,16 @@
 
 /*============================================================================
  *
- * 		Gestion des priorités
+ * 		Gestion des priorités !! attention uniquement 3 niveaux de priorité !!
  *
 ============================================================================*/
 
 #define Prio_FSKStack_SystickTimeOut 0
-#define prio_Teleco_Timer_Bit 0
-#define Prio_FSKStack_UART_CD 0
+#define prio_Teleco_Timer_Bit 1
+#define Prio_FSKStack_UART_CD 1
 #define Prio_FSKStack_UART_Rec (Prio_FSKStack_UART_CD+1)
 #define Prio_FSKStack_TimerFSM (Prio_FSKStack_UART_Rec+1)
-#define prio_WDG 3
+#define prio_WDG 0
 
 
 

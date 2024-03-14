@@ -1,6 +1,6 @@
 
 #include "StandByWkupPgm.h"
-
+#include "main.h"
 
 
 /* =================================================================================
@@ -11,8 +11,16 @@
  *   Tool : CubeIDE 1.12.1,
  *   Target : STM32L031
  *  ------------------------------------------------------------------------------
+ * BackupRegister :
+ * 	BKP0R (8 bits utilisés sur les 32) = Consigne de températur
+ * 		BKPOR <- Consigne du SGw
+ * 		BKP0R -> Last consigne.
  *
  *
+ *	Le test :
+ *	 on envoie la valeur du BKReg BKP0R
+ *	 on y ajoute +1 et on mémorise pour le prochain coup.
+ *	 Wup toutes les 2 secondes.
 
 * =================================================================================*/
 
@@ -48,8 +56,9 @@ RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 
 
 /* Programme principal */
-void DevPgmWup(void)
+void Main_StandByWkUpPgm(void)
 {
+	char BackUpReg_LastTemp;
 
 	Stop=0; /* Par défaut progression OK */
 	StandByWkUpPgm_CurrentState=BoostActivation;
@@ -85,6 +94,17 @@ void DevPgmWup(void)
 	if (Stop == 0)
 	{
 		StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
+		/* Donner accès au BKP reg */
+		LL_PWR_EnableBkUpAccess();
+		LL_RTC_DisableWriteProtection(RTC);
+		/* Lecture ancienne valeur */
+		BackUpReg_LastTemp=(char)LL_RTC_ReadReg(RTC,BKP0R);
+		/* pour le test...*/
+		BackUpReg_LastTemp++;
+		/* Blocage accès BKP Reg */
+		LL_PWR_DisableBkUpAccess();
+		LL_RTC_EnableWriteProtection(RTC);
+
 		/* Initialisation du système de gestion des timeout via systick */
 		TimeManag_TimeOutInit();
 		/* Initialisation de la pile FSK */
@@ -92,18 +112,18 @@ void DevPgmWup(void)
 		/* Chargement variable Requête info*/
 		Req_Data.DestAdr = SGw_;
 		Req_Data.Temp = Temperature;
-		Req_Data.LastSet = 19;
+		Req_Data.LastSet = BackUpReg_LastTemp;
 		Req_Data.TimeOut_ms = RMDV_TimeOutReq;
 		Req_Data.TrialMaxNb = RMDV_InfoReqTrialNb;
 		Req_Data.TrialActualNb =0;
 		Req_Data.success = 0;
 		Req_Data.NewSet = 0;
 		Req_Data.NextInterval = 0;
-		Req_Data.LastSet = Index;
+
 		/* Lancement de la requête... n fois ...*/
 		RmDv_SGw_FSKP_ReqInfo(&Req_Data);
-		/* pour le test...*/
-		Index++;
+
+
 		/***************************************************************
 				  		Mise à jour clim
 		***************************************************************/
@@ -115,6 +135,15 @@ void DevPgmWup(void)
 			StandByWkUpPgm_CurrentState=ClimUpdate;
 			/* récupération des données de la requête info (température et Intervalle)*/
 			ReceivedTempSet = Req_Data.NewSet;
+			/* Donner accès au BKP reg */
+			LL_PWR_EnableBkUpAccess();
+			LL_RTC_DisableWriteProtection(RTC);
+			/* Ecriture new val */ /* pour le test*/
+			LL_RTC_WriteReg(RTC,BKP0R,BackUpReg_LastTemp);
+			/* Blocage accès BKP Reg */
+			LL_PWR_DisableBkUpAccess();
+			LL_RTC_EnableWriteProtection(RTC);
+
 			Interval_sec = RmDv_SGw_FSKP_ExtractNextWupInterval(ReceivedMssg);
 			/* Initialisation télécommande IR et émission effective */
 			RmDv_TelecoIR_Init();

@@ -79,8 +79,8 @@ void SystemClock_Config(void);
 void BP_User_Callback(void);
 void LPTIM1_User_Callback(void);
 
-#define PeriodeSleep_Sec 120
-#define PlantageTimeOut 1
+#define PeriodeSleep_Sec 2
+#define PlantageTimeOut 2
 
 int main(void)
 {
@@ -99,7 +99,7 @@ int main(void)
 	// !!! revoir la prio si utilisé en watchdog. En IT simple, prio à 2 pour pas bloquer
 	// le systick
 	StartLPTM;
-	//StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
+//	StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
 	/***************************************************************
 	  		Configurations I/O Remote Device
 	***************************************************************/
@@ -110,16 +110,13 @@ int main(void)
 	/***************************************************************
 	  		Run code Standby
 	***************************************************************/
-	//Main_StandByWkUpPgm();
-	//LowPower_L031_GoToStdbySleep();
+	Main_StandByWkUpPgm();
+	LowPower_L031_GoToStdbySleep(); /* Lancement WUT et sleep */
 
   while(1)
   {
 
   }
-
-
-
 
 }
 
@@ -135,13 +132,19 @@ void BP_User_Callback(void)
 char ErrorMssg[2];
 void  LPTIM1_User_Callback(void)
 {
+	//Main_StandByWkUpPgm();
+	// écrire 0xFF dans le BKP0R pour singifier qu'il y a eu un plantage sévère
+	/* Donner accès au BKP reg */
+	LL_PWR_EnableBkUpAccess();
+	LL_RTC_DisableWriteProtection(RTC);
+	/* Ecriture */
+	LL_RTC_WriteReg(RTC,BKP0R,0xFF);
+	/* Blocage accès BKP Reg */
+	LL_PWR_DisableBkUpAccess();
+	LL_RTC_EnableWriteProtection(RTC);
 
 
-	/* Remplir un log erreur ds backup register pour next wakeup*/
-	//Protocole_BuildMssgError(ErrorMssg,StandByWkUpPgm_GetCurrentState());
-	DevPgmWup();
-
-	//LowPower_L031_GoToStdbySleep();
+	LowPower_L031_GoToStdbySleep(); /* Lancement WUT et sleep */
 
 
 }
