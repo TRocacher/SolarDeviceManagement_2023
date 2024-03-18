@@ -225,7 +225,7 @@ unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr)
   * @param  
   * @retval 
   **/
-RmDv_WarningCode  RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr)
+RmDv_WarningCode  RmDv_SGw_FSKP_ExtractStatus(char * MssgTempStr)
 {
 	char Val;
 	Val= *(MssgTempStr+1);

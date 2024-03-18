@@ -106,15 +106,16 @@ typedef enum {
 ***************************************************************/
 typedef struct
 {
-	char DestAdr;
-	float Temp;
-	char LastSet;
-	int TimeOut_ms;
-	char TrialMaxNb;
-	char TrialActualNb;
-	char success;
-	char NewSet;
-	int NextInterval;
+	char DestAdr;		/* Adresse de destinataire*/
+	float Temp;			/* Température : out */
+	char LastSet;		/* dernière consigne : out */
+	int TimeOut_ms;		/* durée maximale pour un essai */
+	char TrialMaxNb;	/* nbre maximum de tentatives autorisées */
+	char TrialActualNb;	/* nbre effectif de tentatives */
+	char success;		/* 1 : la requête est OK, 0 sinon*/
+	char NewSet;		/* nouvelle consigne de température : in*/
+	int NextInterval;	/* nombre de secondes à attendre pour
+	 	 	 	 	 	 prochain réveil : in*/
 
 }RmDv_SGw_FSKP_ReqInfoTypedef;
 
@@ -123,12 +124,12 @@ void RmDv_SGw_FSKP_ReqInfo(RmDv_SGw_FSKP_ReqInfoTypedef* Req);
 
 typedef struct
 {
-	char DestAdr;
-	RmDv_WarningCode Status;
-	int TimeOut_ms;
-	char TrialMaxNb;
-	char TrialActualNb;
-	char success;
+	char DestAdr;				/* Adresse de destinataire*/
+	RmDv_WarningCode Status;	/* le status de l'échange côté RmDv : out*/
+	int TimeOut_ms;				/* durée maximale pour un essai */
+	char TrialMaxNb;			/* nbre maximum de tentatives autorisées */
+	char TrialActualNb;			/* nbre effectif de tentatives */
+	char success;				/* 1 : la requête est OK, 0 sinon*/
 }RmDv_SGw_FSKP_ReqStatusTypedef;
 
 void RmDv_SGw_FSKP_ReqStatus(RmDv_SGw_FSKP_ReqStatusTypedef* Req);
@@ -153,7 +154,7 @@ float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr);
 char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr);
 char  RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr);
 unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr);
-RmDv_WarningCode   RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr);
+RmDv_WarningCode   RmDv_SGw_FSKP_ExtractStatus(char * MssgTempStr);
 
 
 

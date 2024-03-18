@@ -141,4 +141,12 @@
 #define SGw_ 0xDD
 
 
+/*============================================================================
+ *
+ * 		Définition des Backup registers
+ *
+============================================================================*/
+#define BKPReg_TempSet BKP0R
+#define BKPReg_NextDelay_sec  BKP1R
+
 #endif /* INC_GLOBAL_RMDV_H_ */

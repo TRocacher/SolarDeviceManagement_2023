@@ -79,9 +79,10 @@ void SystemClock_Config(void);
 void BP_User_Callback(void);
 void LPTIM1_User_Callback(void);
 
-#define PeriodeSleep_Sec 2
+#define OffsetPeriodeSleep_Sec 2
 #define PlantageTimeOut 2
 
+int DelayNextWup_sec;
 int main(void)
 {
 /***************************************************************
@@ -92,7 +93,16 @@ int main(void)
 	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 	SystemClock_Config();
 	/* Réglage Période RTC*/
-	LowPower_L031_RTC_Init(PeriodeSleep_Sec);
+	/* Donner accès au BKP reg */
+	LL_PWR_EnableBkUpAccess();
+	LL_RTC_DisableWriteProtection(RTC);
+	/* Ecriture */
+	DelayNextWup_sec=LL_RTC_ReadReg(RTC,BKPReg_NextDelay_sec)+OffsetPeriodeSleep_Sec;
+		/* Si BkpReg=0, on au moins une valeur définie (2 sec par défaut) pour next Wkup*/
+	/* Blocage accès BKP Reg */
+	LL_PWR_DisableBkUpAccess();
+	LL_RTC_EnableWriteProtection(RTC);
+	LowPower_L031_RTC_Init(DelayNextWup_sec);
 
 	/* Réglage durée watchgog*/
 	RmDv_ErrorWDG_LPTIMConf(PlantageTimeOut,prio_WDG, LPTIM1_User_Callback);

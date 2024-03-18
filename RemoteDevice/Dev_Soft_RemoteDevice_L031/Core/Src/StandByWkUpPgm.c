@@ -1,7 +1,7 @@
 
 #include "StandByWkupPgm.h"
 #include "main.h"
-
+#include <GLOBAL_RmDv.h>
 
 /* =================================================================================
 * ==================   Main_StandByWkUpPgm	     ===================================
@@ -58,7 +58,7 @@ RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 /* Programme principal */
 void Main_StandByWkUpPgm(void)
 {
-	char BackUpReg_LastTemp;
+	char Test;
 
 	Stop=0; /* Par défaut progression OK */
 	StandByWkUpPgm_CurrentState=BoostActivation;
@@ -98,9 +98,9 @@ void Main_StandByWkUpPgm(void)
 		LL_PWR_EnableBkUpAccess();
 		LL_RTC_DisableWriteProtection(RTC);
 		/* Lecture ancienne valeur */
-		BackUpReg_LastTemp=(char)LL_RTC_ReadReg(RTC,BKP0R);
+		Test=(char)LL_RTC_ReadReg(RTC,BKPReg_TempSet);
 		/* pour le test...*/
-		BackUpReg_LastTemp++;
+		Test++;
 		/* Blocage accès BKP Reg */
 		LL_PWR_DisableBkUpAccess();
 		LL_RTC_EnableWriteProtection(RTC);
@@ -112,7 +112,7 @@ void Main_StandByWkUpPgm(void)
 		/* Chargement variable Requête info*/
 		Req_Data.DestAdr = SGw_;
 		Req_Data.Temp = Temperature;
-		Req_Data.LastSet = BackUpReg_LastTemp;
+		Req_Data.LastSet = Test;
 		Req_Data.TimeOut_ms = RMDV_TimeOutReq;
 		Req_Data.TrialMaxNb = RMDV_InfoReqTrialNb;
 		Req_Data.TrialActualNb =0;
@@ -135,16 +135,21 @@ void Main_StandByWkUpPgm(void)
 			StandByWkUpPgm_CurrentState=ClimUpdate;
 			/* récupération des données de la requête info (température et Intervalle)*/
 			ReceivedTempSet = Req_Data.NewSet;
+			Interval_sec = Req_Data.NextInterval;
 			/* Donner accès au BKP reg */
 			LL_PWR_EnableBkUpAccess();
 			LL_RTC_DisableWriteProtection(RTC);
 			/* Ecriture new val */ /* pour le test*/
-			LL_RTC_WriteReg(RTC,BKP0R,BackUpReg_LastTemp);
+			LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
+			/* Mise à jour du bkp reg pour next wup delay */
+			/* !!!!!!TEST  on reçoit 65535, moi je veux 4secondes de plus
+			 * soit 65535 / 2^14 = 3.999 */
+			Interval_sec = Interval_sec>>12;
+			LL_RTC_WriteReg(RTC,BKPReg_NextDelay_sec,Interval_sec);
 			/* Blocage accès BKP Reg */
 			LL_PWR_DisableBkUpAccess();
 			LL_RTC_EnableWriteProtection(RTC);
 
-			Interval_sec = RmDv_SGw_FSKP_ExtractNextWupInterval(ReceivedMssg);
 			/* Initialisation télécommande IR et émission effective */
 			RmDv_TelecoIR_Init();
 			if (ReceivedTempSet == 18) ReceivedCodeClim = _Chaud_18_VanBas_FanAuto;
@@ -176,10 +181,10 @@ void Main_StandByWkUpPgm(void)
 
 
 	/***************************************************************
-			  		Emission requête status
+			  		Emission requête status erreur ou pas !
 	***************************************************************/
-	if (Stop == 0)
-	{
+//	if (Stop == 0)
+//	{
 		StandByWkUpPgm_CurrentState=WarningMssg;
 		/* Chargement variable Requête status*/
 		Req_Status.DestAdr = SGw_;
@@ -191,7 +196,7 @@ void Main_StandByWkUpPgm(void)
 
 		/* Emission requête status*/
 		RmDv_SGw_FSKP_ReqStatus(&Req_Status);
-	}
+//	}
 
 }
 
