@@ -118,7 +118,7 @@ typedef enum {
 	***************************************************************/
 
 void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet);
-void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned short int NextWupInterval);
+void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, int NextWupInterval);
 void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr,  char Status);
 void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr);
 

@@ -67,23 +67,89 @@ RmDvDataTypedef* RmDvData_GetObjectAdress( int ID)
 void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID)
 {
 	RmDvData->ID = ID;
-	RmDvData->intNextTimeInterval_sec = 0;
 	RmDvData->LastTempSet=0;
 	RmDvData->NewTempSet=0;
 	RmDvData->ReadyToRead = 0;
 	
-	RmDvData->RmDvTimeStamp.Sec = 0;
-	RmDvData->RmDvTimeStamp.Min =0;
-	RmDvData->RmDvTimeStamp.Hour =0;
-	RmDvData->RmDvTimeStamp.Day = 0;
-	RmDvData->RmDvTimeStamp.Month = 0;
-	RmDvData->RmDvTimeStamp.Year =0;
-
+	/* Pour RTC Adjust*/
+	RmDvData->Delay.NextDesiredWkupDelay_sec = 0;
+	RmDvData->Delay.NextCorrWkupDelay_sec = 0;
+	RmDvData->Delay.LastDesiredWkupDelay_sec = 0;
+	RmDvData->Delay.RTCAdjFactor = 1.0;
+	RmDvData->Delay.NowRmDvTimeStamp.Sec = 0;
+	RmDvData->Delay.NowRmDvTimeStamp.Min =0;
+	RmDvData->Delay.NowRmDvTimeStamp.Hour =0;
+	RmDvData->Delay.NowRmDvTimeStamp.Day = 0;
+	RmDvData->Delay.NowRmDvTimeStamp.Month = 0;
+	RmDvData->Delay.NowRmDvTimeStamp.Year =0;
+	RmDvData->Delay.LastRmDvTimeStamp.Sec = 0;
+	RmDvData->Delay.LastRmDvTimeStamp.Min =0;
+	RmDvData->Delay.LastRmDvTimeStamp.Hour =0;
+	RmDvData->Delay.LastRmDvTimeStamp.Day = 0;
+	RmDvData->Delay.LastRmDvTimeStamp.Month = 0;
+	RmDvData->Delay.LastRmDvTimeStamp.Year =0;
+	
 	RmDvData->Status = Status_NoWarning;
 	RmDvData->Temperature = 0.0;
 	
+
+		
+}
+
+
+/**
+  * @brief  Met à jour le NowStamp
+  * @Note
+  * @param  RmDvData : pointeur sur la structure à mettre à jour, 
+
+  * @retval none
+  **/
+void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData)
+{
+	TimeStampTypedef * TimePtr;
+	TimePtr = TimeStamp_GetClock();
+
+	RmDvData->Delay.NowRmDvTimeStamp.Sec = TimePtr->Sec;
+	RmDvData->Delay.NowRmDvTimeStamp.Min = TimePtr->Min;
+	RmDvData->Delay.NowRmDvTimeStamp.Hour = TimePtr->Hour;
+	RmDvData->Delay.NowRmDvTimeStamp.Day = TimePtr->Day;
+	RmDvData->Delay.NowRmDvTimeStamp.Month = TimePtr->Month;
+	RmDvData->Delay.NowRmDvTimeStamp.Year = TimePtr->Year;
+	
+	
+	
+	/* 
+	RmDvData->Delay.LastRealWupDelay_sec = \
+	TimeStamp_substract(&RmDvData->Delay.NowRmDvTimeStamp,&RmDvData->Delay.LastRmDvTimeStamp);
+	
+	RmDvData->Delay.LastRmDvTimeStamp.Sec = TimePtr->Sec;;
+	RmDvData->Delay.LastRmDvTimeStamp.Min = TimePtr->Min;
+	RmDvData->Delay.LastRmDvTimeStamp.Hour = TimePtr->Hour;
+	RmDvData->Delay.LastRmDvTimeStamp.Day = TimePtr->Day;
+	RmDvData->Delay.LastRmDvTimeStamp.Month = TimePtr->Month;
+	RmDvData->Delay.LastRmDvTimeStamp.Year = TimePtr->Year;
+	*/
 	
 }
+
+/**
+  * @brief  Sauvegarde de la date actuelle pour le prochain run
+  * @Note
+  * @param  RmDvData : pointeur sur la structure à mettre à jour, 
+
+  * @retval none
+  **/
+void RmDvData_BackUpStamp(RmDvDataTypedef* RmDvData)
+{
+	RmDvData->Delay.LastRmDvTimeStamp.Sec = RmDvData->Delay.NowRmDvTimeStamp.Sec;
+	RmDvData->Delay.LastRmDvTimeStamp.Min = RmDvData->Delay.NowRmDvTimeStamp.Min;
+	RmDvData->Delay.LastRmDvTimeStamp.Hour = RmDvData->Delay.NowRmDvTimeStamp.Hour;
+	RmDvData->Delay.LastRmDvTimeStamp.Day = RmDvData->Delay.NowRmDvTimeStamp.Day;
+	RmDvData->Delay.LastRmDvTimeStamp.Month = RmDvData->Delay.NowRmDvTimeStamp.Month;
+	RmDvData->Delay.LastRmDvTimeStamp.Year = RmDvData->Delay.NowRmDvTimeStamp.Year;
+}
+
+
 
 /**
   * @brief  Met à jour les données du RmDv spécifié à partir d'un nouveau set de réception
@@ -102,13 +168,13 @@ void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,char lastSet,char new
 	RmDvData->Temperature = Temp;
 	RmDvData->LastTempSet =  lastSet;
 	RmDvData->Status =  status;
-	RmDvData->intNextTimeInterval_sec = NextTimeInterval_sec;
-	RmDvData->RmDvTimeStamp.Sec = TimePtr->Sec;
-	RmDvData->RmDvTimeStamp.Min = TimePtr->Min;
-	RmDvData->RmDvTimeStamp.Hour = TimePtr->Hour;
-	RmDvData->RmDvTimeStamp.Day = TimePtr->Day;
-	RmDvData->RmDvTimeStamp.Month = TimePtr->Month;
-	RmDvData->RmDvTimeStamp.Year = TimePtr->Year;
+//	RmDvData->NextTimeInterval_sec = NextTimeInterval_sec;
+//	RmDvData->RmDvTimeStamp.Sec = TimePtr->Sec;
+//	RmDvData->RmDvTimeStamp.Min = TimePtr->Min;
+//	RmDvData->RmDvTimeStamp.Hour = TimePtr->Hour;
+//	RmDvData->RmDvTimeStamp.Day = TimePtr->Day;
+//	RmDvData->RmDvTimeStamp.Month = TimePtr->Month;
+//	RmDvData->RmDvTimeStamp.Year = TimePtr->Year;
 	RmDvData->ReadyToRead = 1;
 
 }

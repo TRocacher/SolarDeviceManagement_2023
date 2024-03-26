@@ -65,19 +65,21 @@ TRAME MssgAns_SendInfo
   * @param  
   * @retval 
   **/
-void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned short int NextWupInterval)
+void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, int NextWupInterval)
 {
-	unsigned short int *PtrShort;
+	int *PtrInt;
 	char *PtrChar;
 	char MssgToSend[10];
-	PtrShort=&NextWupInterval;
-	PtrChar=(char*)PtrShort;
+	PtrInt=&NextWupInterval;
+	PtrChar=(char*)PtrInt;
 	MssgToSend[0]=MssgAns_SendInfo;
 	MssgToSend[1]=NewSet;
 	MssgToSend[2]=*(PtrChar);
 	MssgToSend[3]=*(PtrChar+1);
+	MssgToSend[4]=*(PtrChar+2);
+	MssgToSend[5]=*(PtrChar+3);	
 	/*émission effective*/
-	FSKStack_SendNewMssg (DestAdr,MssgToSend, 4);
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 6);
 }
 
 

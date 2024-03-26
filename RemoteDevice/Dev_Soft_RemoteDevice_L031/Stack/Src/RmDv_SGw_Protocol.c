@@ -184,8 +184,8 @@ char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr)
 /**
   * @brief  
   * @Note
-		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val enti�re | NextTimeInterval_sec (unsigned short int) |
-		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val enti�re | NextTimeInterval_sec (int) |
+		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1|byte2|byte3| Longueur = 6
   * @param  
   * @retval 
   **/
@@ -198,21 +198,23 @@ char RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr)
 /**
   * @brief  
   * @Note
-		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val enti�re | NextTimeInterval_sec (unsigned short int) |
-		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val enti�re | NextTimeInterval_sec (int) |
+		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1|byte2|byte3| Longueur = 6
   * @param  
   * @retval 
   **/
-unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr)
+int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr)
 {
-	unsigned short int Value;
-	unsigned short int *PtrShort;
+	int Value;
+	int *PtrInt;
 	char *PtrChar;
-	PtrShort=&Value;
-	PtrChar=(char*)PtrShort; /* volontaire */
-	/* Reconstruction float octet par octet ...*/
+	PtrInt=&Value;
+	PtrChar=(char*)PtrInt; /* volontaire */
+	/* Reconstruction int octet par octet ...*/
 	*(PtrChar)=*(MssgTempStr+2); /* low byte */
-	*(PtrChar+1)=*(MssgTempStr+3); /* high byte */
+	*(PtrChar+1)=*(MssgTempStr+3); /* higher byte */
+	*(PtrChar+2)=*(MssgTempStr+4); /* higher byte */
+	*(PtrChar+3)=*(MssgTempStr+5); /* highest byte */
 	return Value;	
 }
 

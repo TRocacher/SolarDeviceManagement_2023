@@ -142,9 +142,6 @@ void Main_StandByWkUpPgm(void)
 			/* Ecriture new val */ /* pour le test*/
 			LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
 			/* Mise à jour du bkp reg pour next wup delay */
-			/* !!!!!!TEST  on reçoit 65535, moi je veux 4secondes de plus
-			 * soit 65535 / 2^14 = 3.999 */
-			Interval_sec = Interval_sec>>12;
 			LL_RTC_WriteReg(RTC,BKPReg_NextDelay_sec,Interval_sec);
 			/* Blocage accès BKP Reg */
 			LL_PWR_DisableBkUpAccess();

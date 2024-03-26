@@ -153,7 +153,7 @@ MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr);
 float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr);
 char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr);
 char  RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr);
-unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr);
+int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr);
 RmDv_WarningCode   RmDv_SGw_FSKP_ExtractStatus(char * MssgTempStr);
 
 

@@ -31,6 +31,43 @@
 /*---------------------------------
  STRUCTURES DES DONNES
 ----------------------------------*/
+#define Fract 26
+typedef struct 
+{
+	/* maximum 48h soit 172800 seconde (18 bits, 32.0 )
+	Coeff entre 0.5 et 2 (prenons large 0.25 et 4), on prend 6 bits de garde
+	-> Fractionnaire  6.26 (précision 14e-9, exemple sur 30mn, 25µs environ !
+	-> K = K*Nb Sec / Nb sec 
+	-> multiplication (6.26 * 32.0)/32.0 = 38.26 / 32.0 = 6.26.
+	
+	-> exemple K = 1.5 = 0x0600 0000, Num = 1800 Den = 1200 
+	
+	OK DANS LE PRINCIPE VOIR MAIN
+	par contre comment éviter lesexplosin de bornes à la division ?
+	
+	nveau chp fract
+		int RTCAdjFactor;					 facteur de correction entre 0.5 et 2.0 en 22.10		
+	
+	MAIN
+
+long long resu;
+int k = 1<<Fract;
+	resu=((long long)k*86400);
+	resu=resu/(long long)(80000);
+	*/
+	
+	int NextDesiredWkupDelay_sec;			/* Intervalle de temps voulu prochain wup*/
+	int NextCorrWkupDelay_sec;	/* Intervalle de temps corrigé prochain wup : celui réllement envoyé*/
+	int LastDesiredWkupDelay_sec;			/* Intervalle de temps voulu lors du précédent échange*/
+	int LastRealWupDelay_sec;	/* Intervalle de temps effectivement mesuré correspondant
+																		à la dernière transaction */
+	float RTCAdjFactor;					/* facteur de correction entre 0.5 et 2.0 */															
+
+	TimeStampTypedef LastRmDvTimeStamp;		/* permettra de mesurer la dernière durée demandée */
+	TimeStampTypedef NowRmDvTimeStamp;    /* Time stamp à la réception */
+	
+}Delay_Typedef;	
+
 typedef struct 
 {
 	/*réception*/
@@ -40,11 +77,10 @@ typedef struct
 	
 	/*émission*/
 	char NewTempSet;
-	unsigned short intNextTimeInterval_sec; /* 18h max */
+	Delay_Typedef Delay;
 	
 	/* variable d'état */
 	char ID;
-	TimeStampTypedef RmDvTimeStamp;
 	char ReadyToRead;
 	
 }RmDvDataTypedef;				
@@ -76,6 +112,25 @@ RmDvDataTypedef* RmDvData_GetObjectAdress( int ID);
 void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID);
 
 
+
+/**
+  * @brief  Met à jour le NowStamp
+  * @Note
+  * @param  RmDvData : pointeur sur la structure à mettre à jour, 
+
+  * @retval none
+  **/
+void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData);
+	
+	
+/**
+  * @brief  Sauvegarde de la date actuelle pour le prochain run
+  * @Note
+  * @param  RmDvData : pointeur sur la structure à mettre à jour, 
+
+  * @retval none
+  **/
+void RmDvData_BackUpStamp(RmDvDataTypedef* RmDvData);
 
 
 /**
