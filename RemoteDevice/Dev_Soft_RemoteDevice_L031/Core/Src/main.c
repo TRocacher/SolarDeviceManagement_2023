@@ -79,7 +79,7 @@ void SystemClock_Config(void);
 void BP_User_Callback(void);
 void LPTIM1_User_Callback(void);
 
-#define OffsetPeriodeSleep_Sec 2
+#define OffsetPeriodeSleep_Sec 0 /* ne sert à rien laisser 0*/
 #define PlantageTimeOut 2
 
 int DelayNextWup_sec;

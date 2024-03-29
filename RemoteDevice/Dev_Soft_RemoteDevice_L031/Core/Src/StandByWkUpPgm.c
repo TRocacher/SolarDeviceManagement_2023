@@ -40,7 +40,7 @@ float Temperature;						/* Température mesurée */
 char ReceivedMssg[30];					/* Chaîne de réception */
 char Long;								/* Longueur de la chaîne */
 char ReceivedCodeClim,ReceivedTempSet;	/* Code clim, Consigne de température reçue */
-unsigned short int Interval_sec;		/* Intervalle de prochain Wkup */
+int Interval_sec;						/* Intervalle de prochain Wkup */
 char Index;	/* pour le test...*/
 
 
@@ -60,6 +60,9 @@ void Main_StandByWkUpPgm(void)
 {
 	char Test;
 
+	Interval_sec=5;			/* !!! A modifier, intervalle de tps par défaut pour
+	 	 	 	 	 	 	 prochaine transaction si SGw ne répond pas
+	 	 	 	 	 	 	 A terme placer 5mn et non 5 secondes ...*/
 	Stop=0; /* Par défaut progression OK */
 	StandByWkUpPgm_CurrentState=BoostActivation;
 	/* <--- Actualisation status -->    */
@@ -135,17 +138,8 @@ void Main_StandByWkUpPgm(void)
 			StandByWkUpPgm_CurrentState=ClimUpdate;
 			/* récupération des données de la requête info (température et Intervalle)*/
 			ReceivedTempSet = Req_Data.NewSet;
-			Interval_sec = Req_Data.NextInterval;
-			/* Donner accès au BKP reg */
-			LL_PWR_EnableBkUpAccess();
-			LL_RTC_DisableWriteProtection(RTC);
-			/* Ecriture new val */ /* pour le test*/
-			LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
-			/* Mise à jour du bkp reg pour next wup delay */
-			LL_RTC_WriteReg(RTC,BKPReg_NextDelay_sec,Interval_sec);
-			/* Blocage accès BKP Reg */
-			LL_PWR_DisableBkUpAccess();
-			LL_RTC_EnableWriteProtection(RTC);
+			Interval_sec = Req_Data.NextInterval;	/* récupération de l'intervalle*/
+
 
 			/* Initialisation télécommande IR et émission effective */
 			RmDv_TelecoIR_Init();
@@ -159,13 +153,7 @@ void Main_StandByWkUpPgm(void)
 			RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
 			/* coupure interruption Timer Teleco*/
 			RmDv_TelecoIR_DeInit();
-		/***************************************************************
-					  		Mise à jour prochain intervalle
-					  		Ajustement RTC
-		***************************************************************/
 
-			/* A FAIRE !!! */
-			StandByWkUpPgm_CurrentState=RTCAdjust;
 
 		}
 		else /* Requête info a échoué, on ne va pas plus loin ...*/
@@ -193,7 +181,28 @@ void Main_StandByWkUpPgm(void)
 
 		/* Emission requête status*/
 		RmDv_SGw_FSKP_ReqStatus(&Req_Status);
+
 //	}
+
+		/***************************************************************
+					  		Mise à jour prochain intervalle
+					  		Ajustement RTC (5 sec ou 5mn selon valeurs pgmée
+					  		en cas de non communication
+					  		sinon valeur reçue
+		***************************************************************/
+
+		StandByWkUpPgm_CurrentState=RTCAdjust;
+		/* Donner accès au BKP reg */
+		LL_PWR_EnableBkUpAccess();
+		LL_RTC_DisableWriteProtection(RTC);
+		/* Ecriture new val */ /* pour le test*/
+		LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
+		/* Mise à jour du bkp reg pour next wup delay */
+		LL_RTC_WriteReg(RTC,BKPReg_NextDelay_sec,Interval_sec);
+		/* Blocage accès BKP Reg */
+		LL_PWR_DisableBkUpAccess();
+		LL_RTC_EnableWriteProtection(RTC);
+
 
 }
 

@@ -195,7 +195,7 @@ void Transaction_RmDv(char ID)
 		/*-----------------------------------------------------------
 		Calcul nouvelle consigne nouveau délai
 		------------------------------------------------------------*/
-		PtrRmDvData->Delay.NextDesiredWkupDelay_sec=30-2;  /*  TEST 60sec -2 car au niveau du RmDv on met minimmum 2sec*/
+		PtrRmDvData->Delay.NextDesiredWkupDelay_sec=300;  /*  TEST 30 sec*/
 		
 		/*-----------------------------------------------------------
 		Correction délai (sous structure Delay_Typef mise à jour
@@ -209,12 +209,13 @@ void Transaction_RmDv(char ID)
 		{
 			CorrFactor=1.0;
 		}
-		else /* mise à jour du RTCAdjFactor avec satu 0.5 et 2.0*/
+		else /* mise à jour du RTCAdjFactor avec satu 0.8 et 1.2*/
 		{
 			CorrFactor=PtrRmDvData-> Delay.RTCAdjFactor*(float)PtrRmDvData->Delay.LastDesiredWkupDelay_sec  \
 															/(float)PtrRmDvData->Delay.LastRealWupDelay_sec;
-			if (CorrFactor>2.0) CorrFactor=2.0;
-			if (CorrFactor<0.5) CorrFactor=0.5;
+
+			if (CorrFactor>1.1) CorrFactor=1.1;
+			if (CorrFactor<0.9) CorrFactor=0.9;
 			
 		}
 		PtrRmDvData->Delay.RTCAdjFactor=CorrFactor; /* mémorisation facteur de corr*/
@@ -250,7 +251,7 @@ void Transaction_RmDv(char ID)
 					/* si req info, renvoie la valeur */
 					if (Code == MssgReq_SendInfo)
 					{
-						RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, 65535);
+						RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, PtrRmDvData->Delay.NextCorrWkupDelay_sec);
 					}
 					/* si req Status récupération status + renvoie ack*/
 					if (Code == MssgReq_SendStatus)
