@@ -77,7 +77,21 @@ int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB )
 }
 
 
+/**
+* @brief  convertit le hourstamp en seconde à partir de, 00h:00mn:00s
+  * @retval pointeur sur la variable TimeStamp, TimeStampClock
+  **/
+int HourStamp_2_Sec(HourStampTypedef * Ptr)
+{
+	
+}
 
+/**
+* @brief  Détermine la différence en secondes entre le TimeStamp A et le B
+	*	Resultat = Sec A - Sec B
+  * @retval le nombre de seconde
+  **/
+int HourStamp_substract(HourStampTypedef * PtrA,HourStampTypedef * PtrB );
 
 
 

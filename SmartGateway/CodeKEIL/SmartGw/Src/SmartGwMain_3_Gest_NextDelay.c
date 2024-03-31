@@ -11,6 +11,7 @@
 #include "UARTStack.h"
 #include "DataFromHMI.h"
 #include "DataFromRmDv.h"
+#include "DelayMngt.h"
 
 /******************************************************************************************************************
 	
@@ -64,11 +65,23 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 
 int main (void)
 {
-
+	TimeStampTypedef LocalStamp;
+	
 	TimeManag_TimeOutInit(); 	/* obligatoire pour la gestion des TimeOut à tous les étages...*/
 	FSKStack_Init(My_);				/* init de la stack wireless*/
 	UARTStack_Init();  				/* init de la stack UART pour HMI*/
-	TimerStamp_Start(); 			/* obligatoire pour pouvoir gérer les horodatage*/
+	//TimerStamp_Start(); 			/* obligatoire pour pouvoir gérer les horodatage*/
+	
+	Init_ScheduleTab();
+	LocalStamp.Day=31;
+	LocalStamp.Hour=0;
+	LocalStamp.Min=00;
+	LocalStamp.Month=3;
+	LocalStamp.Sec=0;
+	LocalStamp.Year=2024;
+	TimeStamp_SetClock(&LocalStamp);
+	DelayMngt_UpdateRealTimeIdx();
+	
 	
 	/* initisation des "objets" data clim */
 	pClimSalon = RmDvData_GetObjectAdress(ID_Clim_Salon);

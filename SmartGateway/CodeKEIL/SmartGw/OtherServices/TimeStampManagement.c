@@ -7,6 +7,7 @@
  Associé à un timer programmé à 1 seconde
  
  ============================================= */
+void (*PtrFct)(void)=0;
 
 /*---------------------------------
  Variable pricipale TimeStampClock
@@ -39,7 +40,17 @@ void TimerStamp_Start(void)
 {
 	Timer_CkEnable(TIMER_TimeStamp);
 	Timer_Set_Period(TIMER_TimeStamp, 10000-1, 7200-1 ); // période 1 sec
+	// pour test rapide Timer_Set_Period(TIMER_TimeStamp, 10-1, 7200-1 ); // période 10m sec, cad 30mn = 18 secondes réel
 	Timer_IT_Enable( TIMER_TimeStamp, 0, TimeStamp_Update);
+}
+
+/**
+* @brief  associe un callback qui claque toutes les 30mn avec un décalage de 15mn.
+* @paral @ fonction
+**/
+void HourStamp_30mnCallbackAssociation(void (*IT_function) (void))
+{
+	PtrFct=IT_function;
 }
 
 
@@ -50,6 +61,23 @@ void TimerStamp_Start(void)
 TimeStampTypedef * TimeStamp_GetClock(void)
 {
 	return &TimeStampClock;
+}
+
+
+/**
+  * @brief  Met à l'heure l'horloge 
+  * @param pointeur sur le stamp contenant l'heure voulue
+  **/
+void TimeStamp_SetClock(TimeStampTypedef * Stamp)
+{
+	TimerOff(TIMER_TimeStamp);
+	TimeStampClock.Year=Stamp->Year;
+	TimeStampClock.Month=Stamp->Month;
+	TimeStampClock.Day=Stamp->Day;
+	TimeStampClock.Hour=Stamp->Hour;
+	TimeStampClock.Min=Stamp->Min;
+	TimeStampClock.Sec=Stamp->Sec;
+	TimerStamp_Start();
 }
 
 
@@ -77,6 +105,56 @@ int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB )
 }
 
 
+/* ===============================
+        Fonction heure/min/sec
+==================================*/
+
+/**
+* @brief  convertit le hourstamp en seconde à partir de, 00h:00mn:00s
+  * @retval pointeur sur la variable TimeStamp, TimeStampClock
+  **/
+int HourStamp_2_Sec(HourStampTypedef * Ptr)
+{
+	int Duree_Sec;
+	Duree_Sec=(Ptr->Sec)+(Ptr->Min)*60+(Ptr->Hour)*3600;
+	return Duree_Sec;
+}
+
+/**
+* @brief  A=A+B
+  * @retval none
+  **/
+void HourStampAdd(HourStampTypedef * PtrA, HourStampTypedef * PtrB )
+{
+	HourStampTypedef  res;
+	res.Sec = PtrA->Sec + PtrB->Sec;
+	res.Min = res.Sec/60;
+	res.Sec = res.Sec%60;
+	
+	res.Min = res.Min + PtrA->Min + PtrB->Min;
+	res.Hour = res.Min/60;
+	res.Min = res.Min%60;
+	
+	res.Hour = res.Hour + PtrA->Hour + PtrB->Hour;
+	
+	PtrA->Sec=res.Sec;
+	PtrA->Min=res.Min;
+	PtrA->Hour=res.Hour;
+	
+}
+
+
+
+/**
+* @brief  Détermine la différence en secondes entre le TimeStamp A et le B
+	*	Resultat = Sec A - Sec B
+  * @retval le nombre de seconde
+  **/
+int HourStamp_substract(HourStampTypedef * PtrA,HourStampTypedef * PtrB )
+{
+	return (HourStamp_2_Sec(PtrA)-HourStamp_2_Sec(PtrB));
+}
+
 
 
 
@@ -93,6 +171,11 @@ int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB )
 void TimeStamp_Update(void)
 {
 	TimeStamp_SecInc(&TimeStampClock);
+
+	if ((TimeStampClock.Sec==0)&&((TimeStampClock.Min==15)||(TimeStampClock.Min==45)))
+	{
+		if (PtrFct!=0) PtrFct(); 
+	}
 }
 
 /**
