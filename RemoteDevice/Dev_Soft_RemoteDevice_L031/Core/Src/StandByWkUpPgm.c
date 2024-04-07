@@ -59,10 +59,10 @@ RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 void Main_StandByWkUpPgm(void)
 {
 	char Test;
+	char TransactionIdx;
 
-	Interval_sec=5;			/* !!! A modifier, intervalle de tps par défaut pour
-	 	 	 	 	 	 	 prochaine transaction si SGw ne répond pas
-	 	 	 	 	 	 	 A terme placer 5mn et non 5 secondes ...*/
+	Interval_sec=30*60;			/* si pas de réponse, on recommence au bout de 30mn
+	 	 	 	 	 	 	 	 	 faire un truc plus malin qui dise qu'il y a eu un bug*/
 	Stop=0; /* Par défaut progression OK */
 	StandByWkUpPgm_CurrentState=BoostActivation;
 	/* <--- Actualisation status -->    */
@@ -103,7 +103,9 @@ void Main_StandByWkUpPgm(void)
 		/* Lecture ancienne valeur */
 		Test=(char)LL_RTC_ReadReg(RTC,BKPReg_TempSet);
 		/* pour le test...*/
-		Test++;
+		Test = (Test+1)%50; /* modulo 50 car pb affichage LCD...*/
+		/* Lecture next TransIdx */
+		TransactionIdx = (char)LL_RTC_ReadReg(RTC,BKPReg_NextTransIdx);
 		/* Blocage accès BKP Reg */
 		LL_PWR_DisableBkUpAccess();
 		LL_RTC_EnableWriteProtection(RTC);
@@ -114,6 +116,7 @@ void Main_StandByWkUpPgm(void)
 		FSKStack_Init(My_);
 		/* Chargement variable Requête info*/
 		Req_Data.DestAdr = SGw_;
+		Req_Data.TransIdx =TransactionIdx;
 		Req_Data.Temp = Temperature;
 		Req_Data.LastSet = Test;
 		Req_Data.TimeOut_ms = RMDV_TimeOutReq;
@@ -139,7 +142,7 @@ void Main_StandByWkUpPgm(void)
 			/* récupération des données de la requête info (température et Intervalle)*/
 			ReceivedTempSet = Req_Data.NewSet;
 			Interval_sec = Req_Data.NextInterval;	/* récupération de l'intervalle*/
-
+			TransactionIdx = Req_Data.TransIdx;		/* récupération du prochain Idx de transac*/
 
 			/* Initialisation télécommande IR et émission effective */
 			RmDv_TelecoIR_Init();
@@ -173,6 +176,7 @@ void Main_StandByWkUpPgm(void)
 		StandByWkUpPgm_CurrentState=WarningMssg;
 		/* Chargement variable Requête status*/
 		Req_Status.DestAdr = SGw_;
+		Req_Status.TransIdx =TransactionIdx;
 		Req_Status.Status = StandByWkUpPgm_WCode;
 		Req_Status.TimeOut_ms = RMDV_TimeOutReq;
 		Req_Status.TrialMaxNb = RMDV_StatusReqTrialNb;
@@ -199,6 +203,10 @@ void Main_StandByWkUpPgm(void)
 		LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
 		/* Mise à jour du bkp reg pour next wup delay */
 		LL_RTC_WriteReg(RTC,BKPReg_NextDelay_sec,Interval_sec);
+		/* Mise à jour du bkp reg pour next Idx de transaction */
+		LL_RTC_WriteReg(RTC,BKPReg_NextTransIdx,TransactionIdx);
+
+
 		/* Blocage accès BKP Reg */
 		LL_PWR_DisableBkUpAccess();
 		LL_RTC_EnableWriteProtection(RTC);

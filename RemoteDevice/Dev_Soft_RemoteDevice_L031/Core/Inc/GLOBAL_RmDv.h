@@ -147,6 +147,11 @@
  *
 ============================================================================*/
 #define BKPReg_TempSet BKP0R
-#define BKPReg_NextDelay_sec  BKP1R
+#define BKPReg_NextDelay_sec  BKP1R /* NB : si 0, le système place un valeur de manière
+ 	 	 	 	 	 	 	 	 	 à ne pas placer 0xFFFF ..
+ 	 	 	 	 	 	 	 	 	  set lors d'arrivée d'un réponse de requête info
+ 	 	 	 	 	 	 	 	 	  read lors de l'émission de la requête info suivante */
+#define BKPReg_NextTransIdx BKP2R 	/* set lors d'arrivée d'un réponse de requête info
+ 	 	 	 	 	 	 	 	 	 	read lors de l'émission de la requête info suivante*/
 
 #endif /* INC_GLOBAL_RMDV_H_ */

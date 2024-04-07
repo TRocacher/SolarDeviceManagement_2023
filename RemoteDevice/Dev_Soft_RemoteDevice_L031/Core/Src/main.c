@@ -79,7 +79,7 @@ void SystemClock_Config(void);
 void BP_User_Callback(void);
 void LPTIM1_User_Callback(void);
 
-#define OffsetPeriodeSleep_Sec 0 /* ne sert à rien laisser 0*/
+
 #define PlantageTimeOut 2
 
 int DelayNextWup_sec;
@@ -97,11 +97,12 @@ int main(void)
 	LL_PWR_EnableBkUpAccess();
 	LL_RTC_DisableWriteProtection(RTC);
 	/* Ecriture */
-	DelayNextWup_sec=LL_RTC_ReadReg(RTC,BKPReg_NextDelay_sec)+OffsetPeriodeSleep_Sec;
+	DelayNextWup_sec=LL_RTC_ReadReg(RTC,BKPReg_NextDelay_sec);
 		/* Si BkpReg=0, on au moins une valeur définie (2 sec par défaut) pour next Wkup*/
 	/* Blocage accès BKP Reg */
 	LL_PWR_DisableBkUpAccess();
 	LL_RTC_EnableWriteProtection(RTC);
+	/* prépare la RTC pour 1sec  */
 	LowPower_L031_RTC_Init(DelayNextWup_sec);
 
 	/* Réglage durée watchgog*/

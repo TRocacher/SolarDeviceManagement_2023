@@ -19,7 +19,7 @@
 #ifndef DATAFROMHMI_H_
 #define DATAFROMHMI_H_
 
-
+#include "TimeStampManagement.h"
 
 
 typedef enum {
@@ -108,5 +108,15 @@ void DFH_UpdateModeHollidays(char * AdrString, int Len);
   * @retval 
   **/
 void DFH_UpdateModeOff(void); /* System inactif mais dt les RmDv continuent à transmettre 1 fois par 24h*/
+
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+TimeStampTypedef* DFH_ReadStampFromCentralData(void);
+
 
 #endif 

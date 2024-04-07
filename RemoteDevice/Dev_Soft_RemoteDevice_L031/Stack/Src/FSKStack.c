@@ -44,7 +44,7 @@ Architecture du module :
 
 
 //#define MyDebug
-#define Log
+//#define Log
 const char Preambule[4]={0xFF,0xFF,0xFF,0xFF};
 
 

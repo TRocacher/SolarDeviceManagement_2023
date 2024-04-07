@@ -1,8 +1,19 @@
 /*
- * ExchangeLayer.h
- *
- *  Created on: 30 août 2023
- *      Author: trocache
+ * RmDv_Sgw_Protocol.h
+ *   Created on: 30/08/23
+ *   Author: T.Rocacher
+ *   Tool : KEIL V5.34
+ *   Target : STM32F103RTB6
+ *   Dépendance : "GLOBAL_SMARTGATEWAY.h" pour les ID des clim (cste) 
+ 
+ *    ** NEW **
+		Ajout du champ TransacIndex qui correspond au numéro de transaction lié au temps 
+		qui défile : 
+		Dans le sens RmDv vers SGw (donc req), si TransactionIdx = 2 alors cette valeur doit
+			correspondre à l'index temps réel, donc égal à 2. Cela permet de faire un correspondance
+			avec le "créneau horaire n°2" et donc d'en déduire immédiatement le prochain délai, la gigue
+			temporelle...
+ *  ------------------------------------------------------------------------------
  */
 
 #ifndef RMDV_SGW_P_H_
@@ -11,19 +22,6 @@
 #include "TimeManagement.h"
 
 #define AckToRmDv 0xAB
-
-
-
-/* Donne l'état courant de la phase de réveil
- * Utilisé si WDog pour identifier le lieu du plantage*/
-typedef enum {
-	BoostActivation=0,
-	TemperatureMeasure=1,
-	WakeUpMssgToUC=2,
-	ClimUpdate=3,
-	RTCAdjust=4,
-	WarningMssg=5,
-}RmDv_WkUp_CurrentState;
 
 
 
@@ -50,50 +48,9 @@ typedef enum {
 /*
 TRAME QUELCONQUE :
 
-			|Code 		| Value |
-
-
-
-
-TRAME MssgReq_SendInfo
-		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
-		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
-
-TRAME MssgAns_SendInfo
-		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière| NextTimeInterval_sec (unsigned short int) |
-		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4
-
-TRAME MssgReq_SendStatus
-		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
-		|MssgReq_SendStatus		|byte 0 | Longueur = 2
-
-TRAME MssgAns_Ack
-		|MssgAns_Ack		|Value = AckToRmDv |
-		|MssgAns_Ack		|byte 0 |  Longueur = 2
-
-
-
-
-
-
-!!! Les codes suivants ne sont plus utilisés !!!
-
-TRAME ERREUR :
-		|Code : MssgErrorCode 		|Value = RmDv_WarningCode
-
-TRAME TEMPERATURE
-			|MssgTempCode		|Value = float brut
-			|MssgTempCode|byte0|byte1|byte2|byte3| longueur 5 // byte0..3 = float
-
-
-TRAME CLIM ORDER CODE
-			|TimeClimOrderCode		|Value = String formaté HHMnSec ; Clim Order
-			|TimeClimOrderCode|Hdiz|Hunit|Mndiz|Mnunit|Secdiz|Secunit|ClimOrder|  longueur 8
-
-
-			
-			
-	*/
+			|* TransacIndex *|Code 		| Value |
+	
+*/
 
 /* Liste des des codes d'identification de trame*/
 typedef enum {
@@ -116,11 +73,20 @@ typedef enum {
 	/***************************************************************
 			  	 Liste des fonction d'émission simple
 	***************************************************************/
+//void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, char TransIdx, float Temp, char LastSet); /* New 1/04/24*/
 
-void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet);
-void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, int NextWupInterval);
-void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr,  char Status);
-void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr);
+/**
+  * @brief  
+  * @Note
+TRAME MssgAns_SendInfo
+		|* TransacIndex *|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec ( int) | RealPreviousInterval (int)|
+		|* TransacIndex *|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1|byte2|byte3|    | byte0|byte1|byte2|byte3| Longueur = 11	
+  * @param  
+  * @retval 
+  **/
+void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NextTransIdx, char NewSet, int NextWupInterval, int RealPreviousInterval); /* New 06/04/24*/
+//void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr,  char Status);
+void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr,char NextTransIdx);
 
 
 
@@ -128,12 +94,23 @@ void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr);
 			  	Liste des fonctions d'extraction de champs
 	***************************************************************/
 
-MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr);
-float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr);
-char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr);
-char  RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr);
-unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr);
-RmDv_WarningCode   RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr);
+MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr); /* New 1/04/24*/
+float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr); /* New 1/04/24*/
+char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr); /* New 1/04/24*/
+char  RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr); /* New 1/04/24*/
+int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr); /* New 1/04/24*/
+RmDv_WarningCode   RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr); /* New 1/04/24*/
+
+/**
+  * @brief  
+  * @Note
+TRAME MssgAns_SendInfo
+		|* TransacIndex *|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec ( int) | RealPreviousInterval (int)|
+		|* TransacIndex *|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1|byte2|byte3|    | byte0|byte1|byte2|byte3| Longueur = 11	
+  * @param  
+  * @retval valeur int de l'intervalle réel de la précédente transaction 
+  **/
+int  RmDv_SGw_FSKP_ExtractRealPreviousInterval(char * MssgTempStr);  /* New 06/04/24*/
 
 
 

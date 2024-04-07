@@ -15,7 +15,7 @@
 
 
 #include "DataFromHMI.h"
-#include "TimeStampManagement.h"
+
 
 
 
@@ -163,6 +163,21 @@ float TempMinExt;				/* 32 bits*/
 char DFH_ExtractReqCode(char * AdrString)
 {
 	return (*AdrString);
+	
+}
+
+
+
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+TimeStampTypedef* DFH_ReadStampFromCentralData(void)
+{
+	return (&DFH_CentralData.LastHMITimeStamp);
 	
 }
 

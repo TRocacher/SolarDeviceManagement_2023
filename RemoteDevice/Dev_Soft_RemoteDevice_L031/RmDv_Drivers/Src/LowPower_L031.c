@@ -55,16 +55,24 @@ void LowPower_L031_RTC_Init(int WakeUpPeriodSec)
   LL_RTC_WAKEUP_Disable(RTC);
 
 
-  // réglage des prescalers
+  /* réglage des prescalers */
+  /* LSI -> /(AsyncPre +1)*(SyncPre+1)
+   * LSI à 38kHz (Min 26kHz, Max 56kHz)
+   * Dérive -10% à +4% en fonction de la température
+   *
+   * Hypothèse 38kHz -> /(127+1) donne 296.8Hz
+   * pour obtenir 1Hz, il faut encore diviser par 296.8 soit 297, soit 296+1*/
   LL_RTC_SetAsynchPrescaler(RTC, 127);
-  LL_RTC_SetSynchPrescaler(RTC, 289);
+  LL_RTC_SetSynchPrescaler(RTC, 296); //289);
   // sélectionner l'horloge RTC (par exemple LSI Valeur 37KHz)
   LL_RTC_WAKEUP_SetClock(RTC, LL_RTC_WAKEUPCLOCK_CKSPRE);
   // Attendre l'autorisation d'écriture dans WUTR
   while (LL_RTC_IsActiveFlag_WUTW(RTC) != 1)
   {
   }
-  LL_RTC_WAKEUP_SetAutoReload(RTC, WakeUpPeriodSec);
+  if (WakeUpPeriodSec==0) WakeUpPeriodSec = 1; /* la valeur nulle mènerai à FFFF secondes
+   	   	   	   	   	   	   	   	   	   	   	   	 on évite cet écueil avec ce if...*/
+  LL_RTC_WAKEUP_SetAutoReload(RTC, (WakeUpPeriodSec-1)); /* Aurotereload ts les WUT+1*/
   // Autoriser le flag de sortie WUTF (WUTIE=1)
   LL_RTC_EnableIT_WUT(RTC);
 

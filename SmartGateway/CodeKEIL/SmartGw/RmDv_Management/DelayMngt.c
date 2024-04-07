@@ -120,3 +120,84 @@ void DelayMngt_UpdateRealTimeIdx(void)
 	DelayMngt_RealTimeIdx=LocalIdx;
 	
 }
+
+
+/**
+* @brief  Met à jour la le prochain délai pour un RmDv donné. 
+* @note : 
+  * @retval renvoi le délai corrigé en seconde. Si -1 c'est qu'une erreur s'est produite (ID inconnue)
+  **/
+int DelayMngt_CalculateNextDelay(char TransactionIdx, RmDvDataTypedef* RmDvData)
+{
+	/* Le délai est calculé sur la base de l'index tps réel et sur le champ DesiredStamp
+	de chacune des ligne du tableau ScheduleTab 
+	Si l'index reçu du RmDv ne correspond pas le champ MssgOnTime = 0xFF, sinon 1
+	L'erreur de gigue est calculée, puis ajoutée à l'intervalle avec le prochain step du 
+	scheduler (ScheduleTab ) 
+	Quoiqu'il en soit, le statut de l'échange est mémorisé.
+	
+	NB : Lorsqu'on est sur le dernier créneau, il faut remettre à 0 la table.
+	*/
+	
+	char ID;
+	int ID_Idx; /* index du tableau des RmDv*/
+	int Delay;  /* intervalle théorique calculé.*/
+	int ArrivalTimeGap;
+	char NextTransacIdx;
+	
+	ID=RmDvData->ID;
+	ID_Idx=ID-ID_Clim_Salon;
+	if ((ID_Idx)>=0 && (ID_Idx)<=5) /* ID valide ?*/
+	{
+		/* Stamper la transaction (recopie du stamp RmDvData vers le tableau*/
+		ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].Stamp.Hour=RmDvData->Delay.NowRmDvTimeStamp.Hour; 
+		ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].Stamp.Min=RmDvData->Delay.NowRmDvTimeStamp.Min; 
+		ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].Stamp.Sec=RmDvData->Delay.NowRmDvTimeStamp.Sec; 
+		/* Calculer l'écart d'arrivée*/
+		ArrivalTimeGap = HourStamp_substract(&ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].Stamp, \
+																					&ScheduleTab[DelayMngt_RealTimeIdx].DesiredStamp);
+		ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].StampGap=ArrivalTimeGap;
+		
+		/* Préciser que la transaction est "à l'heure" au gap près ... ou pas*/
+		if (TransactionIdx==DelayMngt_RealTimeIdx)
+		{
+			ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].MssgOnTime=1;
+		}
+		else
+		{
+			/* Préciser que la transaction n'est pas "à l'heure" */
+			ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].MssgOnTime=0xFF;
+		}
+		
+		/* Mémoriser le statut de l'échange*/
+		ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].TransactionStatus=RmDvData->Status;
+		/* Calculer le prochain intervalle  : calculer NextStepDesiredStamp-StampActuel */
+    NextTransacIdx=(DelayMngt_RealTimeIdx+1)%ScheduleTabLen;
+		Delay=HourStamp_substract(&ScheduleTab[NextTransacIdx].DesiredStamp,\
+																&ScheduleTab[DelayMngt_RealTimeIdx].RmDvInfoTab[ID_Idx].Stamp);
+		Delay=Delay-ArrivalTimeGap; /* si en avance, ArrivalGap négatif d'où le signe -*/
+			
+		
+	}
+	else
+	{
+		Delay=-1;		
+	}
+		
+	return Delay;
+}
+
+
+/**
+* @brief  Détermine l'index de transaction suivant pour émission vers RmDv
+* @note : l'index futur est calculé à partir de l'index temps réel et non à partir
+					de l'index extrait de la requête. Cela permet de recaler l'ensemble si
+					il existe un mismatch entre la réalité et l'index arrivant
+  * @retval renvoi l'index futur
+  **/
+char DelayMngt_CalculateNextTransactionIdx(char TransactionIdx)
+{
+	char NextTransacIdx;
+	NextTransacIdx=(TransactionIdx+1)%ScheduleTabLen;
+	return NextTransacIdx;
+}

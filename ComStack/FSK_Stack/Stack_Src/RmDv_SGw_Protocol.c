@@ -31,12 +31,13 @@
   * @brief  
   * @Note
 	TRAME MssgReq_SendInfo
-		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
-		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
+		|* TransacIndex *|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
+		|* TransacIndex *|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =7
   * @param  
   * @retval 
   **/
-void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet)
+/* Modif 1/04/24 ajout chp TransactionIdx*/
+void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, char TransIdx, float Temp, char LastSet)
 {
 	float *PtrFloat;
 	char *PtrChar;
@@ -44,15 +45,16 @@ void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet)
 
 	PtrFloat=&Temp;
 	PtrChar=(char*)PtrFloat;
-	MssgToSend[0]=MssgReq_SendInfo;
-	MssgToSend[1]=*PtrChar;
-	MssgToSend[2]=*(PtrChar+1);
-	MssgToSend[3]=*(PtrChar+2);
-	MssgToSend[4]=*(PtrChar+3);
-	MssgToSend[5]=LastSet;
+	MssgToSend[0]=TransIdx;
+	MssgToSend[1]=MssgReq_SendInfo;
+	MssgToSend[2]=*PtrChar;
+	MssgToSend[3]=*(PtrChar+1);
+	MssgToSend[4]=*(PtrChar+2);
+	MssgToSend[5]=*(PtrChar+3);
+	MssgToSend[6]=LastSet;
 	
 	 /*émission effective*/
-	FSKStack_SendNewMssg (DestAdr,MssgToSend, 6);
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 7);
 }
 
 
@@ -60,26 +62,36 @@ void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet)
   * @brief  
   * @Note
 TRAME MssgAns_SendInfo
-		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec (unsigned short int) |
-		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+		|* TransacIndex *|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec ( int) | RealPreviousInterval (int)|
+		|* TransacIndex *|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1|byte2|byte3|    | byte0|byte1|byte2|byte3| Longueur = 11	
   * @param  
   * @retval 
   **/
-void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, int NextWupInterval)
+void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NextTransIdx, char NewSet, int NextWupInterval, int RealPreviousInterval)
+/* Modif 1/04/24 ajout chp TransactionIdx*/
 {
 	int *PtrInt;
 	char *PtrChar;
-	char MssgToSend[10];
+	char MssgToSend[15];
 	PtrInt=&NextWupInterval;
 	PtrChar=(char*)PtrInt;
-	MssgToSend[0]=MssgAns_SendInfo;
-	MssgToSend[1]=NewSet;
-	MssgToSend[2]=*(PtrChar);
-	MssgToSend[3]=*(PtrChar+1);
-	MssgToSend[4]=*(PtrChar+2);
-	MssgToSend[5]=*(PtrChar+3);	
+	MssgToSend[0]=NextTransIdx;
+	MssgToSend[1]=MssgAns_SendInfo;
+	MssgToSend[2]=NewSet;
+	/* NextWupInterval*/
+	MssgToSend[3]=*(PtrChar);
+	MssgToSend[4]=*(PtrChar+1);
+	MssgToSend[5]=*(PtrChar+2);
+	MssgToSend[6]=*(PtrChar+3);	
+	/* RealPreviousInterval*/
+	PtrInt=&RealPreviousInterval;
+	PtrChar=(char*)PtrInt;
+	MssgToSend[7]=*(PtrChar);
+	MssgToSend[8]=*(PtrChar+1);
+	MssgToSend[9]=*(PtrChar+2);
+	MssgToSend[10]=*(PtrChar+3);	
 	/*émission effective*/
-	FSKStack_SendNewMssg (DestAdr,MssgToSend, 6);
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 11);
 }
 
 
@@ -113,13 +125,14 @@ TRAME MssgAns_Ack
   * @param  
   * @retval 
   **/
-void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr)
+void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr,char NextTransIdx)
 {
 	char MssgToSend[10];
-	MssgToSend[0]=MssgAns_Ack;
-	MssgToSend[1]=AckToRmDv;
+	MssgToSend[0]=NextTransIdx;
+	MssgToSend[1]=MssgAns_Ack;
+	MssgToSend[2]=AckToRmDv;
 	/*émission effective*/
-	FSKStack_SendNewMssg (DestAdr,MssgToSend, 2);
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 3);
 }
 
 
@@ -136,34 +149,34 @@ void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr)
   * @param  
   * @retval 
   **/
-MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr)
+MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr)/* Modif 1/04/24 ajout chp TransactionIdx*/
 {
 	char Val;
-	Val=(*MssgTempStr);
+	Val=*(MssgTempStr+1);
 	return ((MssgCode)Val);
 }
 
 /**
   * @brief  
   * @Note
-		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
-		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
+		|* TransacIndex *|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
+		|* TransacIndex *|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =7
   * @param  
   * @retval 
   **/
-float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr)
+float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr) /* Modif 1/04/24 ajout chp TransactionIdx*/
 {
 	float Value;
 	float *PtrFloat;
 	char *PtrChar;
-	/* |MssgTemp|byte0|byte1|byte2|byte3| longeur 5 // byte0..3 = float */
+	/* |* TransacIndex *|MssgTemp|byte0|byte1|byte2|byte3| longeur 5 // byte0..3 = float */
 	PtrFloat=&Value;
 	PtrChar=(char*)PtrFloat; /* volontaire */
 	/* Reconstruction float octet par octet ...*/
-	*PtrChar=*(MssgTempStr+1);
-	*(PtrChar+1)=*(MssgTempStr+2);
-	*(PtrChar+2)=*(MssgTempStr+3);
-	*(PtrChar+3)=*(MssgTempStr+4);
+	*PtrChar=*(MssgTempStr+2);
+	*(PtrChar+1)=*(MssgTempStr+3);
+	*(PtrChar+2)=*(MssgTempStr+4);
+	*(PtrChar+3)=*(MssgTempStr+5);
 
 	return Value;	
 }
@@ -172,49 +185,52 @@ float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr)
 /**
   * @brief  
   * @Note
-		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
-		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
+		|* TransacIndex *|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
+		|* TransacIndex *|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =7
   * @param  
   * @retval 
   **/
-char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr)
+char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr) /* Modif 1/04/24 ajout chp TransactionIdx*/
 {
-	return *(MssgTempStr+5);
+	return *(MssgTempStr+6);
 }
 	
 
 /**
   * @brief  
   * @Note
-		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec (unsigned short int) |
-		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+		|* TransacIndex *|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec (unsigned short int) |
+		|* TransacIndex *|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 5		
   * @param  
   * @retval 
   **/
-char RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr)
-{
-	return *(MssgTempStr+1);
+char RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr) /* Modif 1/04/24 ajout chp TransactionIdx*/
+{ 
+	return *(MssgTempStr+2);
 }
 
 
 /**
   * @brief  
   * @Note
-		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec (unsigned short int) |
-		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4		
+TRAME MssgAns_SendInfo
+		|* TransacIndex *|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec ( int) | RealPreviousInterval (int)|
+		|* TransacIndex *|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1|byte2|byte3|    | byte0|byte1|byte2|byte3| Longueur = 11	
   * @param  
   * @retval 
   **/
-unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr)
+int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr) /* Modif 1/04/24 ajout chp TransactionIdx*/
 {
-	unsigned short int Value;
-	unsigned short int *PtrShort;
+	int Value;
+	int *PtrInt;
 	char *PtrChar;
-	PtrShort=&Value;
-	PtrChar=(char*)PtrShort; /* volontaire */
-	/* Reconstruction float octet par octet ...*/
-	*(PtrChar)=*(MssgTempStr+2); /* low byte */
-	*(PtrChar+1)=*(MssgTempStr+3); /* high byte */
+	PtrInt=&Value;
+	PtrChar=(char*)PtrInt; /* volontaire */
+	/* Reconstruction int octet par octet ...*/
+	*(PtrChar)=*(MssgTempStr+3); /* low byte */
+	*(PtrChar+1)=*(MssgTempStr+4); /* higher byte */
+	*(PtrChar+2)=*(MssgTempStr+5); /* higher byte */
+	*(PtrChar+3)=*(MssgTempStr+6); /* highest byte */
 	return Value;	
 }
 
@@ -222,16 +238,39 @@ unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr)
 /**
   * @brief  
   * @Note
-		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
-		|MssgReq_SendStatus		|byte 0 | Longueur = 2
+		|* TransacIndex *|MssgReq_SendStatus		|Value = RmDv_WarningCode |
+		|* TransacIndex *|MssgReq_SendStatus		|byte 0 | Longueur = 3
   * @param  
   * @retval 
   **/
-RmDv_WarningCode  RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr)
+RmDv_WarningCode  RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr)  /* Modif 1/04/24 ajout chp TransactionIdx*/
 {
 	char Val;
-	Val= *(MssgTempStr+1);
+	Val= *(MssgTempStr+2);
 	return ((RmDv_WarningCode)Val);
 }
 
 
+/**
+  * @brief  
+  * @Note
+TRAME MssgAns_SendInfo
+		|* TransacIndex *|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec ( int) | RealPreviousInterval (int)|
+		|* TransacIndex *|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1|byte2|byte3|    | byte0|byte1|byte2|byte3| Longueur = 11	
+  * @param  
+  * @retval valeur int de l'intervalle réel de la précédente transaction 
+  **/
+int  RmDv_SGw_FSKP_ExtractRealPreviousInterval(char * MssgTempStr)
+{
+	int Value;
+	int *PtrInt;
+	char *PtrChar;
+	PtrInt=&Value;
+	PtrChar=(char*)PtrInt; /* volontaire */
+	/* Reconstruction int octet par octet ...*/
+	*(PtrChar)=*(MssgTempStr+7); /* low byte */
+	*(PtrChar+1)=*(MssgTempStr+8); /* higher byte */
+	*(PtrChar+2)=*(MssgTempStr+9); /* higher byte */
+	*(PtrChar+3)=*(MssgTempStr+10); /* highest byte */
+	return Value;	
+}

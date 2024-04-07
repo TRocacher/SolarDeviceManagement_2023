@@ -121,15 +121,16 @@ void Transaction_RmDv(char ID)
 		/*-----------------------------------------------------------
 		Calcul nouvelle consigne nouveau délai
 		------------------------------------------------------------*/
-		PtrRmDvData->Delay.NextDesiredWkupDelay_sec=300;  /*  TEST 30 sec*/
+		PtrRmDvData->Delay.NextDesiredWkupDelay_sec=30;  /*  TEST 30 sec*/
 		
 		
 		/*-----------------------------------------------------------
 		Envoie nouvelle consigne et nouveau délai
 		------------------------------------------------------------*/
 
-	  RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet,3, \
-		PtrRmDvData->Delay.NextCorrWkupDelay_sec, PtrRmDvData->Delay.NextCorrWkupDelay_sec);
+
+	  RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,3,lastTempSet, \
+		PtrRmDvData->Delay.NextDesiredWkupDelay_sec, PtrRmDvData->Delay.NextDesiredWkupDelay_sec);
 		
 		/* Bloquage dans un timout avec polling info/status
 		ici on peut encore recevoir soit une info (redondance), ou un status ce qui est attendu ! */
@@ -159,7 +160,7 @@ void Transaction_RmDv(char ID)
 					if (Code == MssgReq_SendStatus)
 					{
 						Status=RmDv_SGw_FSKP_ExtracStatus(FSKMssgRec);
-						RmDv_SGw_FSKP_SendMssgAns_Ack(ID);
+						RmDv_SGw_FSKP_SendMssgAns_Ack(ID,00);
 						Success=1;
 						break; /* on arrête là puisqu'on a bien reçu l'état.*/
 					}
