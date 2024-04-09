@@ -1,51 +1,21 @@
+
 #include "FSKStack.h"
-#include "MyLCD.h"
 #include "GLOBAL_SMARTGATEWAY.h"
 #include "RmDv_SGw_Protocol.h"
-#include "StringFct.h"
-#include "TimeManagement.h"
-#include "Driver_DS1307.h"
 
 
-#include "TimeStampManagement.h"
+#include "InfoLCD.h"
+
 #include "UARTStack.h"
 #include "DataFromHMI.h"
 #include "DataFromRmDv.h"
 
-/******************************************************************************************************************
-	
+#include "MainFcts.h"
 
-	MAIN PROGRAM
-	
-	Les chronomètres utilisés pour les timers :
-
-	
-*****************************************************************************************************************/
 void Transaction_RmDv(char ID);
 void Transaction_HMI(void);
 
-//#define AfficheHeureLCD
-#define AfficheRmDvInfo
-
-#ifdef AfficheRmDvInfo
-char LCD_RmDv_Str[20];
-
-#endif
-
-
-#ifdef AfficheHeureLCD
-char Phrase[8]={0x40,0x9C, 0xB5,0x07,0xC3,0xF5,0x48,0x40};
-char LCD_Sentence[20];
-char * PtrChar;
-int Secondes;
-TimeStampTypedef TimeStampIHM;
-TimeStampTypedef * PtrTimeStamp;
-#endif
-
-
-char * PtrOnString;							/* pointeur pour récupérer l'adresse de string depuis UART HMI */
-UARTStack_ErrorType MyError;		/* Variable indiquant une erreur de la pile UARTStack */
-
+void Init_RmDvDataPtrTab(void);
 
 
 
@@ -61,54 +31,37 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 
 
 
+/******************************************************************************************************************
+
+	MAIN PROGRAM
+		
+*****************************************************************************************************************/
 
 int main (void)
 {
-
-	TimeManag_TimeOutInit(); 	/* obligatoire pour la gestion des TimeOut à tous les étages...*/
-	FSKStack_Init(My_);				/* init de la stack wireless*/
-	UARTStack_Init();  				/* init de la stack UART pour HMI*/
-	TimerStamp_Start(); 			/* obligatoire pour pouvoir gérer les horodatage*/
-	
-	/* initisation des "objets" data clim */
-	pClimSalon = RmDvData_GetObjectAdress(ID_Clim_Salon);
-	RmDvData_Reset(pClimSalon, ID_Clim_Salon);
-	pClimSaM = RmDvData_GetObjectAdress(ID_Clim_SaManger);
-	RmDvData_Reset(pClimSaM, ID_Clim_SaManger);
-	pClimEntree = RmDvData_GetObjectAdress(ID_Clim_Entree);
-	RmDvData_Reset(pClimEntree, ID_Clim_Entree);
-	pClimCouloir = RmDvData_GetObjectAdress(ID_Clim_Couloir);
-	RmDvData_Reset(pClimCouloir, ID_Clim_Couloir);
-	pRmDvExt = RmDvData_GetObjectAdress(ID_Ext);
-	RmDvData_Reset(pRmDvExt, ID_Ext);
-	
-	/* rangement des pointeur ds un tableau pour appel via ID...*/
-	Tab_RmDvData[0]= pClimSalon;
-	Tab_RmDvData[1]= pClimSaM;
-	Tab_RmDvData[2]= pClimEntree;
-	Tab_RmDvData[3]= pClimCouloir;
-	Tab_RmDvData[4]= pRmDvExt;
-	
-
-#if defined (AfficheHeureLCD) || defined (AfficheRmDvInfo) 	
-	MyLCD_Init ();
-	MyLCD_Clear();
-	MyLCD_Set_cursor(0, 0);
-	MyLCD_Print(" LCD Now OK...");
-	MyLCD_Set_cursor(0, 1);
-#endif	
+	/* Lancement du système (pile FSK, UART, Timeout) */
+	MainFcts_SystemStart();
+	/* Mise à l'heure du système (set time et init fuseaux horaire et IdxTps réel */
+	MainFcts_SetTime();
+	/*Initialisation des pointeurs sur les RmDv et
+	  Initialisation de la table de pointeurs Tab_RmDvData*/
+	Init_RmDvDataPtrTab();
+	/* Initialisation du module d'affichage LCD*/
+	InfoLCD_Init();
 	
 	
 while(1)
 	{
+		/* Un message HMI est arrivé ? */
 		if (UARTStack_IsHMIMssg()==1)
 		{
-			Transaction_HMI();			
+			Transaction_HMI();	/* Lancement routine associée ...*/		
 		}
+		/* Un message venant d'un RmDv est arrivé ? */
 		if (FSKStack_IsNewMssg()==1) /* arrivée d'un ordre de l'un des 5 RmDv*/
 		{
 			RmDv_ID=FSKStack_GetSrcAdress();
-			Transaction_RmDv(RmDv_ID);			
+			Transaction_RmDv(RmDv_ID);	    /* Lancement routine associée ...*/			
 		}
 		
 	}
@@ -116,28 +69,16 @@ while(1)
 
 
 
-/******************************************************************************************************************
-	
-	TRANSACTIONS ...
-	
-*****************************************************************************************************************/
-#ifdef AfficheRmDvInfo
-/* Message en dur pour test LCD*/
-char NoWarn[]="NoWarning";
-char Trial_2[]= "Trial 2...";
-char Trial_3[]= "Trial 3...";
-char Trial_4[]= "Trial 4...";
-char Trial_5[]= "Trial 5...";
-char Trial_6[]= "Trial 6...";
-char Trial_7[]= "Trial 7...";
-char Trial_8[]= "Trial 8...";
-char Trial_9[]= "Trial 9...";
-char Trial_10[]= "Trial 10...";
-char Error_TempI2C[]= "Erreur Temp I2C...";
-char Error_NewSetNotRec[]= "RmDv : No New order ";
-char Error_StatusNotRec[]= "SGw : No status ";
-#endif
 
+
+
+
+
+
+
+/******************************************************************************************************************
+		TRANSACTIONS RmDv 
+*****************************************************************************************************************/
 
 void Transaction_RmDv(char ID)
 {
@@ -151,32 +92,16 @@ void Transaction_RmDv(char ID)
 	RmDv_WarningCode Status;		/* statut final de l'échange */
 	RmDvDataTypedef* PtrRmDvData;
 	float CorrFactor;						/* Facteur de correction local (pour calcul)*/
-		
-#ifdef AfficheRmDvInfo	
-	char* TabPtrString[25];		/* Tableau de phrases à afficher */
-	/* Prépa pointeur de chaine*/
-	TabPtrString[Status_NoWarning]=NoWarn;
-	TabPtrString[Status_Trial_2]=Trial_2;
-	TabPtrString[Status_Trial_3]=Trial_3;
-	TabPtrString[Status_Trial_4]=Trial_4;
-	TabPtrString[Status_Trial_5]=Trial_5;
-	TabPtrString[Status_Trial_6]=Trial_6;
-	TabPtrString[Status_Trial_7]=Trial_7;
-	TabPtrString[Status_Trial_8]=Trial_8;
-	TabPtrString[Status_Trial_9]=Trial_9;
-	TabPtrString[Status_Error_TempI2C]=Error_TempI2C;
-	TabPtrString[Status_Error_NewTempSetNotReceived]=Error_NewSetNotRec;
-	TabPtrString[Status_NoStatusReceived]=Error_StatusNotRec;
-#endif	
-	
-	/* Recopie locale du message*/
+
+
+	/* Recopie locale du message reçu par la pile FSK*/
 	L=FSKStack_GetLen();
 	FSKStack_GetNewMssg(FSKMssgRec,L); 
 	
 	/* récupération code request*/
 	Code=RmDv_SGw_FSKP_ExtractMssgcode(FSKMssgRec);
 	
-	if (Code == MssgReq_SendInfo) /* si le code n'est pas celui de la première requête, alors on
+if (Code == MssgReq_SendInfo) /* si le code n'est pas celui de la première requête, alors on
 																	ne va pas plus loin */
 	{
  		/* Démarrage timeout ...*/
@@ -273,66 +198,74 @@ void Transaction_RmDv(char ID)
 			Status=Status_NoStatusReceived;
 		}
 		
-		/* Mise à jour de la vatiable RmDv */
+		/* Mise à jour de la variable RmDv */
+	//!! a faire	RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,Status);
 
-
+		
+		/* Affichage LCD*/
+		InfoLCD_Status_LastTempSet(Status,lastTempSet);
 	}
 	
 }
 
+/******************************************************************************************************************
+		TRANSACTIONS HMI
+*****************************************************************************************************************/
 
 
+char * PtrOnString;							/* pointeur pour récupérer l'adresse de string depuis UART HMI */
+UARTStack_ErrorType MyError;		/* Variable indiquant une erreur de la pile UARTStack */
 
 void Transaction_HMI(void)
 {
-	#ifdef	AfficheHeureLCD
-	int i;
-	#endif
-	
 	int L;
-	/* Mise à jour IHM Central Data */
-
+	TimeStampTypedef * PtrTimeStamp;
+	
 	MyError=UARTStack_GetErrorStatus();
 	if( MyError == _NoError) 
 	{
 		PtrOnString=UARTStack_GetHMIMssg();
 		L=UARTStack_GetLen();
+		/* Mise à jour Central Data*/
 		DFH_Update_All(PtrOnString,L);
-			
-		#ifdef	AfficheHeureLCD	
-			MyError=UARTStack_GetErrorStatus();
-		  MyLCD_Set_cursor(0, 1);	
-			MyLCD_Print("                ");
-		  MyLCD_Set_cursor(0, 1);	
-			
-			/* Remplissage structure*/
-			PtrTimeStamp=&TimeStampIHM;
-			PtrChar=(char *)PtrTimeStamp;
-			for (i=0;i<12;i++)
-			{
-				*PtrChar=*PtrOnString;
-				PtrOnString++;
-				PtrChar++;
-			}
-			// Conversion exploitable pour LCD
-			PtrChar=LCD_Sentence;
-			StringFct_Int2Str_99(TimeStampIHM.Hour,PtrChar);
-			PtrChar=PtrChar+2;
-			*PtrChar=':';
-			PtrChar++;
-			StringFct_Int2Str_99(TimeStampIHM.Min,PtrChar);
-			PtrChar=PtrChar+2;
-			*PtrChar=':';			
-			PtrChar++;
-			StringFct_Int2Str_99(TimeStampIHM.Sec,PtrChar);
-			PtrChar=PtrChar+2;
-			*PtrChar=':';	
-			
-			
-			MyLCD_Print_n (LCD_Sentence,16); // +1 pour ne pas afficher le nbre de bytes
-			
-			#endif
-		
+		/* lecture du pointeur Stamp de Central Data */
+		PtrTimeStamp=DFH_ReadStampFromCentralData();
+		/* Affichage LCD de l'heure*/
+		InfoLCD_PrintHMIHour(PtrTimeStamp);	
 	}
 	
 }
+
+
+
+
+/******************************************************************************************************************
+	
+	Fonctions privées utiles ...
+	
+*****************************************************************************************************************/
+
+
+void Init_RmDvDataPtrTab(void)
+{
+	
+	/* initisation des "objets" data clim */
+	pClimSalon = RmDvData_GetObjectAdress(ID_Clim_Salon);
+	RmDvData_Reset(pClimSalon, ID_Clim_Salon);
+	pClimSaM = RmDvData_GetObjectAdress(ID_Clim_SaManger);
+	RmDvData_Reset(pClimSaM, ID_Clim_SaManger);
+	pClimEntree = RmDvData_GetObjectAdress(ID_Clim_Entree);
+	RmDvData_Reset(pClimEntree, ID_Clim_Entree);
+	pClimCouloir = RmDvData_GetObjectAdress(ID_Clim_Couloir);
+	RmDvData_Reset(pClimCouloir, ID_Clim_Couloir);
+	pRmDvExt = RmDvData_GetObjectAdress(ID_Ext);
+	RmDvData_Reset(pRmDvExt, ID_Ext);
+	
+	/* rangement des pointeur ds un tableau pour appel via ID...*/
+	Tab_RmDvData[0]= pClimSalon;
+	Tab_RmDvData[1]= pClimSaM;
+	Tab_RmDvData[2]= pClimEntree;
+	Tab_RmDvData[3]= pClimCouloir;
+	Tab_RmDvData[4]= pRmDvExt;
+}
+
