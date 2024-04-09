@@ -52,6 +52,15 @@ typedef struct
 void Init_ScheduleTab(void);
 
 /**
+* @brief  Renvoie l'indx tps réel
+* @note : 
+  * @retval index tps reel
+  **/
+char DelayMngt_GetRealTimeIndex(void);
+
+
+
+/**
 * @brief  Met à jour la grandeur globale interne DelayMngt_RealTimeIdx
 * @note : fonction qui est appelée automatiquement toutes les 30mn avec un décalage de 15mn
 					elle doit être appelée après une mise à l'heure afin d'avoir une synchronisation entre
@@ -62,13 +71,22 @@ void DelayMngt_UpdateRealTimeIdx(void);
 
 
 /**
-* @brief  Met à jour la le prochain délai pour un RmDv donné. 
+* @brief  Calcule le prochain délai et mets à jour les champs temporels du fuseau concerné
+dans ScheduleTab : 	 Stamp,  StampGap ,	 MssgOnTime; 
 * @note : 
   * @retval renvoi le délai corrigé en seconde (délai normal avec ajout du gap).
 	Exemple 35mn car prochain intervalle 30mn et avance de 5mn.
 	Si 0xFF c'est qu'une erreur s'est produite (ID inconnue)
   **/
-int DelayMngt_CalculateNextDelay(char TransactionIdx, RmDvDataTypedef* RmDvData);
+int DelayMngt_CalculateNextDelay(char RealTimeIdx, char TransactionIdx, RmDvDataTypedef* RmDvData);
+
+
+/**
+* @brief  Met à jour le champ status de la table ScheduleTable 
+* @note : 
+  * @retval 
+  **/
+int DelayMngt_UpdateStatus(char RealTimeIdx, RmDvDataTypedef* RmDvData);
 
 
 /**
@@ -78,5 +96,16 @@ int DelayMngt_CalculateNextDelay(char TransactionIdx, RmDvDataTypedef* RmDvData)
 					il existe un mismatch entre la réalité et l'index arrivant
   * @retval renvoi l'index futur
   **/
-char DelayMngt_CalculateNextTransactionIdx(char TransactionIdx);
+char DelayMngt_CalculateNextTransactionIdx(char RealTimeIdx);
+
+
+
+/**
+* @brief :  calcule le délai réel constaté lors de la dernière transaction
+* @note : Renvoie -1 si le calcul ne peut pas être fait (valeur précédente erronée ou non remplie)
+* @retval : l'écart en seconde entre le stamp actuel et le stamp passé.
+**/
+int DelayMngt_Calculate_RealPreviousInterval(char RealTimeIdx,RmDvDataTypedef* RmDvData);
+	
+
 #endif 

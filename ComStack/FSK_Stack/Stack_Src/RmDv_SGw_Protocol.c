@@ -144,6 +144,23 @@ void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr,char NextTransIdx)
    ================================================================================*/
 
 /**
+  * @brief
+  * @Note
+TRAME MssgAns_SendInfo
+		|* TransacIndex *|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière | NextTimeInterval_sec ( int) | RealPreviousInterval (int)|
+		|* TransacIndex *|MssgAns_SendInfo 		| byte 0
+  * @retval
+  **/
+char RmDv_SGw_FSKP_ExtracTransIdx(char * MssgTempStr) /* New 07/04/24*/
+{
+	char Val;
+	Val=*(MssgTempStr);
+	return ((MssgCode)Val);
+}
+
+
+
+/**
   * @brief  
   * @Note
   * @param  

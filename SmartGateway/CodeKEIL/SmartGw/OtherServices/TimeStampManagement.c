@@ -39,8 +39,8 @@ int TimeStamp_GetDayAbsolute(TimeStampTypedef * Ptr);
 void TimerStamp_Start(void)
 {
 	Timer_CkEnable(TIMER_TimeStamp);
-	Timer_Set_Period(TIMER_TimeStamp, 10000-1, 7200-1 ); // période 1 sec
-	// pour test rapide Timer_Set_Period(TIMER_TimeStamp, 10-1, 7200-1 ); // période 10m sec, cad 30mn = 18 secondes réel
+	Timer_Set_Period(TIMER_TimeStamp, 10000-1,7200-1 ); // période 1 sec 
+	// pour test rapide 	Timer_Set_Period(TIMER_TimeStamp, 1000-1, 7200-1 ); // période 100m sec, cad 30mn = 18 secondes réel
 	Timer_IT_Enable( TIMER_TimeStamp, 0, TimeStamp_Update);
 }
 

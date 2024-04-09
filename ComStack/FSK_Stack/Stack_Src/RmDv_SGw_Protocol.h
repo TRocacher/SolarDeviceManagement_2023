@@ -94,6 +94,9 @@ void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr,char NextTransIdx);
 			  	Liste des fonctions d'extraction de champs
 	***************************************************************/
 
+char RmDv_SGw_FSKP_ExtracTransIdx(char * MssgTempStr); /* New 08/04/24*/
+
+
 MssgCode RmDv_SGw_FSKP_ExtractMssgcode(char * MssgTempStr); /* New 1/04/24*/
 float RmDv_SGw_FSKP_ExtractTemp(char * MssgTempStr); /* New 1/04/24*/
 char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr); /* New 1/04/24*/

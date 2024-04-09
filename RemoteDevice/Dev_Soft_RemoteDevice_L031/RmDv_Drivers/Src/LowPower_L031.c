@@ -14,7 +14,7 @@
  *   _______________________________|__________________________________________
  *  /                                                                          \
  *                 ________________       ________________               _____
- *   LSI 37kHz--->| PredivAsy /128 |---> |PredivSync /290 |---> 1Hz --->| WUT | --> WUF
+ *   LSI 38kHz--->| PredivAsy /128 |---> |PredivSync /297 |---> 1Hz --->| WUT | --> WUF
  *                |________________|     |________________|             |_____|   (StdByWakeup)
  *                                                                         ^
  *                                                                         |
@@ -62,8 +62,8 @@ void LowPower_L031_RTC_Init(int WakeUpPeriodSec)
    *
    * Hypothèse 38kHz -> /(127+1) donne 296.8Hz
    * pour obtenir 1Hz, il faut encore diviser par 296.8 soit 297, soit 296+1*/
-  LL_RTC_SetAsynchPrescaler(RTC, 127);
-  LL_RTC_SetSynchPrescaler(RTC, 296); //289);
+  LL_RTC_SetAsynchPrescaler(RTC,127); //1 seconde
+  LL_RTC_SetSynchPrescaler(RTC, 296);
   // sélectionner l'horloge RTC (par exemple LSI Valeur 37KHz)
   LL_RTC_WAKEUP_SetClock(RTC, LL_RTC_WAKEUPCLOCK_CKSPRE);
   // Attendre l'autorisation d'écriture dans WUTR

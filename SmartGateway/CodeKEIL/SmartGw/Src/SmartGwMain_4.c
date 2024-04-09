@@ -1,16 +1,14 @@
+
 #include "FSKStack.h"
 #include "GLOBAL_SMARTGATEWAY.h"
 #include "RmDv_SGw_Protocol.h"
-#include "StringFct.h"
-
+#include "DelayMngt.h"
 
 #include "InfoLCD.h"
-
 
 #include "UARTStack.h"
 #include "DataFromHMI.h"
 #include "DataFromRmDv.h"
-
 
 #include "MainFcts.h"
 
@@ -43,7 +41,7 @@ int main (void)
 {
 	/* Lancement du système (pile FSK, UART, Timeout) */
 	MainFcts_SystemStart();
-	/* Mise à l'heure du système (set time et init fuseaux horaire */
+	/* Mise à l'heure du système (set time et init fuseaux horaire et IdxTps réel */
 	MainFcts_SetTime();
 	/*Initialisation des pointeurs sur les RmDv et
 	  Initialisation de la table de pointeurs Tab_RmDvData*/
@@ -89,12 +87,17 @@ void Transaction_RmDv(char ID)
 	int L;											/* Longueur du string */
 	float TemperatureMesuree;		/* Température mesurée au niveau du RmDv*/
 	char lastTempSet;						/* dernière consigne reçu par le RmDv lors de la précédente requête */
-
+	
+	char RealTimeIndex;					/* Index temps réel que l'on fige durant toute une transaction*/
+	char TransIdx;							/* index de transaction reçu*/
+	char NextTransIdx;					/* Index de transition suivant à calculer */
+	
 	char Success;								/* indicateur de succès de l'échange global */
 	RmDv_WarningCode Status;		/* statut final de l'échange */
   RmDvDataTypedef* PtrRmDvData;	/* Pointeur sur RmDvData pour extraire l'ID */
+	int NextDelay_Sec;					/* Calcul du délai pour la transaction future*/
+	int RealValueLastDelay_Sec;	/* délai entre deux stamp successif, le présent - le précédent */
 
-		
 
 	/* Recopie locale du message reçu par la pile FSK*/
 	L=FSKStack_GetLen();
@@ -110,32 +113,34 @@ void Transaction_RmDv(char ID)
 		TimeManag_TimeOutStart(Chrono_WaitTransactionEnd , TimeOutTransaction );
 		/*Accès à la donnée RmDvData*/
 		PtrRmDvData=RmDvData_GetObjectAdress(ID);
-		/*		Stamp Data  */
+		/* Mémorise RealTimeIndex pour le figer, durant l'opération*/
+		RealTimeIndex=DelayMngt_GetRealTimeIndex();
+		/*		Stamp Data dans RmDvData  */
 		RmDvData_StampReceivedData(PtrRmDvData);
 		/* extract temp & last temp set */
 		TemperatureMesuree = RmDv_SGw_FSKP_ExtractTemp(FSKMssgRec);
 		lastTempSet = RmDv_SGw_FSKP_ExtracLastSet(FSKMssgRec);
+		TransIdx=RmDv_SGw_FSKP_ExtracTransIdx(FSKMssgRec);
 		
 		/* Réponse vers le RmDv */
 		
 		/*-----------------------------------------------------------
 		Calcul nouvelle consigne nouveau délai
 		------------------------------------------------------------*/
-		PtrRmDvData->Delay.NextDesiredWkupDelay_sec=30;  /*  TEST 30 sec*/
-		
+//!!		PtrRmDvData->Delay.NextDesiredWkupDelay_sec=30;  /*  TEST 30 sec*/
+		NextDelay_Sec=DelayMngt_CalculateNextDelay(RealTimeIndex,TransIdx, PtrRmDvData);
+		NextTransIdx = DelayMngt_CalculateNextTransactionIdx(RealTimeIndex);
+		RealValueLastDelay_Sec = DelayMngt_Calculate_RealPreviousInterval(RealTimeIndex,PtrRmDvData);
 		
 		/*-----------------------------------------------------------
 		Envoie nouvelle consigne et nouveau délai
 		------------------------------------------------------------*/
-
-
-	  RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,3,lastTempSet, \
-		PtrRmDvData->Delay.NextDesiredWkupDelay_sec, PtrRmDvData->Delay.NextDesiredWkupDelay_sec);
+		RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID, NextTransIdx, lastTempSet, \
+																			NextDelay_Sec, RealValueLastDelay_Sec);
 		
 		/* Bloquage dans un timout avec polling info/status
 		ici on peut encore recevoir soit une info (redondance), ou un status ce qui est attendu ! */
-		
-		
+			
 		Success=0; /*Echec par défaut...*/
 		while(TimeManag_GetTimeOutStatus(Chrono_WaitTransactionEnd)==0)
 		{
@@ -153,8 +158,8 @@ void Transaction_RmDv(char ID)
 					/* si req info, renvoie la valeur */
 					if (Code == MssgReq_SendInfo)
 					{
-					RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet,3, \
-								PtrRmDvData->Delay.NextCorrWkupDelay_sec, PtrRmDvData->Delay.NextCorrWkupDelay_sec);
+							RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID, NextTransIdx, lastTempSet, \
+																			NextDelay_Sec, RealValueLastDelay_Sec);
 					}
 					/* si req Status récupération status + renvoie ack*/
 					if (Code == MssgReq_SendStatus)
@@ -177,7 +182,12 @@ void Transaction_RmDv(char ID)
 			Status=Status_NoStatusReceived;
 		}
 		
-		/* Mise à jour de la vatiable RmDv */
+		/* Mise à jour de la variable RmDv */
+		RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,Status,TransIdx);
+		/* mise à jour statut dans la table ScheduleTab*/
+		DelayMngt_UpdateStatus(RealTimeIndex,PtrRmDvData);
+		
+		/* Affichage LCD*/
 		InfoLCD_Status_LastTempSet(Status,lastTempSet);
 	}
 	

@@ -51,12 +51,13 @@ void MainFcts_SystemStart(void)
 void MainFcts_SetTime(void)
 {
 	TimeStampTypedef LocalStamp;
-	LocalStamp.Day=31;
-	LocalStamp.Hour=0;
-	LocalStamp.Min=00;
-	LocalStamp.Month=3;
-	LocalStamp.Sec=0;
 	LocalStamp.Year=2024;
+	LocalStamp.Month=4;
+	LocalStamp.Day=9;
+	LocalStamp.Hour=6;
+	LocalStamp.Min=0;	
+	LocalStamp.Sec=0;
+	
 	TimeStamp_SetClock(&LocalStamp);
 	DelayMngt_UpdateRealTimeIdx();
 	/* Remplissage de la table des fuseaux horaires */

@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103;..\..\..\ComStack\Stack_TimeManagement;.\OtherServices;.\Service_RTC_DS1307;.\StackUART;.\Src;.\RmDv_Management</IncludePath>
+              <IncludePath>..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103;..\..\..\ComStack\Stack_TimeManagement;.\OtherServices;.\Service_RTC_DS1307;.\StackUART;.\Src;.\RmDv_Management;.\HMI_Management</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

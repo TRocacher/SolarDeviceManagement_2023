@@ -106,7 +106,6 @@ void InfoLCD_PrintHMIHour(TimeStampTypedef* TimeStampIHM)
 {
 	char LCD_Sentence[20];
 	char * PtrChar;	
-	int i;
 	
 	/* Clear second line */
 	MyLCD_ClearLineDown();
