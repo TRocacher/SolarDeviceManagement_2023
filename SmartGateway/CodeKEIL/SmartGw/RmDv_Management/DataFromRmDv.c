@@ -19,7 +19,8 @@
 #include "GLOBAL_SMARTGATEWAY.h"
 
 
-
+/* Proto fcts privées*/
+void RmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp );
 /* ===============================================
           la structure d'échange MACPhyUART 
 ================================================== */
@@ -70,30 +71,21 @@ void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID)
 	RmDvData->LastTempSet=0;
 	RmDvData->NewTempSet=0;
 	RmDvData->ReadyToRead = 0;
-	
-	/* Pour RTC Adjust*/
-	RmDvData->Delay.NextDesiredWkupDelay_sec = 0;
-	RmDvData->Delay.NextCorrWkupDelay_sec = 0;
-	RmDvData->Delay.LastDesiredWkupDelay_sec = 0;
-	RmDvData->Delay.RTCAdjFactor = 1.0;
-	RmDvData->Delay.NowRmDvTimeStamp.Sec = 0;
-	RmDvData->Delay.NowRmDvTimeStamp.Min =0;
-	RmDvData->Delay.NowRmDvTimeStamp.Hour =0;
-	RmDvData->Delay.NowRmDvTimeStamp.Day = 0;
-	RmDvData->Delay.NowRmDvTimeStamp.Month = 0;
-	RmDvData->Delay.NowRmDvTimeStamp.Year =0;
-	RmDvData->Delay.LastRmDvTimeStamp.Sec = 0;
-	RmDvData->Delay.LastRmDvTimeStamp.Min =0;
-	RmDvData->Delay.LastRmDvTimeStamp.Hour =0;
-	RmDvData->Delay.LastRmDvTimeStamp.Day = 0;
-	RmDvData->Delay.LastRmDvTimeStamp.Month = 0;
-	RmDvData->Delay.LastRmDvTimeStamp.Year =0;
-	
 	RmDvData->Status = Status_NoWarning;
 	RmDvData->Temperature = 0.0;
 	
-
-		
+	/* Pour RTC Adjust*/
+	TimeStamp_ResetStamp(&RmDvData->Delay.StampNow);
+	TimeStamp_ResetStamp(&RmDvData->Delay.StampPrevious);
+	TimeStamp_ResetStamp(&RmDvData->Delay.StampNextTarget);
+	
+	RmDvData->Delay.TimeExpansionFactor=1.0;
+	
+	RmDvData->Delay.TimeIntervalCorNow=0;
+	RmDvData->Delay.TimeIntervalCorPrevious = 0;
+	RmDvData->Delay.TimeIntervalMeasPrevious = 0;	
+	RmDvData->Delay.TimeIntervalTheoNow =0;
+				
 }
 
 
@@ -108,46 +100,17 @@ void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData)
 {
 	TimeStampTypedef * TimePtr;
 	TimePtr = TimeStamp_GetClock();
-
-	RmDvData->Delay.NowRmDvTimeStamp.Sec = TimePtr->Sec;
-	RmDvData->Delay.NowRmDvTimeStamp.Min = TimePtr->Min;
-	RmDvData->Delay.NowRmDvTimeStamp.Hour = TimePtr->Hour;
-	RmDvData->Delay.NowRmDvTimeStamp.Day = TimePtr->Day;
-	RmDvData->Delay.NowRmDvTimeStamp.Month = TimePtr->Month;
-	RmDvData->Delay.NowRmDvTimeStamp.Year = TimePtr->Year;
 	
-	
-	
-	/* 
-	RmDvData->Delay.LastRealWupDelay_sec = \
-	TimeStamp_substract(&RmDvData->Delay.NowRmDvTimeStamp,&RmDvData->Delay.LastRmDvTimeStamp);
-	
-	RmDvData->Delay.LastRmDvTimeStamp.Sec = TimePtr->Sec;;
-	RmDvData->Delay.LastRmDvTimeStamp.Min = TimePtr->Min;
-	RmDvData->Delay.LastRmDvTimeStamp.Hour = TimePtr->Hour;
-	RmDvData->Delay.LastRmDvTimeStamp.Day = TimePtr->Day;
-	RmDvData->Delay.LastRmDvTimeStamp.Month = TimePtr->Month;
-	RmDvData->Delay.LastRmDvTimeStamp.Year = TimePtr->Year;
-	*/
+	/* Stamp Data*/
+	RmDvData->Delay.StampNow.Sec = TimePtr->Sec;
+	RmDvData->Delay.StampNow.Min = TimePtr->Min;
+	RmDvData->Delay.StampNow.Hour = TimePtr->Hour;
+	RmDvData->Delay.StampNow.Day = TimePtr->Day;
+	RmDvData->Delay.StampNow.Month = TimePtr->Month;
+	RmDvData->Delay.StampNow.Year = TimePtr->Year;
 	
 }
 
-/**
-  * @brief  Sauvegarde de la date actuelle pour le prochain run
-  * @Note
-  * @param  RmDvData : pointeur sur la structure à mettre à jour, 
-
-  * @retval none
-  **/
-void RmDvData_BackUpStamp(RmDvDataTypedef* RmDvData)
-{
-	RmDvData->Delay.LastRmDvTimeStamp.Sec = RmDvData->Delay.NowRmDvTimeStamp.Sec;
-	RmDvData->Delay.LastRmDvTimeStamp.Min = RmDvData->Delay.NowRmDvTimeStamp.Min;
-	RmDvData->Delay.LastRmDvTimeStamp.Hour = RmDvData->Delay.NowRmDvTimeStamp.Hour;
-	RmDvData->Delay.LastRmDvTimeStamp.Day = RmDvData->Delay.NowRmDvTimeStamp.Day;
-	RmDvData->Delay.LastRmDvTimeStamp.Month = RmDvData->Delay.NowRmDvTimeStamp.Month;
-	RmDvData->Delay.LastRmDvTimeStamp.Year = RmDvData->Delay.NowRmDvTimeStamp.Year;
-}
 
 
 
@@ -159,22 +122,157 @@ void RmDvData_BackUpStamp(RmDvDataTypedef* RmDvData)
   * @retval 
   **/
 void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,char lastSet,char newSet, \
-										RmDv_WarningCode status,unsigned short int NextTimeInterval_sec)
+										RmDv_WarningCode status)
 /* Mets à jour les données du RmDv en question*/
 {
-	TimeStampTypedef * TimePtr;
-	TimePtr = TimeStamp_GetClock();
 	RmDvData->NewTempSet = newSet;
 	RmDvData->Temperature = Temp;
 	RmDvData->LastTempSet =  lastSet;
 	RmDvData->Status =  status;
-//	RmDvData->NextTimeInterval_sec = NextTimeInterval_sec;
-//	RmDvData->RmDvTimeStamp.Sec = TimePtr->Sec;
-//	RmDvData->RmDvTimeStamp.Min = TimePtr->Min;
-//	RmDvData->RmDvTimeStamp.Hour = TimePtr->Hour;
-//	RmDvData->RmDvTimeStamp.Day = TimePtr->Day;
-//	RmDvData->RmDvTimeStamp.Month = TimePtr->Month;
-//	RmDvData->RmDvTimeStamp.Year = TimePtr->Year;
 	RmDvData->ReadyToRead = 1;
 
+}
+
+
+
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+
+// fct bricolée
+void TestRmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp );
+
+int RmDvData_GenerateNextTimeInterval(RmDvDataTypedef* RmDvData)
+{
+	TimeStampTypedef* PtrNow;	
+	TimeStampTypedef* PtrPrev;
+	TimeStampTypedef* PtrTarget;
+	int CorrInterval;
+	float Factor;
+	
+	PtrNow = &RmDvData->Delay.StampNow;
+	PtrPrev= &RmDvData->Delay.StampPrevious;
+	PtrTarget =  &RmDvData->Delay.StampNextTarget;
+	
+	/*	Stamp Data  */
+	RmDvData_StampReceivedData(RmDvData);
+	
+	/* mesure intervalle reel */
+	RmDvData->Delay.TimeIntervalMeasPrevious = TimeStamp_substract(PtrNow,PtrPrev); 
+	
+	/* calcul de la prochaine cible */   
+	//RmDvData_CalculateStampTarget(PtrNow,PtrTarget);
+	TestRmDvData_CalculateStampTarget(PtrNow,PtrTarget);
+	
+	/* calcul Time Interval Théorique */   
+	RmDvData->Delay.TimeIntervalTheoNow = TimeStamp_substract(PtrTarget,PtrNow);
+	
+	/* calcul du facteur de dilatation temps au niveau du RmDv*/
+	if (RmDvData->Delay.TimeIntervalCorPrevious !=0)
+	{
+		Factor=(float)(RmDvData->Delay.TimeIntervalMeasPrevious)/(float)(RmDvData->Delay.TimeIntervalCorPrevious);
+	}
+	else Factor=1.0;
+	
+	if (Factor>1.2) Factor = 1.2;
+	if (Factor<0.8) Factor = 0.8;
+	
+	RmDvData->Delay.TimeExpansionFactor=Factor;
+	
+	/* CorrInterval : Ajustement de la durée décidées*/
+	CorrInterval= (int)((float)RmDvData->Delay.TimeIntervalTheoNow/RmDvData->Delay.TimeExpansionFactor); 
+			
+	/* Stamp Previous <- Now*/
+	RmDvData->Delay.StampPrevious.Sec = RmDvData->Delay.StampNow.Sec;
+	RmDvData->Delay.StampPrevious.Min = RmDvData->Delay.StampNow.Min;
+	RmDvData->Delay.StampPrevious.Hour = RmDvData->Delay.StampNow.Hour;
+	RmDvData->Delay.StampPrevious.Day = RmDvData->Delay.StampNow.Day;
+	RmDvData->Delay.StampPrevious.Month = RmDvData->Delay.StampNow.Month;
+	RmDvData->Delay.StampPrevious.Year = RmDvData->Delay.StampNow.Year;
+	
+	/* Corrected Time Interval  Previous <- Now*/
+	RmDvData->Delay.TimeIntervalCorNow=CorrInterval;
+	RmDvData->Delay.TimeIntervalCorPrevious = CorrInterval; /* interval previous <- now */
+	
+		
+	return CorrInterval;
+}
+
+
+
+/*---------------------------------
+ FONCTIONS PRIVEES
+----------------------------------*/
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+
+
+void RmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp )
+{
+
+	int Min, Hour;
+	Min = PtrA->Min;
+	Hour = PtrA->Hour;
+	
+	if ((Hour>=22) && (Hour<5))  // exemple 22h01 -> 6h00, 4h20->6h00 , 4h59 -> 6h00
+																// 5h05 -> 5h30 // 6h01 -> 6h30.
+	{
+			TargetStamp->Hour=6;
+			TargetStamp->Min =0;
+	}
+	else
+	{
+		if ((Min>15)&&(Min<=45))	TargetStamp->Min = 0;		
+		else TargetStamp->Min = 30;
+		
+		if (Min>15) TargetStamp->Hour = Hour+1;
+		else TargetStamp->Hour = Hour;
+		
+	}
+	/* Achèvement remplissage*/
+	TargetStamp->Sec=0;
+	TargetStamp->Day=PtrA->Day;
+	TargetStamp->Month=PtrA->Month;
+	TargetStamp->Year=PtrA->Year;
+}
+
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+void TestRmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp )
+{
+
+	HourStampTypedef StampH_A,StampH_B;
+		
+	StampH_A.Hour=PtrA->Hour;
+	StampH_A.Min=PtrA->Min;
+	StampH_A.Sec=PtrA->Sec;
+	
+	StampH_B.Hour=0;
+	StampH_B.Min=0;
+	StampH_B.Sec=60;
+	HourStampAdd(&StampH_A,&StampH_B );
+
+	/* Achèvement remplissage*/
+	
+	TargetStamp->Sec=StampH_A.Sec;
+	TargetStamp->Min=StampH_A.Min;
+	TargetStamp->Hour=StampH_A.Hour;
+	
+	TargetStamp->Day=PtrA->Day;
+	TargetStamp->Month=PtrA->Month;
+	TargetStamp->Year=PtrA->Year;
 }

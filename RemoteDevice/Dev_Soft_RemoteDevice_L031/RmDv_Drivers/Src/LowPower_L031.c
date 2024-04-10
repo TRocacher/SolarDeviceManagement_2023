@@ -14,7 +14,7 @@
  *   _______________________________|__________________________________________
  *  /                                                                          \
  *                 ________________       ________________               _____
- *   LSI 37kHz--->| PredivAsy /128 |---> |PredivSync /290 |---> 1Hz --->| WUT | --> WUF
+ *   LSI 38kHz--->| PredivAsy /128 |---> |PredivSync /297 |---> 1Hz --->| WUT | --> WUF
  *                |________________|     |________________|             |_____|   (StdByWakeup)
  *                                                                         ^
  *                                                                         |
@@ -56,15 +56,23 @@ void LowPower_L031_RTC_Init(int WakeUpPeriodSec)
 
 
   // réglage des prescalers
+  /* 10ms 380 en tout, donc 38 et 10*/
+//  LL_RTC_SetAsynchPrescaler(RTC, 37);
+ /// LL_RTC_SetSynchPrescaler(RTC, 9);
+
+ /* 1sec*/
   LL_RTC_SetAsynchPrescaler(RTC, 127);
-  LL_RTC_SetSynchPrescaler(RTC, 289);
-  // sélectionner l'horloge RTC (par exemple LSI Valeur 37KHz)
+  LL_RTC_SetSynchPrescaler(RTC, 296);
+
+  // sélectionner l'horloge RTC (par exemple LSI Valeur 38KHz)
   LL_RTC_WAKEUP_SetClock(RTC, LL_RTC_WAKEUPCLOCK_CKSPRE);
   // Attendre l'autorisation d'écriture dans WUTR
   while (LL_RTC_IsActiveFlag_WUTW(RTC) != 1)
   {
   }
-  LL_RTC_WAKEUP_SetAutoReload(RTC, WakeUpPeriodSec);
+  if (WakeUpPeriodSec==0) WakeUpPeriodSec=1; /* la valeur nulle mènerait à FFFF secondes
+   	   	   	   	   	   	   	   	   	   	   	   	 on évite cet écueil avec ce if...*/
+  LL_RTC_WAKEUP_SetAutoReload(RTC, WakeUpPeriodSec-1);
   // Autoriser le flag de sortie WUTF (WUTIE=1)
   LL_RTC_EnableIT_WUT(RTC);
 

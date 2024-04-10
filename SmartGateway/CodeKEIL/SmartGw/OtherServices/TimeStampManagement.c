@@ -40,7 +40,7 @@ void TimerStamp_Start(void)
 {
 	Timer_CkEnable(TIMER_TimeStamp);
 	Timer_Set_Period(TIMER_TimeStamp, 10000-1,7200-1 ); // période 1 sec 
-	// pour test rapide 	Timer_Set_Period(TIMER_TimeStamp, 1000-1, 7200-1 ); // période 100m sec, cad 30mn = 18 secondes réel
+	//Timer_Set_Period(TIMER_TimeStamp, 100-1, 7200-1 ); // période 10m sec, cad 30mn = 18 secondes réel
 	Timer_IT_Enable( TIMER_TimeStamp, 0, TimeStamp_Update);
 }
 
@@ -78,6 +78,22 @@ void TimeStamp_SetClock(TimeStampTypedef * Stamp)
 	TimeStampClock.Min=Stamp->Min;
 	TimeStampClock.Sec=Stamp->Sec;
 	TimerStamp_Start();
+}
+
+
+
+/**
+* @brief  remet à 0 une structure de type TimeStampTypedef
+  * @retval _
+  **/
+void TimeStamp_ResetStamp(TimeStampTypedef * Ptr)
+{
+	Ptr->Year=0;
+	Ptr->Month=0;
+	Ptr->Day=0;
+	Ptr->Hour=0;
+	Ptr->Min=0;
+	Ptr->Sec=0;
 }
 
 

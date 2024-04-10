@@ -39,6 +39,12 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 
 int main (void)
 {
+	int CorrInterval_ToSend;
+	RmDvDataTypedef* PtrRmDvData;
+	PtrRmDvData=RmDvData_GetObjectAdress(0xD1);
+	CorrInterval_ToSend=RmDvData_GenerateNextTimeInterval(PtrRmDvData);
+	
+	
 	/* Lancement du système (pile FSK, UART, Timeout) */
 	MainFcts_SystemStart();
 	/* Mise à l'heure du système (set time et init fuseaux horaire et IdxTps réel */
@@ -90,8 +96,10 @@ void Transaction_RmDv(char ID)
 
 	char Success;								/* indicateur de succès de l'échange global */
 	RmDv_WarningCode Status;		/* statut final de l'échange */
+	int CorrInterval_ToSend;		/* l'intervalle à renvoyer au RmDv, corrigé.*/
+	
 	RmDvDataTypedef* PtrRmDvData;
-	float CorrFactor;						/* Facteur de correction local (pour calcul)*/
+
 
 
 	/* Recopie locale du message reçu par la pile FSK*/
@@ -101,7 +109,7 @@ void Transaction_RmDv(char ID)
 	/* récupération code request*/
 	Code=RmDv_SGw_FSKP_ExtractMssgcode(FSKMssgRec);
 	
-if (Code == MssgReq_SendInfo) /* si le code n'est pas celui de la première requête, alors on
+	if (Code == MssgReq_SendInfo) /* si le code n'est pas celui de la première requête, alors on
 																	ne va pas plus loin */
 	{
  		/* Démarrage timeout ...*/
@@ -109,50 +117,21 @@ if (Code == MssgReq_SendInfo) /* si le code n'est pas celui de la première requê
 		/*Accès à la donnée RmDvData*/
 		PtrRmDvData=RmDvData_GetObjectAdress(ID);
 		
-		/*		Stamp Data  */
-		RmDvData_StampReceivedData(PtrRmDvData);
-				
 		/* extract temp & last temp set */
 		TemperatureMesuree = RmDv_SGw_FSKP_ExtractTemp(FSKMssgRec);
 		lastTempSet = RmDv_SGw_FSKP_ExtracLastSet(FSKMssgRec);
 		/* Réponse vers le RmDv */
 		
 		/*-----------------------------------------------------------
-		Calcul nouvelle consigne nouveau délai
+		Calcul nouvelle consigne nouveau délai, corrigé (stamp transaction inclu)
 		------------------------------------------------------------*/
-		PtrRmDvData->Delay.NextDesiredWkupDelay_sec=30-2;  /*  TEST 60sec -2 car au niveau du RmDv on met minimmum 2sec*/
-		
-		/*-----------------------------------------------------------
-		Correction délai (sous structure Delay_Typef mise à jour
-		------------------------------------------------------------*/
-		/*  Détermination délais reél */
-		PtrRmDvData->Delay.LastRealWupDelay_sec = \
-		TimeStamp_substract(&PtrRmDvData->Delay.NowRmDvTimeStamp,&PtrRmDvData->Delay.LastRmDvTimeStamp);
-		/* Mémorisation Stamp*/
-		RmDvData_BackUpStamp(PtrRmDvData);
-		if (PtrRmDvData->Delay.LastDesiredWkupDelay_sec==0)
-		{
-			CorrFactor=1.0;
-		}
-		else /* mise à jour du RTCAdjFactor avec satu 0.5 et 2.0*/
-		{
-			CorrFactor=PtrRmDvData-> Delay.RTCAdjFactor*(float)PtrRmDvData->Delay.LastDesiredWkupDelay_sec  \
-															/(float)PtrRmDvData->Delay.LastRealWupDelay_sec;
-			if (CorrFactor>2.0) CorrFactor=2.0;
-			if (CorrFactor<0.5) CorrFactor=0.5;
-			
-		}
-		PtrRmDvData->Delay.RTCAdjFactor=CorrFactor; /* mémorisation facteur de corr*/
-		/* calcul nouveau délai*/
-		PtrRmDvData->Delay.NextCorrWkupDelay_sec=(int)(CorrFactor*(float)PtrRmDvData->Delay.NextDesiredWkupDelay_sec);
-		/*mémorisation du délai souhaité*/
-		PtrRmDvData->Delay.LastDesiredWkupDelay_sec = PtrRmDvData->Delay.NextDesiredWkupDelay_sec;
-		
+		CorrInterval_ToSend=RmDvData_GenerateNextTimeInterval(PtrRmDvData);
+				
 		/*-----------------------------------------------------------
 		Envoie nouvelle consigne et nouveau délai
 		------------------------------------------------------------*/
 	
-		RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, PtrRmDvData->Delay.NextCorrWkupDelay_sec);
+		RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, CorrInterval_ToSend);
 		
 		/* Bloquage dans un timout avec polling info/status
 		ici on peut encore recevoir soit une info (redondance), ou un status ce qui est attendu ! */
@@ -175,7 +154,7 @@ if (Code == MssgReq_SendInfo) /* si le code n'est pas celui de la première requê
 					/* si req info, renvoie la valeur */
 					if (Code == MssgReq_SendInfo)
 					{
-						RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, 65535);
+						RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, CorrInterval_ToSend);
 					}
 					/* si req Status récupération status + renvoie ack*/
 					if (Code == MssgReq_SendStatus)
@@ -199,9 +178,9 @@ if (Code == MssgReq_SendInfo) /* si le code n'est pas celui de la première requê
 		}
 		
 		/* Mise à jour de la variable RmDv */
-	//!! a faire	RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,Status);
-
+		RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,lastTempSet,Status);
 		
+	
 		/* Affichage LCD*/
 		InfoLCD_Status_LastTempSet(Status,lastTempSet);
 	}

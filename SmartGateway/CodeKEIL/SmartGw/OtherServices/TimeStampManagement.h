@@ -114,6 +114,15 @@ TimeStampTypedef * TimeStamp_GetClock(void);
   **/
 void TimeStamp_SetClock(TimeStampTypedef * Stamp);
 
+
+/**
+* @brief  remet à 0 une structure de type TimeStampTypedef
+  * @retval _
+  **/
+void TimeStamp_ResetStamp(TimeStampTypedef * Ptr);
+
+
+
 /**
 * @brief  convertit le timestamp en seconde à partir du 1 Jan 2024, 00:00:00
   * @retval pointeur sur la variable TimeStamp, TimeStampClock
@@ -126,6 +135,10 @@ int TimeStamp_2_Sec(TimeStampTypedef * Ptr);
   * @retval le nombre de seconde
   **/
 int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB );
+
+
+
+
 
 
 /* =======================      Gestion heures     =============================

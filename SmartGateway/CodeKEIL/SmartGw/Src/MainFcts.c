@@ -48,9 +48,12 @@ void MainFcts_SystemStart(void)
 * @note :_
 * @retval :_
 **/
+
+
 void MainFcts_SetTime(void)
 {
 	TimeStampTypedef LocalStamp;
+	TimeStampTypedef Target;
 	LocalStamp.Year=2024;
 	LocalStamp.Month=4;
 	LocalStamp.Day=9;
@@ -59,5 +62,4 @@ void MainFcts_SetTime(void)
 	LocalStamp.Sec=0;
 	
 	TimeStamp_SetClock(&LocalStamp);
-
 }

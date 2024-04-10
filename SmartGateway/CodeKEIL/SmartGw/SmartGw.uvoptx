@@ -410,7 +410,12 @@
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>RmDvData_Salon</ItemText>
+          <ItemText>RmDvData_Salon,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>TabPtrStr_StatusMssg</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -579,7 +584,7 @@
       <GroupNumber>3</GroupNumber>
       <FileNumber>6</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\RmDv_Management\DataFromRmDv.c</PathWithFileName>
