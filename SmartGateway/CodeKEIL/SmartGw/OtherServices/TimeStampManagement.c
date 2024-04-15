@@ -55,12 +55,17 @@ void HourStamp_30mnCallbackAssociation(void (*IT_function) (void))
 
 
 /**
-  * @brief  Renvoie l'horodatage réel
-  * @retval pointeur sur la variable TimeStamp, TimeStampClock
+  * @brief  Renvoie l'horodatage réel via le pointeur d'entrée
+  * @retval void
   **/
-TimeStampTypedef * TimeStamp_GetClock(void)
+void TimeStamp_GetClock(TimeStampTypedef * LocalStamp)
 {
-	return &TimeStampClock;
+	LocalStamp->Sec=TimeStampClock.Sec;
+	LocalStamp->Min=TimeStampClock.Min;
+	LocalStamp->Hour=TimeStampClock.Hour;
+	LocalStamp->Day=TimeStampClock.Day;
+	LocalStamp->Month=TimeStampClock.Month;
+	LocalStamp->Year=TimeStampClock.Year;
 }
 
 
@@ -193,6 +198,43 @@ void TimeStamp_Update(void)
 		if (PtrFct!=0) PtrFct(); 
 	}
 }
+
+
+
+/**
+  * @brief  Private Incrémente de 1 seconde le timestamp donné en argument
+	* @param  pointeur sur la variable timestamp à incrémenter
+  **/
+void TimeStamp_DayInc(TimeStampTypedef * Ptr)
+{
+	short int Day, Month, Year;
+	char DayMax; 	
+	// recopie locale
+	Day=Ptr->Day;
+	Month=Ptr->Month;
+	Year=Ptr->Year;
+	
+	if (Year%4==0) 	DayMax=BissextilDayPerMonth[Month-1]+1; 
+	else DayMax=NonBissextilDayPerMonth[Month-1]+1;  // Month de 1 à 12 !
+	
+	// incrémentation locale
+	Day++;
+	if (Day==DayMax)
+	{
+		Day=1;
+		Month++;
+		if (Month==13)
+		{
+			Month=1;
+			Year++;
+		}
+	}
+	  // Affectation structure pointée	
+	Ptr->Day=Day;
+	Ptr->Month=Month;
+	Ptr->Year=Year;
+}
+
 
 /**
   * @brief  Private Incrémente de 1 seconde le timestamp donné en argument

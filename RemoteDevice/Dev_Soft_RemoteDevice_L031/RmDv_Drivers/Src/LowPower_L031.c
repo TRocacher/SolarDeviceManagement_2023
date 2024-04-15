@@ -24,65 +24,80 @@
 * ============================================================================================*/
 
 #include "LowPower_L031.h"
+#include <TimeManagement_RmDv.h>
 
-void LowPower_L031_RTC_Init(int WakeUpPeriodSec)
+/**
+  * @brief  Configure la RTC, en particulier les prescaler pour avoir 1sec de cadence WUT
+  * 		Sélectionne le 1Hz comme clk du WUT
+  * @Note
+  * @param
+  * @retval
+  **/
+void LowPower_L031_RTC_Init(void)
 {
 
  /* PREREQUIS
   On entre en supposant :
-  LSI bien sélectionné en entrée RTC (fait dans SystemClock_Config)
-  */
+  LSI bien sélectionné en entrée RTC (fait dans SystemClock_Config)*/
 
-  /*
-  OBJECTIF :
-   Configurer l'ensemble du WUT (prescaler, etc...)
-   A la fin, le WUT est disable.
-   Il ne sera validé que lors de la mise en sommeil
-
-   Au démarrage et à la fin on permet puis interdit l'accès (DBP - system reset et 0xCA pui 0x53 - bkp domain reset)
-   */
-  // Validation Pwr domain
+  /* Validation Pwr domain*/
   RCC->APB1ENR|=RCC_APB1ENR_PWREN;
-
-  // levée de la protection après syst reset (DBP=1)
+  /* levée de la protection après syst reset (DBP=1)*/
   LL_PWR_EnableBkUpAccess();
-  //déverrouiller après backup domain reset
   LL_RCC_EnableRTC();
-  LL_RTC_DisableWriteProtection(RTC);
+  /* déverrouillage bkp domaine*/
+  LL_RTC_DisableWriteProtection(RTC); /* WPR = 0xCA puis 0x53*/
 
-
-  //Désactiver WUT (notamment pour pouvoir écrire dans WUTR)
-  LL_RTC_WAKEUP_Disable(RTC);
-
-
-  // réglage des prescalers
-  /* 10ms 380 en tout, donc 38 et 10*/
-//  LL_RTC_SetAsynchPrescaler(RTC, 37);
- /// LL_RTC_SetSynchPrescaler(RTC, 9);
-
- /* 1sec*/
+ /* configuration pour  1sec*/
+  SET_BIT(RTC->ISR, RTC_ISR_INIT);				/* entrée dans le processus d'initialisation Prescaler*/
+  //while (LL_RTC_IsActiveFlag_INITS(RTC)==0);	/* attente flag confirmant l'entrée ds le processus */
+  Delay_x_ms(2);
   LL_RTC_SetAsynchPrescaler(RTC, 127);
-  LL_RTC_SetSynchPrescaler(RTC, 296);
+  LL_RTC_SetSynchPrescaler(RTC, 292); // normalement 296 Mais les chiffres montre un tps trop rapide
+  	  	  	  	  	  	  	  	  	  // de 10% environ, donc on ralentit
 
-  // sélectionner l'horloge RTC (par exemple LSI Valeur 38KHz)
+  CLEAR_BIT(RTC->ISR, RTC_ISR_INIT);	/* sortie du mode init*/
+
+
+  /* sélectionner l'horloge 1sec (CKSPRE) pour le WU timer*/
+  LL_RTC_WAKEUP_Disable(RTC);  /*Désactiver WUT (notamment pour pouvoir écrire dans WUTR)*/
   LL_RTC_WAKEUP_SetClock(RTC, LL_RTC_WAKEUPCLOCK_CKSPRE);
-  // Attendre l'autorisation d'écriture dans WUTR
-  while (LL_RTC_IsActiveFlag_WUTW(RTC) != 1)
-  {
-  }
-  if (WakeUpPeriodSec==0) WakeUpPeriodSec=1; /* la valeur nulle mènerait à FFFF secondes
-   	   	   	   	   	   	   	   	   	   	   	   	 on évite cet écueil avec ce if...*/
-  LL_RTC_WAKEUP_SetAutoReload(RTC, WakeUpPeriodSec-1);
-  // Autoriser le flag de sortie WUTF (WUTIE=1)
-  LL_RTC_EnableIT_WUT(RTC);
 
-  // A CE STADE LE WUT EST CONFIGURE, AUTORELOAD CHARGE. MANQUE PLUS QU'A LANCER WUT (LL_RTC_WAKEUP_Enable(RTC);)
-
-  // Verrouiller backup domain
-  // levée de la protection après syst reset (DBP=1)
+  /* Verrouiller backup domain*/
+  /* levée de la protection après syst reset (DBP=1)*/
   LL_PWR_DisableBkUpAccess();
-  //déverrouiller après backup domain reset
   LL_RTC_EnableWriteProtection(RTC);
+}
+
+
+
+void LowPower_L031_WUTConf(int WakeUpPeriodSec)
+{
+	/* levée de la protection après syst reset (DBP=1)*/
+	LL_PWR_EnableBkUpAccess();
+	/* déverrouillage bkp domaine*/
+	LL_RTC_DisableWriteProtection(RTC); /* WPR = 0xCA puis 0x53*/
+	/*Désactiver WUT (notamment pour pouvoir écrire dans WUTR)*/
+	LL_RTC_WAKEUP_Disable(RTC);
+
+	/* Attendre l'autorisation d'écriture dans WUTR*/
+ 	while (LL_RTC_IsActiveFlag_WUTW(RTC) != 1)
+ 	{
+ 	}
+
+ 	if (WakeUpPeriodSec==0) WakeUpPeriodSec=1; /* la valeur nulle mènerait à FFFF secondes
+   	   	   	   	   	   	   	   	   	   	   	   	 on évite cet écueil avec ce if...*/
+ 	LL_RTC_WAKEUP_SetAutoReload(RTC, WakeUpPeriodSec-1);
+  	/* Autoriser le flag de sortie WUTF (WUTIE=1) */
+ 	LL_RTC_EnableIT_WUT(RTC);
+
+ 	/* A CE STADE LE WUT EST CONFIGURE, AUTORELOAD CHARGE. MANQUE PLUS QU'A LANCER WUT
+ 	*     (LL_RTC_WAKEUP_Enable(RTC);)*/
+ 	/* Verrouiller backup domain*/
+
+ 	LL_PWR_DisableBkUpAccess(); /* levée de la protection après syst reset (DBP=1) */
+ 	/*déverrouiller après backup domain reset*/
+ 	LL_RTC_EnableWriteProtection(RTC);
 }
 
 

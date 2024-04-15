@@ -10,6 +10,7 @@
 
 #include "TimeManagement_RmDv.h"
 #include <GLOBAL_RmDv.h>
+#include "StandByWkupPgm.h"
 
 #define AckToRmDv 0xAB
 #define RMDV_ChronoName Chrono_Protocole
@@ -53,35 +54,15 @@ TRAME MssgAns_SendInfo
 		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière| NextTimeInterval_sec (unsigned short int) |
 		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4
 
-TRAME MssgReq_SendStatus
-		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
-		|MssgReq_SendStatus		|byte 0 | Longueur = 2
+TRAME MssgReq_SendStatus !!** New 13/04/24 ** !!
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |Value = Previous State |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 3
 
 TRAME MssgAns_Ack
 		|MssgAns_Ack		|Value = AckToRmDv |
 		|MssgAns_Ack		|byte 0 |  Longueur = 2
 
 
-
-
-
-
-!!! Les codes suivants ne sont plus utilisés !!!
-
-TRAME ERREUR :
-		|Code : MssgErrorCode 		|Value = RmDv_WarningCode
-
-TRAME TEMPERATURE
-			|MssgTempCode		|Value = float brut
-			|MssgTempCode|byte0|byte1|byte2|byte3| longueur 5 // byte0..3 = float
-
-
-TRAME CLIM ORDER CODE
-			|TimeClimOrderCode		|Value = String formaté HHMnSec ; Clim Order
-			|TimeClimOrderCode|Hdiz|Hunit|Mndiz|Mnunit|Secdiz|Secunit|ClimOrder|  longueur 8
-
-
-			
 			
 	*/
 
@@ -126,6 +107,8 @@ typedef struct
 {
 	char DestAdr;				/* Adresse de destinataire*/
 	RmDv_WarningCode Status;	/* le status de l'échange côté RmDv : out*/
+	RmDv_WkUp_CurrentState PreviousState; /* ! New 13/04/24 ! */
+								/*l'état de la SM du RmDv échange précédent : out*/
 	int TimeOut_ms;				/* durée maximale pour un essai */
 	char TrialMaxNb;			/* nbre maximum de tentatives autorisées */
 	char TrialActualNb;			/* nbre effectif de tentatives */
@@ -134,12 +117,13 @@ typedef struct
 
 void RmDv_SGw_FSKP_ReqStatus(RmDv_SGw_FSKP_ReqStatusTypedef* Req);
 
+
 /***************************************************************
 		  	 Liste des fonction d'émission simple
 ***************************************************************/
 void RmDv_SGw_FSKP_SendMssgReq_SendInfo(char DestAdr, float Temp, char LastSet);
 void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned short int NextWupInterval);
-void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr,  char Status);
+void RmDv_SGw_FSKP_SendMssgReq_SendStatus(char DestAdr, char Status, char PreviousState);
 void RmDv_SGw_FSKP_SendMssgAns_Ack(char DestAdr);
 
 

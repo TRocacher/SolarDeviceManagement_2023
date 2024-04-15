@@ -115,12 +115,12 @@
  *
 ============================================================================*/
 
-#define Prio_FSKStack_SystickTimeOut 0
-#define prio_Teleco_Timer_Bit 1
-#define Prio_FSKStack_UART_CD 1
-#define Prio_FSKStack_UART_Rec (Prio_FSKStack_UART_CD+1)
-#define Prio_FSKStack_TimerFSM (Prio_FSKStack_UART_Rec+1)
-#define prio_WDG 0
+#define Prio_FSKStack_SystickTimeOut 0						/* Non Bloquant*/
+#define prio_Teleco_Timer_Bit 1								/* Bloquant*/
+#define Prio_FSKStack_UART_CD 1								/* Non Bloquant*/
+#define Prio_FSKStack_UART_Rec (Prio_FSKStack_UART_CD+1)	/* Non Bloquant*/
+#define Prio_FSKStack_TimerFSM (Prio_FSKStack_UART_Rec+1)	/* Non Bloquant*/
+#define prio_WDG 0											/* Non Bloquant*/
 
 
 
@@ -143,10 +143,11 @@
 
 /*============================================================================
  *
- * 		Définition des Backup registers
+ * 		Définition des Backup registers 16 en tout
  *
 ============================================================================*/
 #define BKPReg_TempSet BKP0R
-#define BKPReg_NextDelay_sec  BKP1R
+//#define BKPReg_NextDelay_sec  BKP1R /* ne sert pas*/
+#define BKPReg_RmDv_State BKP2R
 
 #endif /* INC_GLOBAL_RMDV_H_ */

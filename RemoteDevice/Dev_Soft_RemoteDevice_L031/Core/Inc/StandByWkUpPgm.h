@@ -18,13 +18,15 @@
 
 /* Donne l'état courant de la phase de réveil
  * Utilisé si WDog pour identifier le lieu du plantage*/
+/*!!** New 13/04/24 ** !!*/
 typedef enum {
-	BoostActivation=0,
-	TemperatureMeasure=1,
-	WakeUpMssgToUC=2,
-	ClimUpdate=3,
-	RTCAdjust=4,
-	WarningMssg=5,
+	RmDv_SM_OK=0,
+	BoostActivation=1,
+	TemperatureMeasure=2,
+	WakeUpMssgToUC=3,
+	ClimUpdate=4,
+	RTCAdjust=5,
+	WarningMssg=6,
 }RmDv_WkUp_CurrentState;
 
 RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void);

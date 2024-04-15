@@ -53,12 +53,11 @@ void MainFcts_SystemStart(void)
 void MainFcts_SetTime(void)
 {
 	TimeStampTypedef LocalStamp;
-	TimeStampTypedef Target;
 	LocalStamp.Year=2024;
 	LocalStamp.Month=4;
-	LocalStamp.Day=9;
-	LocalStamp.Hour=6;
-	LocalStamp.Min=0;	
+	LocalStamp.Day=14;
+	LocalStamp.Hour=20;
+	LocalStamp.Min=05;	
 	LocalStamp.Sec=0;
 	
 	TimeStamp_SetClock(&LocalStamp);

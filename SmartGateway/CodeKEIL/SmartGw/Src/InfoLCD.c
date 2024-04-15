@@ -129,3 +129,98 @@ void InfoLCD_PrintHMIHour(TimeStampTypedef* TimeStampIHM)
 }
 	
 
+
+
+/*----------------------------------------------
+ Gestion des Tamp String pour maintenance/debug
+----------------------------------------------*/
+#define MemStampStrSize 50
+#define ID_Idx_Size 5
+char MemStampStr[MemStampStrSize][ID_Idx_Size][8];
+int InfoLCD_StampTabIdx[ID_Idx_Size];
+
+
+
+/**
+  * @brief 
+  * @Note
+  * @param  
+  * @retval 
+  **/
+
+void InfoLCD_MemStampStrInit(void)
+{
+	int i;
+	int j;
+	for (j=0;j<ID_Idx_Size;j++)
+	{
+		for (i=0;i<MemStampStrSize;i++)
+		{
+			MemStampStr[i][j][0]='0';
+			MemStampStr[i][j][1]='0';
+			MemStampStr[i][j][2]=':';
+			MemStampStr[i][j][3]='0';
+			MemStampStr[i][j][4]='0';
+			MemStampStr[i][j][5]=':';
+			MemStampStr[i][j][6]='0';
+			MemStampStr[i][j][7]='0';	
+		}
+		InfoLCD_StampTabIdx[j]=0;
+	}
+	
+}
+
+
+
+
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval -1 si erreur, o sinon
+  **/
+int InfoLCD_AddTimeStampToMem(TimeStampTypedef* TimeStamp, char ID)
+{
+	char MyString[15];
+	char * PtrChar;	
+	int i;
+	int ID_Idx;
+	int Statut;
+	
+	ID_Idx=(int)ID-(int)ID_Clim_Salon;
+	Statut=0;
+	
+	if ((ID_Idx>=0) && (ID_Idx<=5))
+	{
+	
+		// Conversion exploitable pour LCD
+		PtrChar=MyString;
+		StringFct_Int2Str_99(TimeStamp->Hour,PtrChar);
+		PtrChar=PtrChar+2;
+		*PtrChar=':';
+		PtrChar++;
+		StringFct_Int2Str_99(TimeStamp->Min,PtrChar);
+		PtrChar=PtrChar+2;
+		*PtrChar=':';			
+		PtrChar++;
+		StringFct_Int2Str_99(TimeStamp->Sec,PtrChar);
+	
+		/*Ecriture dans la table à l'ndice courant*/
+		PtrChar=MyString;
+		for (i=0;i<8;i++)
+		{
+			MemStampStr[InfoLCD_StampTabIdx[ID_Idx]][ID_Idx][i]=*PtrChar;
+			PtrChar++;
+		}
+		InfoLCD_StampTabIdx[ID_Idx]=(InfoLCD_StampTabIdx[ID_Idx]+1)%MemStampStrSize;
+	}
+	else
+	{
+		Statut=-1;
+	}
+	return Statut;
+}
+
+
+

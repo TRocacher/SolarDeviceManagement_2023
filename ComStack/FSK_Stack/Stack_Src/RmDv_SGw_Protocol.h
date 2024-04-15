@@ -16,13 +16,15 @@
 
 /* Donne l'état courant de la phase de réveil
  * Utilisé si WDog pour identifier le lieu du plantage*/
+/*!!** New 13/04/24 ** !!*/
 typedef enum {
-	BoostActivation=0,
-	TemperatureMeasure=1,
-	WakeUpMssgToUC=2,
-	ClimUpdate=3,
-	RTCAdjust=4,
-	WarningMssg=5,
+	RmDv_SM_OK=0,
+	BoostActivation=1,
+	TemperatureMeasure=2,
+	WakeUpMssgToUC=3,
+	ClimUpdate=4,
+	RTCAdjust=5,
+	WarningMssg=6,
 }RmDv_WkUp_CurrentState;
 
 
@@ -54,7 +56,6 @@ TRAME QUELCONQUE :
 
 
 
-
 TRAME MssgReq_SendInfo
 		|MssgReq_SendInfo 		| Temperature (float)      | LastTempSet (char) = temperature val entière|
 		|MssgReq_SendInfo 		|  byte0|byte1|byte2|byte3 |  byte0 | Longueur =6
@@ -63,35 +64,15 @@ TRAME MssgAns_SendInfo
 		|MssgAns_SendInfo 		| NewTempSet (char) = temperature val entière| NextTimeInterval_sec (unsigned short int) |
 		|MssgAns_SendInfo 		| byte 0 													      			| byte0|byte1| Longueur = 4
 
-TRAME MssgReq_SendStatus
-		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
-		|MssgReq_SendStatus		|byte 0 | Longueur = 2
+TRAME MssgReq_SendStatus !!** New 13/04/24 ** !!
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |Value = Previous State |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 3
 
 TRAME MssgAns_Ack
 		|MssgAns_Ack		|Value = AckToRmDv |
 		|MssgAns_Ack		|byte 0 |  Longueur = 2
 
-
-
-
-
-
-!!! Les codes suivants ne sont plus utilisés !!!
-
-TRAME ERREUR :
-		|Code : MssgErrorCode 		|Value = RmDv_WarningCode
-
-TRAME TEMPERATURE
-			|MssgTempCode		|Value = float brut
-			|MssgTempCode|byte0|byte1|byte2|byte3| longueur 5 // byte0..3 = float
-
-
-TRAME CLIM ORDER CODE
-			|TimeClimOrderCode		|Value = String formaté HHMnSec ; Clim Order
-			|TimeClimOrderCode|Hdiz|Hunit|Mndiz|Mnunit|Secdiz|Secunit|ClimOrder|  longueur 8
-
-
-			
+		
 			
 	*/
 
@@ -134,8 +115,8 @@ char RmDv_SGw_FSKP_ExtracLastSet(char * MssgTempStr);
 char  RmDv_SGw_FSKP_ExtracNewTempSet(char * MssgTempStr);
 unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr);
 RmDv_WarningCode   RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr);
-
-
+/*!!** New 13/04/24 ** !!*/
+RmDv_WkUp_CurrentState   RmDv_SGw_FSKP_ExtractPreviousState(char * MssgTempStr); 
 
 
 #endif /* INC_PROTOCOLEFCTS_H_ */

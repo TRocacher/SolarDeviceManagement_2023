@@ -53,6 +53,7 @@ typedef struct
 	float Temperature;
 	char LastTempSet;
 	RmDv_WarningCode Status;
+	RmDv_WkUp_CurrentState PrevState;
 	
 	/*émission*/
 	char NewTempSet;
@@ -113,8 +114,7 @@ void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData);
   * @retval 
   **/
 void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,char lastSet,char newSet, \
-										RmDv_WarningCode status);
-
+										RmDv_WarningCode status, RmDv_WkUp_CurrentState PrevState);
 
 
 /**

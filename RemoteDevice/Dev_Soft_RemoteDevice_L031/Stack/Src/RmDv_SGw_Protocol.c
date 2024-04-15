@@ -86,18 +86,20 @@ void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, unsigned shor
   * @brief  
   * @Note
 TRAME MssgReq_SendStatus
-		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
-		|MssgReq_SendStatus		|byte 0 | Longueur = 2							
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |Value = PreviousState |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 3
   * @param  
   * @retval 
   **/
-void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr, char Status)
+/* ! New 13/04/24 ! */
+void RmDv_SGw_FSKP_SendMssgReq_SendStatus(char DestAdr, char Status, char PreviousState)
 {
 	char MssgToSend[10]; 
 	MssgToSend[0]=MssgReq_SendStatus;
 	MssgToSend[1]=Status;
+	MssgToSend[2]=PreviousState;
 	/*�mission effective*/
-	FSKStack_SendNewMssg (DestAdr,MssgToSend, 2);
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 3);
 }
 
 
@@ -305,7 +307,7 @@ void RmDv_SGw_FSKP_ReqStatus(RmDv_SGw_FSKP_ReqStatusTypedef* Req)
 	{
 		TimeManag_TimeOutStart(RMDV_ChronoName,Req->TimeOut_ms);
 		/*émission requête i*/
-		RmDv_SGw_FSKP_SenddMssgReq_SendStatus(Req->DestAdr,  Req->Status);
+		RmDv_SGw_FSKP_SendMssgReq_SendStatus(Req->DestAdr,  Req->Status, Req->PreviousState);
 		while(TimeManag_GetTimeOutStatus(RMDV_ChronoName)==0)
 		{
 				if (FSKStack_IsNewMssg()==1)

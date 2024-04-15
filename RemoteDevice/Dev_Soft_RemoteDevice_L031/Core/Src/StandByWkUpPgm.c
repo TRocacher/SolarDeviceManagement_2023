@@ -2,6 +2,7 @@
 #include "StandByWkupPgm.h"
 #include "main.h"
 #include <GLOBAL_RmDv.h>
+#include "LowPower_L031.h"
 
 /* =================================================================================
 * ==================   Main_StandByWkUpPgm	     ===================================
@@ -11,23 +12,12 @@
  *   Tool : CubeIDE 1.12.1,
  *   Target : STM32L031
  *  ------------------------------------------------------------------------------
- * BackupRegister :
- * 	BKP0R (8 bits utilisés sur les 32) = Consigne de températur
- * 		BKPOR <- Consigne du SGw
- * 		BKP0R -> Last consigne.
- *
- *
- *	Le test :
- *	 on envoie la valeur du BKReg BKP0R
- *	 on y ajoute +1 et on mémorise pour le prochain coup.
- *	 Wup toutes les 2 secondes.
-
 * =================================================================================*/
 
 
 
 
-int Stop; 							/* Flag qui stoppe l'enchaînement des tâches */
+int Stop; 											/* Flag qui stoppe l'enchaînement des tâches */
 RmDv_WkUp_CurrentState StandByWkUpPgm_CurrentState;	/* Etat courant pour debug*/
 RmDv_WarningCode StandByWkUpPgm_WCode;				/* Statut à émettre fin de process */
 
@@ -55,29 +45,38 @@ RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 
 
 
-/* Programme principal */
+
+
+
+/***************************************************************
+		Programme Main_StandByWkUpPgm
+***************************************************************/
 void Main_StandByWkUpPgm(void)
 {
 	char Test;
-	Interval_sec=2*60;			/* si pas de réponse, on recommence au bout de 2mn
+	Interval_sec=30*60;			/* si pas de réponse, on recommence au bout de 30mn
 	 	 	 	 	 	 	 	 	 faire un truc plus malin qui dise qu'il y a eu un bug*/
 	Stop=0; /* Par défaut progression OK */
 	StandByWkUpPgm_CurrentState=BoostActivation;
 	/* <--- Actualisation status -->    */
 	StandByWkUpPgm_WCode=Status_NoWarning;
 
-	/***************************************************************
+
+
+/***************************************************************
 	  		Activation Boost 3V -> 5V -> 3,3V
 	  		-> Alimentation 3,3V pour ADT7410, OPAmp µphone,
 	  		OpAmp LED IR Xbee (si câblé)
 	  		-> Alimentation 5V pour RT606 (FSK, si câblé)
-	***************************************************************/
+***************************************************************/
 	RmDv_EnableBoost;
 	Delay_x_ms(50); /* attendre 50ms pour que le ADT7410 se réveille*/
 
-	/***************************************************************
+
+
+/***************************************************************
 	  		Mesure température
-	***************************************************************/
+***************************************************************/
 	StandByWkUpPgm_CurrentState=TemperatureMeasure;
 	ADT7410_Init();
 	Temperature=ADT7410_GetTemp_float();
@@ -89,9 +88,11 @@ void Main_StandByWkUpPgm(void)
 		StandByWkUpPgm_WCode = Status_Error_TempI2C;
 	}
 
-	/***************************************************************
+
+
+/***************************************************************
 		  		Emission requête information
-	 ***************************************************************/
+***************************************************************/
 	if (Stop == 0)
 	{
 		StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
@@ -125,9 +126,9 @@ void Main_StandByWkUpPgm(void)
 		RmDv_SGw_FSKP_ReqInfo(&Req_Data);
 
 
-		/***************************************************************
-				  		Mise à jour clim
-		***************************************************************/
+/***************************************************************
+				  	Mise à jour clim
+***************************************************************/
 		if (Req_Data.success == 1)
 		{
 			/* <--- Actualisation status -->    */
@@ -137,6 +138,16 @@ void Main_StandByWkUpPgm(void)
 			/* récupération des données de la requête info (température et Intervalle)*/
 			ReceivedTempSet = Req_Data.NewSet;
 			Interval_sec = Req_Data.NextInterval;
+			/* Enregistrement Test dans BKP Reg*/
+			LL_PWR_EnableBkUpAccess();
+			LL_RTC_DisableWriteProtection(RTC);
+			/* Ecriture new val */ /* pour le test*/
+			LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
+			/* Blocage accès BKP Reg */
+			LL_PWR_DisableBkUpAccess();
+			LL_RTC_EnableWriteProtection(RTC);
+
+
 
 			/* Initialisation télécommande IR et émission effective */
 			RmDv_TelecoIR_Init();
@@ -162,44 +173,53 @@ void Main_StandByWkUpPgm(void)
 	}
 
 
-	/***************************************************************
-			  		Emission requête status erreur ou pas !
-	***************************************************************/
-//	if (Stop == 0)
-//	{
-		StandByWkUpPgm_CurrentState=WarningMssg;
-		/* Chargement variable Requête status*/
-		Req_Status.DestAdr = SGw_;
-		Req_Status.Status = StandByWkUpPgm_WCode;
-		Req_Status.TimeOut_ms = RMDV_TimeOutReq;
-		Req_Status.TrialMaxNb = RMDV_StatusReqTrialNb;
-		Req_Status.TrialActualNb =0;
-		Req_Status.success = 0;
+/***************************************************************
+				 Mise à jour prochain intervalle
 
-		/* Emission requête status*/
-		RmDv_SGw_FSKP_ReqStatus(&Req_Status);
-//	}
-
-
-		/***************************************************************
-					  		Mise à jour prochain intervalle
-					  		Ajustement RTC (5 sec ou 5mn selon valeurs pgmée
-					  		en cas de non communication
-					  		sinon valeur reçue
-		***************************************************************/
+***************************************************************/
 
 		StandByWkUpPgm_CurrentState=RTCAdjust;
-		/* Donner accès au BKP reg */
-		LL_PWR_EnableBkUpAccess();
-		LL_RTC_DisableWriteProtection(RTC);
-		/* Ecriture new val */ /* pour le test*/
-		LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
-		/* Mise à jour du bkp reg pour next wup delay */
-		LL_RTC_WriteReg(RTC,BKPReg_NextDelay_sec,Interval_sec);
-		/* Blocage accès BKP Reg */
-		LL_PWR_DisableBkUpAccess();
-		LL_RTC_EnableWriteProtection(RTC);
 
+		/* Réglage Période RTC*/
+		LowPower_L031_WUTConf(Interval_sec);
+
+
+/***************************************************************
+		  		Warning Mssg :Emission requête status erreur ou pas !
+***************************************************************/
+
+
+
+	StandByWkUpPgm_CurrentState=WarningMssg;
+/* Chargement variable Requête status*/
+	Req_Status.DestAdr = SGw_;
+	Req_Status.Status = StandByWkUpPgm_WCode;
+	/* Récup ancien état de la SM*/
+	LL_PWR_EnableBkUpAccess();
+	LL_RTC_DisableWriteProtection(RTC);
+	/* Lecture ancienne valeur */
+	Req_Status.PreviousState=LL_RTC_ReadReg(RTC,BKPReg_RmDv_State);
+	/* Blocage accès BKP Reg */
+	LL_PWR_DisableBkUpAccess();
+	LL_RTC_EnableWriteProtection(RTC);
+
+	Req_Status.TimeOut_ms = RMDV_TimeOutReq;
+	Req_Status.TrialMaxNb = RMDV_StatusReqTrialNb;
+	Req_Status.TrialActualNb =0;
+	Req_Status.success = 0;
+
+	/* Emission requête status*/
+	RmDv_SGw_FSKP_ReqStatus(&Req_Status);
+
+
+	/* Mémorisation du champ Previous state*/
+	LL_PWR_EnableBkUpAccess();
+	LL_RTC_DisableWriteProtection(RTC);
+	/* Ecriture "tout est OK" pour le prochain run */
+	LL_RTC_WriteReg(RTC,BKPReg_RmDv_State,RmDv_SM_OK);
+	/* Blocage accès BKP Reg */
+	LL_PWR_DisableBkUpAccess();
+	LL_RTC_EnableWriteProtection(RTC);
 
 }
 

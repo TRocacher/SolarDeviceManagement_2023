@@ -88,18 +88,20 @@ void RmDv_SGw_FSKP_SendMssgAns_SendInfo(char DestAdr, char NewSet, int NextWupIn
   * @brief  
   * @Note
 TRAME MssgReq_SendStatus
-		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
-		|MssgReq_SendStatus		|byte 0 | Longueur = 2							
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |Value = PreviousState |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 3
   * @param  
   * @retval 
   **/
-void RmDv_SGw_FSKP_SenddMssgReq_SendStatus(char DestAdr, char Status)
+/* ! New 13/04/24 ! */
+void RmDv_SGw_FSKP_SendMssgReq_SendStatus(char DestAdr, char Status, char PreviousState)
 {
 	char MssgToSend[10]; 
 	MssgToSend[0]=MssgReq_SendStatus;
 	MssgToSend[1]=Status;
-	/*émission effective*/
-	FSKStack_SendNewMssg (DestAdr,MssgToSend, 2);
+	MssgToSend[2]=PreviousState;
+	/*?mission effective*/
+	FSKStack_SendNewMssg (DestAdr,MssgToSend, 3);
 }
 
 
@@ -222,11 +224,13 @@ unsigned short int  RmDv_SGw_FSKP_ExtractNextWupInterval(char * MssgTempStr)
 /**
   * @brief  
   * @Note
-		|MssgReq_SendStatus		|Value = RmDv_WarningCode |
-		|MssgReq_SendStatus		|byte 0 | Longueur = 2
+TRAME MssgReq_SendStatus
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |Value = PreviousState |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 3
   * @param  
   * @retval 
   **/
+/* ! New 13/04/24 ! */
 RmDv_WarningCode  RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr)
 {
 	char Val;
@@ -235,3 +239,19 @@ RmDv_WarningCode  RmDv_SGw_FSKP_ExtracStatus(char * MssgTempStr)
 }
 
 
+/**
+  * @brief  
+  * @Note
+TRAME MssgReq_SendStatus
+		|MssgReq_SendStatus		|Value = RmDv_WarningCode |Value = PreviousState |
+		|MssgReq_SendStatus		|byte 0 | Longueur = 3
+  * @param  
+  * @retval 
+  **/
+/* ! New 13/04/24 ! */
+RmDv_WkUp_CurrentState   RmDv_SGw_FSKP_ExtractPreviousState(char * MssgTempStr)
+{
+	char Val;
+	Val= *(MssgTempStr+2);
+	return ((RmDv_WkUp_CurrentState)Val);
+}

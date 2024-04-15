@@ -101,11 +101,13 @@ typedef struct
 void TimerStamp_Start(void);
 
 
+
 /**
-  * @brief  Renvoie l'horodatage réel
-  * @retval pointeur sur la variable TimeStamp, TimeStampClock
+  * @brief  Renvoie l'horodatage réel via le pointeur d'entrée
+  * @retval void
   **/
-TimeStampTypedef * TimeStamp_GetClock(void);
+void TimeStamp_GetClock(TimeStampTypedef * LocalStamp);
+
 
 
 /**
@@ -137,7 +139,11 @@ int TimeStamp_2_Sec(TimeStampTypedef * Ptr);
 int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB );
 
 
-
+/**
+  * @brief  Private Incrémente de 1 seconde le timestamp donné en argument
+	* @param  pointeur sur la variable timestamp à incrémenter
+  **/
+void TimeStamp_DayInc(TimeStampTypedef * Ptr);
 
 
 

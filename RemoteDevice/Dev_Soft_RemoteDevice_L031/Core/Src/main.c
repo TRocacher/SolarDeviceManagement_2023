@@ -9,40 +9,9 @@
  *   Tool : CubeIDE 1.12.1,
  *   Target : STM32L031
  *  ------------------------------------------------------------------------------
- *  Point sur les interruptions : NB = Non Bloquant
- *
- *  + Module Stack MAC_PhyUART.c
- *  1	Externe (/CD RT606) - GPIO_L031.c (NB) -> ModuleFSK_RmDv.c : (NB)
- *  2	UART (RX) -UART_L031.c (NB) -> MAC_PhyUART.c : (NB)
- *  3	TIM22 (FSM) -Timer_L031.c (NB) ->  MAC_PhyUART.c : (NB)
- *  0	Systick (Tps réel) -Timer_L031.c -> TimeManagement_RmDv (NB)
- *
- *  + Module RmDv_TelecoIR.c
- *  1	TIM21 (Cadencement bit) - Timer_L031.c (NB) ->  RmDv_TelecoIR.c : bloquant
- *
- *  + Module RmDV_ErrorWDG.c
- *  0	LPTIM1 (timeout Watch dog général) - Module RmDV_ErrorWDG.c (NB) -> main : go sleep !
  *
 * =================================================================================*/
 
-
-/* Entête de fonction*/
-/*______________________________________________________________________________
-*_______________________ Nom fonction	________________________________________
- *
- *   Rôle:
- *   Param :
- *   Exemple :
- *
- *
- *
-* __________________________________________________________________________________*/
-
-
-/* Commentaire fonction */
-/***************************************************************
-		blabla
-***************************************************************/
 
 
 /* Includes ------------------------------------------------------------------*/
@@ -54,24 +23,6 @@
 #include "RmDv_IO.h"
 #include "LowPower_L031.h"
 #include <GLOBAL_RmDv.h>
-
-/* =================================================================================
-* ==================    Main pgm	     ===========================================
-  General Configurations (Clock, IO remote Device)
-
-  StbyPgm (émission temp avec attente consigne, émission warning
-  Sleep
-
-  Si plantage, émission erreur (état dans lequel s'est fait le plantage)
-  sleep
-
-  Donc,
-  - ds le cas normal : deux émissions normalement, consigne et warning
-  - erreur température : une seule émission, erreur de température
-  - plantage sévère : une seule émission la phase qui a causé le plantage
-
-
-* =================================================================================*/
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,6 +36,8 @@ void LPTIM1_User_Callback(void);
 int DelayNextWup_sec;
 int main(void)
 {
+
+
 /***************************************************************
 		Configurations générales
 ***************************************************************/
@@ -92,36 +45,34 @@ int main(void)
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 	SystemClock_Config();
+	LowPower_L031_RTC_Init();
 
-
+/***************************************************************
+		Réglage du LPTIM1 pour watchdog en cas de plantage
+		Rem : possibilité, à des fins de débug, de configurer
+		LPTIM1 en IT périodique pour travailler en IT sans sleep.
+***************************************************************/
 	/* Réglage durée watchgog*/
 	RmDv_ErrorWDG_LPTIMConf(PlantageTimeOut,prio_WDG, LPTIM1_User_Callback);
 	// !!! revoir la prio si utilisé en watchdog. En IT simple, prio à 2 pour pas bloquer
 	// le systick
-	StartLPTM;
-//	StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
-	/***************************************************************
-	  		Configurations I/O Remote Device
-	***************************************************************/
+	//	StartLPTM;
+	StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
+
+
+/***************************************************************
+	  	Configurations I/O Remote Device
+***************************************************************/
 	RmDv_IO_Init();
 	USART_FSK_RT606_OFF();
 	RmDv_IO_AssociateFct_UserBP(BP_User_Callback);
 
-	/***************************************************************
+
+/***************************************************************
 	  		Run code Standby
-	***************************************************************/
+***************************************************************/
 	Main_StandByWkUpPgm();
 
-	/* Réglage Période RTC*/
-	/* Donner accès au BKP reg */
-	LL_PWR_EnableBkUpAccess();
-	LL_RTC_DisableWriteProtection(RTC);
-	/* Ecriture */
-	DelayNextWup_sec=LL_RTC_ReadReg(RTC,BKPReg_NextDelay_sec);
-	/* Blocage accès BKP Reg */
-	LL_PWR_DisableBkUpAccess();
-	LL_RTC_EnableWriteProtection(RTC);
-	LowPower_L031_RTC_Init(DelayNextWup_sec);
 
 	/* Lancement WUT et sleep */
 	LowPower_L031_GoToStdbySleep();
@@ -142,20 +93,25 @@ void BP_User_Callback(void)
 
 
 
-char ErrorMssg[2];
+
 void  LPTIM1_User_Callback(void)
 {
-	//Main_StandByWkUpPgm();
-	// écrire 0xFF dans le BKP0R pour singifier qu'il y a eu un plantage sévère
+	RmDv_WkUp_CurrentState LocalState;
+
+	/* Récupération de l'état de la SM */
+	LocalState = StandByWkUpPgm_GetCurrentState();
 	/* Donner accès au BKP reg */
 	LL_PWR_EnableBkUpAccess();
 	LL_RTC_DisableWriteProtection(RTC);
 	/* Ecriture */
-	LL_RTC_WriteReg(RTC,BKP0R,0xFF);
+	LL_RTC_WriteReg(RTC,BKPReg_RmDv_State,LocalState);
 	/* Blocage accès BKP Reg */
 	LL_PWR_DisableBkUpAccess();
 	LL_RTC_EnableWriteProtection(RTC);
 
+
+	/* Réglage Période RTC*/
+	LowPower_L031_WUTConf(30*60); /* sleep pour 30mn*/
 
 	LowPower_L031_GoToStdbySleep(); /* Lancement WUT et sleep */
 

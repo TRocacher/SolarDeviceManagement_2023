@@ -17,6 +17,7 @@ void Transaction_HMI(void);
 
 void Init_RmDvDataPtrTab(void);
 
+TimeStampTypedef TestStamp; /////!!!!!!!!!!
 
 
 /* les données clim (RmDDv)*/
@@ -39,12 +40,7 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 
 int main (void)
 {
-	int CorrInterval_ToSend;
-	RmDvDataTypedef* PtrRmDvData;
-	PtrRmDvData=RmDvData_GetObjectAdress(0xD1);
-	CorrInterval_ToSend=RmDvData_GenerateNextTimeInterval(PtrRmDvData);
-	
-	
+
 	/* Lancement du système (pile FSK, UART, Timeout) */
 	MainFcts_SystemStart();
 	/* Mise à l'heure du système (set time et init fuseaux horaire et IdxTps réel */
@@ -54,7 +50,19 @@ int main (void)
 	Init_RmDvDataPtrTab();
 	/* Initialisation du module d'affichage LCD*/
 	InfoLCD_Init();
+	/* Init Tableau Stamp string*/
+	InfoLCD_MemStampStrInit();
 	
+	/*  Test ...*/
+//	PtrTestStamp=TimeStamp_GetClock();
+//	TestStamp.Hour=PtrTestStamp->Hour;
+//	TestStamp.Min=PtrTestStamp->Min;
+//	TestStamp.Sec=PtrTestStamp->Sec;
+//	
+//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
+//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
+//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
+//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
 	
 while(1)
 	{
@@ -96,6 +104,7 @@ void Transaction_RmDv(char ID)
 
 	char Success;								/* indicateur de succès de l'échange global */
 	RmDv_WarningCode Status;		/* statut final de l'échange */
+	RmDv_WkUp_CurrentState PrevState; /* Etat lors du précédent échange */
 	int CorrInterval_ToSend;		/* l'intervalle à renvoyer au RmDv, corrigé.*/
 	
 	RmDvDataTypedef* PtrRmDvData;
@@ -116,6 +125,10 @@ void Transaction_RmDv(char ID)
 		TimeManag_TimeOutStart(Chrono_WaitTransactionEnd , TimeOutTransaction );
 		/*Accès à la donnée RmDvData*/
 		PtrRmDvData=RmDvData_GetObjectAdress(ID);
+		
+		/* Stamp data dans tableau pour debug*/
+		TimeStamp_GetClock(&TestStamp);
+		InfoLCD_AddTimeStampToMem(&TestStamp,ID);
 		
 		/* extract temp & last temp set */
 		TemperatureMesuree = RmDv_SGw_FSKP_ExtractTemp(FSKMssgRec);
@@ -160,6 +173,7 @@ void Transaction_RmDv(char ID)
 					if (Code == MssgReq_SendStatus)
 					{
 						Status=RmDv_SGw_FSKP_ExtracStatus(FSKMssgRec);
+						PrevState=RmDv_SGw_FSKP_ExtractPreviousState(FSKMssgRec);
 						RmDv_SGw_FSKP_SendMssgAns_Ack(ID);
 						Success=1;
 						break; /* on arrête là puisqu'on a bien reçu l'état.*/
@@ -178,7 +192,7 @@ void Transaction_RmDv(char ID)
 		}
 		
 		/* Mise à jour de la variable RmDv */
-		RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,lastTempSet,Status);
+		RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,lastTempSet,Status,PrevState);
 		
 	
 		/* Affichage LCD*/

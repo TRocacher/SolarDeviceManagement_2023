@@ -98,17 +98,8 @@ void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID)
   **/
 void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData)
 {
-	TimeStampTypedef * TimePtr;
-	TimePtr = TimeStamp_GetClock();
-	
 	/* Stamp Data*/
-	RmDvData->Delay.StampNow.Sec = TimePtr->Sec;
-	RmDvData->Delay.StampNow.Min = TimePtr->Min;
-	RmDvData->Delay.StampNow.Hour = TimePtr->Hour;
-	RmDvData->Delay.StampNow.Day = TimePtr->Day;
-	RmDvData->Delay.StampNow.Month = TimePtr->Month;
-	RmDvData->Delay.StampNow.Year = TimePtr->Year;
-	
+	TimeStamp_GetClock(&RmDvData->Delay.StampNow);	
 }
 
 
@@ -122,13 +113,14 @@ void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData)
   * @retval 
   **/
 void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,char lastSet,char newSet, \
-										RmDv_WarningCode status)
+										RmDv_WarningCode status, RmDv_WkUp_CurrentState PrevState)
 /* Mets à jour les données du RmDv en question*/
 {
 	RmDvData->NewTempSet = newSet;
 	RmDvData->Temperature = Temp;
 	RmDvData->LastTempSet =  lastSet;
 	RmDvData->Status =  status;
+	RmDvData->PrevState = PrevState;
 	RmDvData->ReadyToRead = 1;
 
 }
@@ -165,8 +157,8 @@ int RmDvData_GenerateNextTimeInterval(RmDvDataTypedef* RmDvData)
 	RmDvData->Delay.TimeIntervalMeasPrevious = TimeStamp_substract(PtrNow,PtrPrev); 
 	
 	/* calcul de la prochaine cible */   
-	//RmDvData_CalculateStampTarget(PtrNow,PtrTarget);
-	TestRmDvData_CalculateStampTarget(PtrNow,PtrTarget);
+	RmDvData_CalculateStampTarget(PtrNow,PtrTarget);
+	//TestRmDvData_CalculateStampTarget(PtrNow,PtrTarget);
 	
 	/* calcul Time Interval Théorique */   
 	RmDvData->Delay.TimeIntervalTheoNow = TimeStamp_substract(PtrTarget,PtrNow);
@@ -220,14 +212,26 @@ void RmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* Tar
 {
 
 	int Min, Hour;
+	TimeStampTypedef LocalStamp;
+	
 	Min = PtrA->Min;
 	Hour = PtrA->Hour;
+	LocalStamp.Day=PtrA->Day;
+	LocalStamp.Month=PtrA->Month;
+	LocalStamp.Year=PtrA->Year;
 	
-	if ((Hour>=22) && (Hour<5))  // exemple 22h01 -> 6h00, 4h20->6h00 , 4h59 -> 6h00
+	if ((Hour>=22) || (Hour<5))  // exemple 22h01 -> 6h00, 4h20->6h00 , 4h59 -> 6h00
 																// 5h05 -> 5h30 // 6h01 -> 6h30.
 	{
 			TargetStamp->Hour=6;
 			TargetStamp->Min =0;
+			TimeStamp_DayInc(&LocalStamp); /* LocalStamp += 1 day*/
+			/* Achèvement remplissage*/
+			TargetStamp->Sec=0;
+			TargetStamp->Day=LocalStamp.Day;
+			TargetStamp->Month=LocalStamp.Month;
+			TargetStamp->Year=LocalStamp.Year;
+		
 	}
 	else
 	{
@@ -237,12 +241,14 @@ void RmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* Tar
 		if (Min>15) TargetStamp->Hour = Hour+1;
 		else TargetStamp->Hour = Hour;
 		
+		/* Achèvement remplissage*/
+		TargetStamp->Sec=0;
+		TargetStamp->Day=PtrA->Day;
+		TargetStamp->Month=PtrA->Month;
+		TargetStamp->Year=PtrA->Year;
+		
 	}
-	/* Achèvement remplissage*/
-	TargetStamp->Sec=0;
-	TargetStamp->Day=PtrA->Day;
-	TargetStamp->Month=PtrA->Month;
-	TargetStamp->Year=PtrA->Year;
+
 }
 
 

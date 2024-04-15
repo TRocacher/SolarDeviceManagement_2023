@@ -17,6 +17,7 @@
 #include "MyLCD.h"
 #include "RmDv_SGw_Protocol.h" 
 #include "TimeStampManagement.h"
+#include "GLOBAL_SMARTGATEWAY.h"
 
 /**
   * @brief  
@@ -44,5 +45,28 @@ void InfoLCD_Init(void);
   **/
 void InfoLCD_PrintHMIHour(TimeStampTypedef* TimeStampIHM);
 
+
+
+/*----------------------------------------------
+ Gestion des Tamp String pour maintenance/debug
+----------------------------------------------*/
+
+/**
+  * @brief 
+  * @Note
+  * @param  
+  * @retval 
+  **/
+
+void InfoLCD_MemStampStrInit(void);
+
+
+/**
+  * @brief  
+  * @Note
+  * @param  
+  * @retval 
+  **/
+int InfoLCD_AddTimeStampToMem(TimeStampTypedef* TimeStamp, char ID);
 
 #endif 
