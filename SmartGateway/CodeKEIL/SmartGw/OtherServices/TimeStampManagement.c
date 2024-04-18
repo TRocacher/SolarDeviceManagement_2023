@@ -45,10 +45,10 @@ void TimerStamp_Start(void)
 }
 
 /**
-* @brief  associe un callback qui claque toutes les 30mn avec un décalage de 15mn.
+* @brief  associe un callback qui claque toutes les 1sec
 * @paral @ fonction
 **/
-void HourStamp_30mnCallbackAssociation(void (*IT_function) (void))
+void HourStamp_1sec_CallbackAssociation(void (*IT_function) (void))
 {
 	PtrFct=IT_function;
 }
@@ -68,6 +68,15 @@ void TimeStamp_GetClock(TimeStampTypedef * LocalStamp)
 	LocalStamp->Year=TimeStampClock.Year;
 }
 
+
+/**
+  * @brief  Renvoie l'adresse de l'horodatage réel 
+  * @retval void
+  **/
+TimeStampTypedef * TimeStamp_GetClockStampAdr(void)
+{
+	return &TimeStampClock;
+}
 
 /**
   * @brief  Met à l'heure l'horloge 
@@ -192,11 +201,8 @@ int HourStamp_substract(HourStampTypedef * PtrA,HourStampTypedef * PtrB )
 void TimeStamp_Update(void)
 {
 	TimeStamp_SecInc(&TimeStampClock);
-
-	if ((TimeStampClock.Sec==0)&&((TimeStampClock.Min==15)||(TimeStampClock.Min==45)))
-	{
-		if (PtrFct!=0) PtrFct(); 
-	}
+	if (PtrFct!=0) PtrFct();
+	
 }
 
 

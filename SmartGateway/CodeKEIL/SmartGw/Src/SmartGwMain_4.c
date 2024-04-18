@@ -12,6 +12,8 @@
 
 #include "MainFcts.h"
 
+int Mode;
+
 void Transaction_RmDv(char ID);
 void Transaction_HMI(void);
 
@@ -37,6 +39,25 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 	MAIN PROGRAM
 		
 *****************************************************************************************************************/
+void UserBP(void);
+void OneSec_Callback(void);
+
+
+/* Type d'affichage ...*/
+typedef enum {
+	Temperature=0,
+	HeureCourante=1,
+	Salon_1=2,
+	Salon_2,
+	SaM_1,
+	SaM_2,
+	Entree_1,
+	Entree_2,
+	Couloir_1,
+	Couloir_2,
+	Ext_1,
+	Ext_2,
+}TerminalMode;
 
 int main (void)
 {
@@ -52,17 +73,9 @@ int main (void)
 	InfoLCD_Init();
 	/* Init Tableau Stamp string*/
 	InfoLCD_MemStampStrInit();
-	
-	/*  Test ...*/
-//	PtrTestStamp=TimeStamp_GetClock();
-//	TestStamp.Hour=PtrTestStamp->Hour;
-//	TestStamp.Min=PtrTestStamp->Min;
-//	TestStamp.Sec=PtrTestStamp->Sec;
-//	
-//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
-//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
-//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
-//	InfoLCD_AddTimeStampToMem(&TestStamp,ID_Clim_Salon);
+	/* Config UserBP*/
+	NVIC_Ext_IT (GPIOC, 13, FALLING_EGDE, INPUT_FLOATING, 14, UserBP);
+	HourStamp_1sec_CallbackAssociation(OneSec_Callback);
 	
 while(1)
 	{
@@ -82,11 +95,26 @@ while(1)
 }
 
 
-
-
-
-
-
+void OneSec_Callback(void)
+{
+	/* Affichage LCD toutes les secondes*/
+	switch(Mode)
+	{
+		case Temperature:InfoLCD_Print5Temp();break;
+		case HeureCourante:InfoLCD_PrintHour("Heure systeme:",TimeStamp_GetClockStampAdr());break;
+		case Salon_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Salon);break;
+		case Salon_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Salon);break;
+		case SaM_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_SaManger);break;
+		case SaM_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_SaManger);break;
+		case Entree_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Entree);break;
+		case Entree_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Entree);break;
+		case Couloir_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Couloir);break;
+		case Couloir_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Couloir);break;
+		case Ext_1:InfoLCD_PrintRmDv_Stamp(ID_Ext);break;
+		case Ext_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
+		default:break;
+	}
+}
 
 
 
@@ -196,7 +224,9 @@ void Transaction_RmDv(char ID)
 		
 	
 		/* Affichage LCD*/
-		InfoLCD_Status_LastTempSet(Status,lastTempSet);
+		//InfoLCD_Status_LastTempSet(Status,lastTempSet);
+
+		
 	}
 	
 }
@@ -224,12 +254,22 @@ void Transaction_HMI(void)
 		/* lecture du pointeur Stamp de Central Data */
 		PtrTimeStamp=DFH_ReadStampFromCentralData();
 		/* Affichage LCD de l'heure*/
-		InfoLCD_PrintHMIHour(PtrTimeStamp);	
+		InfoLCD_PrintHour("Heure HMI",PtrTimeStamp);	
 	}
 	
 }
 
 
+/******************************************************************************************************************
+		Choix Menu à afficher
+*****************************************************************************************************************/
+
+
+void UserBP(void)
+{
+	Clear_Flag_IT_Ext_5_15(13);
+	Mode=(Mode+1)%12;	
+}
 
 
 /******************************************************************************************************************

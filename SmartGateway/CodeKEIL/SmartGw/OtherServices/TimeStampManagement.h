@@ -109,6 +109,11 @@ void TimerStamp_Start(void);
 void TimeStamp_GetClock(TimeStampTypedef * LocalStamp);
 
 
+/**
+  * @brief  Renvoie l'adresse de l'horodatage réel 
+  * @retval void
+  **/
+TimeStampTypedef * TimeStamp_GetClockStampAdr(void);
 
 /**
   * @brief  Met à l'heure l'horloge 
@@ -160,10 +165,11 @@ typedef struct
 
 
 /**
-* @brief  associe un callback qui claque toutes les 30mn avec un décalage de 15mn.
+* @brief  associe un callback qui claque toutes les 1sec
 * @paral @ fonction
 **/
-void HourStamp_30mnCallbackAssociation(void (*IT_function) (void));
+void HourStamp_1sec_CallbackAssociation(void (*IT_function) (void));
+
 
 
 /**
