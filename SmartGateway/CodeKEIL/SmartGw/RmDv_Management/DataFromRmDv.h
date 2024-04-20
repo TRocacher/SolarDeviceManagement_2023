@@ -66,6 +66,8 @@ typedef struct
 }RmDvDataTypedef;				
 
 
+#define RmDvData_OffsetSec 5 /* Décalage stamp pour chaque RmDv pour éviter congestion traffic 
+																lors des réveils. Donné en seconde. */
 
 
 /*---------------------------------

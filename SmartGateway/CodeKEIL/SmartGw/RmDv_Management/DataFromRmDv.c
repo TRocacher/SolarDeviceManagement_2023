@@ -20,7 +20,7 @@
 
 
 /* Proto fcts privées*/
-void RmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp );
+void RmDvData_CalculateStampTarget(int ID,TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp );
 /* ===============================================
           la structure d'échange MACPhyUART 
 ================================================== */
@@ -145,7 +145,9 @@ int RmDvData_GenerateNextTimeInterval(RmDvDataTypedef* RmDvData)
 	TimeStampTypedef* PtrTarget;
 	int CorrInterval;
 	float Factor;
+	char ID;
 	
+	ID = RmDvData->ID;
 	PtrNow = &RmDvData->Delay.StampNow;
 	PtrPrev= &RmDvData->Delay.StampPrevious;
 	PtrTarget =  &RmDvData->Delay.StampNextTarget;
@@ -157,7 +159,7 @@ int RmDvData_GenerateNextTimeInterval(RmDvDataTypedef* RmDvData)
 	RmDvData->Delay.TimeIntervalMeasPrevious = TimeStamp_substract(PtrNow,PtrPrev); 
 	
 	/* calcul de la prochaine cible */   
-	RmDvData_CalculateStampTarget(PtrNow,PtrTarget);
+	RmDvData_CalculateStampTarget(ID,PtrNow,PtrTarget);
 	//TestRmDvData_CalculateStampTarget(PtrNow,PtrTarget);
 	
 	/* calcul Time Interval Théorique */   
@@ -208,7 +210,7 @@ int RmDvData_GenerateNextTimeInterval(RmDvDataTypedef* RmDvData)
   **/
 
 
-void RmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp )
+void RmDvData_CalculateStampTarget(int ID,TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp )
 {
 
 	int Min, Hour;
@@ -242,11 +244,15 @@ void RmDvData_CalculateStampTarget(TimeStampTypedef* PtrA, TimeStampTypedef* Tar
 		else TargetStamp->Hour = Hour;
 		
 		/* Achèvement remplissage*/
-		TargetStamp->Sec=0;
 		TargetStamp->Day=PtrA->Day;
 		TargetStamp->Month=PtrA->Month;
 		TargetStamp->Year=PtrA->Year;
 		
+		/* Gestion des décalages, 5secondes par défaut (voir #define RmDvData_OffsetSec dans .h*/
+		if (ID==ID_Clim_SaManger) TargetStamp->Sec = RmDvData_OffsetSec;
+		else if (ID==ID_Clim_Entree) TargetStamp->Sec = 2*RmDvData_OffsetSec;
+		else if (ID==ID_Clim_Couloir) TargetStamp->Sec = 3*RmDvData_OffsetSec;
+		else if (ID==ID_Ext) TargetStamp->Sec = 4*RmDvData_OffsetSec;
 	}
 
 }

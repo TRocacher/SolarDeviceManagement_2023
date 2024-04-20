@@ -56,8 +56,7 @@ void StringFct_Int2Str_99(int Value,char * DigitTab);
   * @param  char Frac : le nombre de digit de la partie décimale
   * @retval 1 si OK, 0 si mal passé.
   **/
-char StringFct_Float2Str(float Value,char * DigitTab, char DigitNb, char Frac);
-
+char StringFct_Float2Str(float Value,char * DigitTab, int DigitNb, int Frac);
 
 
 
@@ -77,8 +76,7 @@ char StringFct_Float2Str(float Value,char * DigitTab, char DigitNb, char Frac);
   * Valeur=StringFct_Str2Float(MyString,6,2);
   * if (Valeur>1000000.0) MenuInput_PrintPlantageConv();
   **/
-float StringFct_Str2Float(char * DigitTab, char DigitNb, char Frac);
-
+float StringFct_Str2Float(char * DigitTab, int DigitNb, int Frac);
 
 
 #endif /* MENU_STRINGFCT_H_ */

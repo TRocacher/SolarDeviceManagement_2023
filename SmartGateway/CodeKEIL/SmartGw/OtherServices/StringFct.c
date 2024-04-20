@@ -53,7 +53,7 @@ void StringFct_Int2Str(int Value,char * DigitTab)
 	
 }
 
-char StringFct_Float2Str(float Value,char * DigitTab, char DigitNb, char Frac)
+char StringFct_Float2Str(float Value,char * DigitTab, int DigitNb, int Frac)
 {
   // exemple 1342.54, Fract=2, DigitNb=6
 	// pos       0    1   2  2   4   5   6   7  8
@@ -124,7 +124,7 @@ char StringFct_Float2Str(float Value,char * DigitTab, char DigitNb, char Frac)
 
 }
 
-float StringFct_Str2Float(char * DigitTab, char DigitNb, char Frac)
+float StringFct_Str2Float(char * DigitTab, int DigitNb, int Frac)
 {
 	//|sxx.xxx00| DigitNb=5, DecimalNb=2
 	//|sx.xx0000| DigitNb=3, DecimalNb=2

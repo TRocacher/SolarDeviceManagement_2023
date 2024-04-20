@@ -211,12 +211,12 @@ void DFH_Update_All(char * AdrString, int Long)
   * @param  
   * @retval 
   **/
-void DFH_Update_CentralData(char * AdrString)
-{
-	int ReqCode;
-	ReqCode=(int)DFH_ExtractReqCode(AdrString);
-	
-}
+//void DFH_Update_CentralData(char * AdrString)
+//{
+//	int ReqCode;
+//	ReqCode=(int)DFH_ExtractReqCode(AdrString);
+//	
+//}
 
 
 
