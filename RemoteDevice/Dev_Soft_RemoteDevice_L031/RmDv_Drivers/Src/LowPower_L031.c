@@ -26,6 +26,10 @@
 #include "LowPower_L031.h"
 #include <TimeManagement_RmDv.h>
 
+void LowPower_L031_EnableBKP(void);
+void LowPower_L031_DisableBKP(void);
+
+
 /**
   * @brief  Configure la RTC, en particulier les prescaler pour avoir 1sec de cadence WUT
   * 		Sélectionne le 1Hz comme clk du WUT
@@ -42,11 +46,8 @@ void LowPower_L031_RTC_Init(void)
 
   /* Validation Pwr domain*/
   RCC->APB1ENR|=RCC_APB1ENR_PWREN;
-  /* levée de la protection après syst reset (DBP=1)*/
-  LL_PWR_EnableBkUpAccess();
+  LowPower_L031_EnableBKP();
   LL_RCC_EnableRTC();
-  /* déverrouillage bkp domaine*/
-  LL_RTC_DisableWriteProtection(RTC); /* WPR = 0xCA puis 0x53*/
 
  /* configuration pour  1sec*/
   SET_BIT(RTC->ISR, RTC_ISR_INIT);				/* entrée dans le processus d'initialisation Prescaler*/
@@ -63,20 +64,14 @@ void LowPower_L031_RTC_Init(void)
   LL_RTC_WAKEUP_Disable(RTC);  /*Désactiver WUT (notamment pour pouvoir écrire dans WUTR)*/
   LL_RTC_WAKEUP_SetClock(RTC, LL_RTC_WAKEUPCLOCK_CKSPRE);
 
-  /* Verrouiller backup domain*/
-  /* levée de la protection après syst reset (DBP=1)*/
-  LL_PWR_DisableBkUpAccess();
-  LL_RTC_EnableWriteProtection(RTC);
+  LowPower_L031_DisableBKP();
 }
 
 
 
 void LowPower_L031_WUTConf(int WakeUpPeriodSec)
 {
-	/* levée de la protection après syst reset (DBP=1)*/
-	LL_PWR_EnableBkUpAccess();
-	/* déverrouillage bkp domaine*/
-	LL_RTC_DisableWriteProtection(RTC); /* WPR = 0xCA puis 0x53*/
+	LowPower_L031_EnableBKP();
 	/*Désactiver WUT (notamment pour pouvoir écrire dans WUTR)*/
 	LL_RTC_WAKEUP_Disable(RTC);
 
@@ -94,10 +89,7 @@ void LowPower_L031_WUTConf(int WakeUpPeriodSec)
  	/* A CE STADE LE WUT EST CONFIGURE, AUTORELOAD CHARGE. MANQUE PLUS QU'A LANCER WUT
  	*     (LL_RTC_WAKEUP_Enable(RTC);)*/
  	/* Verrouiller backup domain*/
-
- 	LL_PWR_DisableBkUpAccess(); /* levée de la protection après syst reset (DBP=1) */
- 	/*déverrouiller après backup domain reset*/
- 	LL_RTC_EnableWriteProtection(RTC);
+ 	LowPower_L031_DisableBKP();
 }
 
 
@@ -136,22 +128,33 @@ void LowPower_L031_GoToStdbySleep(void)
 	LL_PWR_ClearFlag_WU();
 
 
-	// levée de la protection après syst reset (DBP=1)
-	LL_PWR_EnableBkUpAccess();
-	//déverrouiller après backup domain reset
-	LL_RTC_DisableWriteProtection(RTC);
+	LowPower_L031_EnableBKP();
 	/* Reset Internal Wake up flag */
 	LL_RTC_ClearFlag_WUT(RTC); // codage un peu curieux...
 	// lancement WUT
 	LL_RTC_WAKEUP_Enable(RTC);
+
+	LowPower_L031_DisableBKP();
+
+	/* Request Wait For Interrupt */
+	__WFI();
+
+}
+
+
+void LowPower_L031_EnableBKP(void)
+{
+	// levée de la protection après syst reset (DBP=1)
+	LL_PWR_EnableBkUpAccess();
+	//déverrouiller après backup domain reset
+	LL_RTC_DisableWriteProtection(RTC);  /* WPR = 0xCA puis 0x53*/
+}
+
+void LowPower_L031_DisableBKP(void)
+{
 	// Verrouiller backup domain
 	// levée de la protection après syst reset (DBP=1)
 	LL_PWR_DisableBkUpAccess();
 	//déverrouiller après backup domain reset
 	LL_RTC_EnableWriteProtection(RTC);
-
-
-	/* Request Wait For Interrupt */
-	__WFI();
-
 }
