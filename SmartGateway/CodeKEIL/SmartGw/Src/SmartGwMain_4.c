@@ -2,7 +2,7 @@
 #include "FSKStack.h"
 #include "GLOBAL_SMARTGATEWAY.h"
 #include "RmDv_SGw_Protocol.h"
-
+#include "TimeManagement.h"
 
 #include "InfoLCD.h"
 
@@ -263,12 +263,45 @@ void Transaction_HMI(void)
 /******************************************************************************************************************
 		Choix Menu à afficher
 *****************************************************************************************************************/
-
-
+#define DebounceLaps_ms 200
+int BebounceFstOccu;
 void UserBP(void)
 {
 	Clear_Flag_IT_Ext_5_15(13);
-	Mode=(Mode+1)%12;	
+	/*démarrage tempo pour antirebond si pas déjà lancé*/
+	if (TimeManag_GetTimeOutStatus(Chrono_Debounce)==1)
+	{
+		TimeManag_TimeOutStart(Chrono_Debounce ,DebounceLaps_ms); // lancement TimeOut
+		BebounceFstOccu=1;
+	}
+	
+		
+	if (BebounceFstOccu==1)  /* uniquement lorsque le timout a été lancé ...*/
+	{
+		Mode=(Mode+1)%12;	
+		
+		/* Affichage par anticipation sur le callback 1 sec pour plus de réactivité*/
+		/* Affichage LCD toutes les secondes*/
+		switch(Mode)
+		{
+		case Temperature:InfoLCD_Print5Temp();break;
+		case HeureCourante:InfoLCD_PrintHour("Heure systeme:",TimeStamp_GetClockStampAdr());break;
+		case Salon_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Salon);break;
+		case Salon_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Salon);break;
+		case SaM_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_SaManger);break;
+		case SaM_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_SaManger);break;
+		case Entree_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Entree);break;
+		case Entree_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Entree);break;
+		case Couloir_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Couloir);break;
+		case Couloir_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Couloir);break;
+		case Ext_1:InfoLCD_PrintRmDv_Stamp(ID_Ext);break;
+		case Ext_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
+		default:break;
+		}
+		BebounceFstOccu=0; /* ce n'est plus la première fois, le bloc ne se relance pas
+		sauf si un timeout survient ...*/
+	}
+
 }
 
 

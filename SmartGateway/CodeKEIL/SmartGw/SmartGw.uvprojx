@@ -337,7 +337,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>LCD_SIMULATOR</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\ComStack\FSK_Stack\Stack_Src;..\..\..\ComStack\FSK_Stack\KEIL_F103\Stack_Src_103;..\..\..\ComStack\Stack_TimeManagement;.\OtherServices;.\Service_RTC_DS1307;.\StackUART;.\Src;.\RmDv_Management;.\HMI_Management;.\RmDv_Management</IncludePath>
             </VariousControls>
@@ -402,6 +402,11 @@
               <FileName>MainFcts.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\MainFcts.c</FilePath>
+            </File>
+            <File>
+              <FileName>Debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\Debug.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -914,6 +919,11 @@
               <FileName>MainFcts.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\MainFcts.c</FilePath>
+            </File>
+            <File>
+              <FileName>Debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\Debug.c</FilePath>
             </File>
           </Files>
         </Group>

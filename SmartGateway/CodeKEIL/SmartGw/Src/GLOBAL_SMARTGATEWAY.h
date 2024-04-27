@@ -33,7 +33,8 @@
 
 /*--  Les timeout  --*/
 #define Chrono_FSKStack Chrono_1 /* file FSKStack.c (timeout Wait for header, FSM)*/
-#define Chrono_WaitTransactionEnd Chrono_2 /* fileSmartGwMain (timeout d'attente seonde requête)*/
+#define Chrono_WaitTransactionEnd Chrono_2 /* fileSmartGwMain (timeout d'attente seconde requête)*/
+#define Chrono_Debounce Chrono_3 /* permet de gérer l'antirebond*/
 
 /* message max = req info =
  *  |MssgReq_SendInfo 		| Temperature (float) | LastTempSet (char) |
