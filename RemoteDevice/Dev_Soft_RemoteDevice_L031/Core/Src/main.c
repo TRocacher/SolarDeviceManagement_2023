@@ -56,8 +56,8 @@ int main(void)
 	RmDv_ErrorWDG_LPTIMConf(PlantageTimeOut,prio_WDG, LPTIM1_User_Callback);
 	// !!! revoir la prio si utilisé en watchdog. En IT simple, prio à 2 pour pas bloquer
 	// le systick
-	//	StartLPTM;
-	//<<<<<>>>>/StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
+	StartLPTM;
+
 
 
 /***************************************************************
@@ -72,8 +72,7 @@ int main(void)
 	  		Run code Standby
 ***************************************************************/
 	Main_StandByWkUpPgm();
-	//<<<<<>>>>/
-	while(1);/////////////////
+
 
 	/* Lancement WUT et sleep */
 	LowPower_L031_GoToStdbySleep();
@@ -102,13 +101,11 @@ void  LPTIM1_User_Callback(void)
 	/* Récupération de l'état de la SM */
 	LocalState = StandByWkUpPgm_GetCurrentState();
 	/* Donner accès au BKP reg */
-	LL_PWR_EnableBkUpAccess();
-	LL_RTC_DisableWriteProtection(RTC);
+	LowPower_L031_EnableBKP();
 	/* Ecriture */
 	LL_RTC_WriteReg(RTC,BKPReg_RmDv_State,LocalState);
 	/* Blocage accès BKP Reg */
-	LL_PWR_DisableBkUpAccess();
-	LL_RTC_EnableWriteProtection(RTC);
+	LowPower_L031_DisableBKP();
 
 
 	/* Réglage Période RTC*/

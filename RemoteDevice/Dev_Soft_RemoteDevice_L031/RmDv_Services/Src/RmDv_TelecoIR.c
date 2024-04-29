@@ -99,7 +99,6 @@ void RmDv_TelecoIR_SetCmde(RmDv_TelecoIR_Cmde Cmde)
 			 Gestion de la cmde Stop
 	***************************************************************/
 
-
 	if (Cmde==_Stop)
 	{
 		while(RmDv_TelecoIR_IndexOctet<RmDv_TelecoIR_TabOffLen)

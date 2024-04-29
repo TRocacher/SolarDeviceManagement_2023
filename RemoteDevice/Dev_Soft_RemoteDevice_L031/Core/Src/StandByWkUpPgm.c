@@ -97,13 +97,11 @@ void Main_StandByWkUpPgm(void)
 	{
 		StandByWkUpPgm_CurrentState=WakeUpMssgToUC;
 		/* Donner accès au BKP reg */
-		LL_PWR_EnableBkUpAccess();
-		LL_RTC_DisableWriteProtection(RTC);
+		LowPower_L031_EnableBKP();
 		/* Lecture ancienne valeur */
 		LastSet=LL_RTC_ReadReg(RTC,BKPReg_TempSet);
 		/* Blocage accès BKP Reg */
-		LL_PWR_DisableBkUpAccess();
-		LL_RTC_EnableWriteProtection(RTC);
+		LowPower_L031_DisableBKP();
 
 		/* Initialisation du système de gestion des timeout via systick */
 		TimeManag_TimeOutInit();
@@ -136,22 +134,15 @@ void Main_StandByWkUpPgm(void)
 			/* récupération des données de la requête info (température et Intervalle)*/
 			ReceivedTempSet = Req_Data.NewSet;
 			Interval_sec = Req_Data.NextInterval;
-			/* Enregistrement de la nouvelle température dans BKP Reg : maintenant lastTemp...*/
-			LL_PWR_EnableBkUpAccess();
-			LL_RTC_DisableWriteProtection(RTC);
-			/* Ecriture new val */ /* pour le test*/
+			/* Enregistrement BKPreg de la nouvelle température dans BKP Reg : maintenant lastTemp...*/
+			LowPower_L031_EnableBKP();
 			LL_RTC_WriteReg(RTC,BKPReg_TempSet,ReceivedTempSet);
-			/* Blocage accès BKP Reg */
-			LL_PWR_DisableBkUpAccess();
-			LL_RTC_EnableWriteProtection(RTC);
-
+			LowPower_L031_DisableBKP();
 
 			/* Initialisation télécommande IR et émission effective */
 			RmDv_TelecoIR_Init();
 			RmDv_TelecoIR_SetCmde(ReceivedTempSet);
 			RmDv_TelecoIR_DeInit();
-
-
 		}
 		else /* Requête info a échoué, on ne va pas plus loin ...*/
 		{
@@ -168,7 +159,6 @@ void Main_StandByWkUpPgm(void)
 ***************************************************************/
 
 		StandByWkUpPgm_CurrentState=RTCAdjust;
-
 		/* Réglage Période RTC*/
 		LowPower_L031_WUTConf(Interval_sec);
 
@@ -177,20 +167,14 @@ void Main_StandByWkUpPgm(void)
 		  		Warning Mssg :Emission requête status erreur ou pas !
 ***************************************************************/
 
-
-
 	StandByWkUpPgm_CurrentState=WarningMssg;
-/* Chargement variable Requête status*/
+	/* Chargement variable Requête status*/
 	Req_Status.DestAdr = SGw_;
 	Req_Status.Status = StandByWkUpPgm_WCode;
 	/* Récup ancien état de la SM*/
-	LL_PWR_EnableBkUpAccess();
-	LL_RTC_DisableWriteProtection(RTC);
-	/* Lecture ancienne valeur */
+	LowPower_L031_EnableBKP();
 	Req_Status.PreviousState=LL_RTC_ReadReg(RTC,BKPReg_RmDv_State);
-	/* Blocage accès BKP Reg */
-	LL_PWR_DisableBkUpAccess();
-	LL_RTC_EnableWriteProtection(RTC);
+	LowPower_L031_DisableBKP();
 
 	Req_Status.TimeOut_ms = RMDV_TimeOutReq;
 	Req_Status.TrialMaxNb = RMDV_StatusReqTrialNb;
@@ -200,15 +184,12 @@ void Main_StandByWkUpPgm(void)
 	/* Emission requête status*/
 	RmDv_SGw_FSKP_ReqStatus(&Req_Status);
 
-
 	/* Mémorisation du champ Previous state*/
-	LL_PWR_EnableBkUpAccess();
-	LL_RTC_DisableWriteProtection(RTC);
+	LowPower_L031_EnableBKP();
 	/* Ecriture "tout est OK" pour le prochain run */
 	LL_RTC_WriteReg(RTC,BKPReg_RmDv_State,RmDv_SM_OK);
 	/* Blocage accès BKP Reg */
-	LL_PWR_DisableBkUpAccess();
-	LL_RTC_EnableWriteProtection(RTC);
+	LowPower_L031_DisableBKP();
 
 }
 

@@ -35,4 +35,8 @@ void LowPower_L031_RTC_Init(void);
 void LowPower_L031_WUTConf(int WakeUpPeriodSec);
 void LowPower_L031_GoToStdbySleep(void);
 
+/* Fonctions d'accès aux registres */
+void LowPower_L031_EnableBKP(void);
+void LowPower_L031_DisableBKP(void);
+
 #endif /* INC_RMDV_LOWPOWER_H_ */
