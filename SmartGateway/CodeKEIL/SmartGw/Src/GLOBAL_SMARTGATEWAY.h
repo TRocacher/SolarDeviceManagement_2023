@@ -63,5 +63,54 @@
 #define Prio_FSKStack_TimerFSM (Prio_FSKStack_UART_Rec+1)
 
 
+/*============================================================================
+ *
+ * 		Commande Clim
+ *
+============================================================================*/
+/* Liste des code de télécommande */
+typedef enum {
+	_Chaud_18_VanBas_FanAuto = 0xC1,
+	_Chaud_19_VanBas_FanAuto = 0xC2,
+	_Chaud_20_VanBas_FanAuto = 0xC3,
+	_Chaud_21_VanBas_FanAuto = 0xC4,
+	_Chaud_22_VanBas_FanAuto = 0xC5,
+	_Chaud_23_VanBas_FanAuto = 0xC6,
+	_Stop = 0xC0,
+}RmDv_TelecoIR_Cmde;
+
+
+/*============================================================================
+ *
+ * 		Les modes d'affichage LCD
+ *
+============================================================================*/
+
+/* Type d'affichage ...*/
+typedef enum {
+	Temperature=0,
+	HeureCourante=1,
+	Salon_1=2,
+	Salon_2,
+	SaM_1,
+	SaM_2,
+	Entree_1,
+	Entree_2,
+	Couloir_1,
+	Couloir_2,
+	Ext_1,
+	Ext_2,
+	Stop,
+	Temp_18,
+	Temp_19,
+	Temp_20,
+	Temp_21,
+	Temp_22,
+	Temp_23,
+}TerminalMode;
+#define ModeNb 19     /* pour le test des IR des RmDv*/
+//#define ModeNb 12
+
+
 #endif
 

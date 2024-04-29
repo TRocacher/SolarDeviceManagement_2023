@@ -335,3 +335,24 @@ int InfoLCD_AddTimeStampToMem(TimeStampTypedef* TimeStamp, char ID)
 
 
 
+/* Test IR */
+RmDv_TelecoIR_Cmde InfoLCD_PrintNewSet(TerminalMode Mode)
+{
+	RmDv_TelecoIR_Cmde CmdeClim;
+	MyLCD_Clear();
+	MyLCD_ClearLineUp();
+	MyLCD_Print("Temp. Set :");
+	MyLCD_ClearLineDown();
+	
+	switch(Mode)
+	{
+		case Temp_18: CmdeClim = _Chaud_18_VanBas_FanAuto ;MyLCD_Print(" 18 deg");break;	
+		case Temp_19: CmdeClim = _Chaud_19_VanBas_FanAuto ;MyLCD_Print(" 19 deg");break;	
+		case Temp_20: CmdeClim = _Chaud_20_VanBas_FanAuto ;MyLCD_Print(" 20 deg");break;	
+		case Temp_21: CmdeClim = _Chaud_21_VanBas_FanAuto ;MyLCD_Print(" 21 deg");break;	
+		case Temp_22: CmdeClim = _Chaud_22_VanBas_FanAuto ;MyLCD_Print(" 22 deg");break;	
+		case Temp_23: CmdeClim = _Chaud_23_VanBas_FanAuto ;MyLCD_Print(" 23 deg");break;	
+		default: CmdeClim = _Stop ;MyLCD_Print(" Stop ");
+	}
+	return CmdeClim;
+}

@@ -7,10 +7,11 @@
 /* =================================================================================
 * ==================   Main_StandByWkUpPgm	     ===================================
  *
- *   Created on: Jul 18, 2023
+ *   Created on: April 29, 2024
  *   Author: trocache
  *   Tool : CubeIDE 1.12.1,
  *   Target : STM32L031
+ *   Revision :01
  *  ------------------------------------------------------------------------------
 * =================================================================================*/
 
@@ -29,7 +30,7 @@ RmDv_WarningCode StandByWkUpPgm_WCode;				/* Statut à émettre fin de process *
 float Temperature;						/* Température mesurée */
 char ReceivedMssg[30];					/* Chaîne de réception */
 char Long;								/* Longueur de la chaîne */
-char ReceivedCodeClim,ReceivedTempSet;	/* Code clim, Consigne de température reçue */
+RmDv_TelecoIR_Cmde ReceivedTempSet, LastSet;		/* Code clim, Consigne de température reçue */
 unsigned short int Interval_sec;		/* Intervalle de prochain Wkup */
 char Index;	/* pour le test...*/
 
@@ -53,7 +54,6 @@ RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void)
 ***************************************************************/
 void Main_StandByWkUpPgm(void)
 {
-	char Test;
 	Interval_sec=30*60;			/* si pas de réponse, on recommence au bout de 30mn
 	 	 	 	 	 	 	 	 	 faire un truc plus malin qui dise qu'il y a eu un bug*/
 	Stop=0; /* Par défaut progression OK */
@@ -100,9 +100,7 @@ void Main_StandByWkUpPgm(void)
 		LL_PWR_EnableBkUpAccess();
 		LL_RTC_DisableWriteProtection(RTC);
 		/* Lecture ancienne valeur */
-		Test=(char)LL_RTC_ReadReg(RTC,BKPReg_TempSet);
-		/* pour le test...*/
-		Test = (Test+1)%50; /* modulo 50 car pb affichage LCD...*/
+		LastSet=LL_RTC_ReadReg(RTC,BKPReg_TempSet);
 		/* Blocage accès BKP Reg */
 		LL_PWR_DisableBkUpAccess();
 		LL_RTC_EnableWriteProtection(RTC);
@@ -114,7 +112,7 @@ void Main_StandByWkUpPgm(void)
 		/* Chargement variable Requête info*/
 		Req_Data.DestAdr = SGw_;
 		Req_Data.Temp = Temperature;
-		Req_Data.LastSet = Test;
+		Req_Data.LastSet = LastSet;
 		Req_Data.TimeOut_ms = RMDV_TimeOutReq;
 		Req_Data.TrialMaxNb = RMDV_InfoReqTrialNb;
 		Req_Data.TrialActualNb =0;
@@ -138,28 +136,19 @@ void Main_StandByWkUpPgm(void)
 			/* récupération des données de la requête info (température et Intervalle)*/
 			ReceivedTempSet = Req_Data.NewSet;
 			Interval_sec = Req_Data.NextInterval;
-			/* Enregistrement Test dans BKP Reg*/
+			/* Enregistrement de la nouvelle température dans BKP Reg : maintenant lastTemp...*/
 			LL_PWR_EnableBkUpAccess();
 			LL_RTC_DisableWriteProtection(RTC);
 			/* Ecriture new val */ /* pour le test*/
-			LL_RTC_WriteReg(RTC,BKPReg_TempSet,Test);
+			LL_RTC_WriteReg(RTC,BKPReg_TempSet,ReceivedTempSet);
 			/* Blocage accès BKP Reg */
 			LL_PWR_DisableBkUpAccess();
 			LL_RTC_EnableWriteProtection(RTC);
 
 
-
 			/* Initialisation télécommande IR et émission effective */
 			RmDv_TelecoIR_Init();
-			if (ReceivedTempSet == 18) ReceivedCodeClim = _Chaud_18_VanBas_FanAuto;
-			else if  (ReceivedTempSet == 19) ReceivedCodeClim = _Chaud_19_VanBas_FanAuto;
-			else if  (ReceivedTempSet == 20) ReceivedCodeClim = _Chaud_20_VanBas_FanAuto;
-			else if  (ReceivedTempSet == 21) ReceivedCodeClim = _Chaud_21_VanBas_FanAuto;
-			else if  (ReceivedTempSet == 22) ReceivedCodeClim = _Chaud_22_VanBas_FanAuto;
-			else if  (ReceivedTempSet == 23) ReceivedCodeClim = _Chaud_23_VanBas_FanAuto;
-			else ReceivedCodeClim = _Stop;
-			RmDv_TelecoIR_SetCmde(ReceivedCodeClim);
-			/* coupure interruption Timer Teleco*/
+			RmDv_TelecoIR_SetCmde(ReceivedTempSet);
 			RmDv_TelecoIR_DeInit();
 
 

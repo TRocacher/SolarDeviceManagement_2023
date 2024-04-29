@@ -42,22 +42,8 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 void UserBP(void);
 void OneSec_Callback(void);
 
+RmDv_TelecoIR_Cmde NewTempSet = _Stop;		/* nouveau set de température à envoyer à remettre en local après test*/
 
-/* Type d'affichage ...*/
-typedef enum {
-	Temperature=0,
-	HeureCourante=1,
-	Salon_1=2,
-	Salon_2,
-	SaM_1,
-	SaM_2,
-	Entree_1,
-	Entree_2,
-	Couloir_1,
-	Couloir_2,
-	Ext_1,
-	Ext_2,
-}TerminalMode;
 
 int main (void)
 {
@@ -112,7 +98,8 @@ void OneSec_Callback(void)
 		case Couloir_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Couloir);break;
 		case Ext_1:InfoLCD_PrintRmDv_Stamp(ID_Ext);break;
 		case Ext_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
-		default:break;
+		default : NewTempSet = InfoLCD_PrintNewSet(Mode);break;  /*les autres cas sont des temp set*/
+		//default:break;
 	}
 }
 
@@ -128,7 +115,8 @@ void Transaction_RmDv(char ID)
 	MssgCode Code;							/* Code qui seea extrait du string */
 	int L;											/* Longueur du string */
 	float TemperatureMesuree;		/* Température mesurée au niveau du RmDv*/
-	char lastTempSet;						/* dernière consigne reçu par le RmDv lors de la précédente requête */
+	RmDv_TelecoIR_Cmde lastTempSet;						/* dernière consigne reçu par le RmDv lors de la précédente requête */
+//	char NewTempSet;						/* nouveau set de température à envoyer*/
 
 	char Success;								/* indicateur de succès de l'échange global */
 	RmDv_WarningCode Status;		/* statut final de l'échange */
@@ -160,7 +148,7 @@ void Transaction_RmDv(char ID)
 		
 		/* extract temp & last temp set */
 		TemperatureMesuree = RmDv_SGw_FSKP_ExtractTemp(FSKMssgRec);
-		lastTempSet = RmDv_SGw_FSKP_ExtracLastSet(FSKMssgRec);
+		lastTempSet = (RmDv_TelecoIR_Cmde)RmDv_SGw_FSKP_ExtracLastSet(FSKMssgRec);
 		/* Réponse vers le RmDv */
 		
 		/*-----------------------------------------------------------
@@ -172,7 +160,7 @@ void Transaction_RmDv(char ID)
 		Envoie nouvelle consigne et nouveau délai
 		------------------------------------------------------------*/
 	
-		RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, CorrInterval_ToSend);
+		RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,NewTempSet, CorrInterval_ToSend);
 		
 		/* Bloquage dans un timout avec polling info/status
 		ici on peut encore recevoir soit une info (redondance), ou un status ce qui est attendu ! */
@@ -220,7 +208,7 @@ void Transaction_RmDv(char ID)
 		}
 		
 		/* Mise à jour de la variable RmDv */
-		RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,lastTempSet,Status,PrevState);
+		RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,NewTempSet,Status,PrevState);
 		
 	
 		/* Affichage LCD*/
@@ -278,7 +266,7 @@ void UserBP(void)
 		
 	if (BebounceFstOccu==1)  /* uniquement lorsque le timout a été lancé ...*/
 	{
-		Mode=(Mode+1)%12;	
+		Mode=(Mode+1)%ModeNb;	
 		
 		/* Affichage par anticipation sur le callback 1 sec pour plus de réactivité*/
 		/* Affichage LCD toutes les secondes*/

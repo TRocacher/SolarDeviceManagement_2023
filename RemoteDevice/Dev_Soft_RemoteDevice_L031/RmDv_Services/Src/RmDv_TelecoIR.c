@@ -76,6 +76,7 @@ void RmDv_TelecoIR_BitByteIncOverflow(void);
 
 void RmDv_TelecoIR_SetCmde(RmDv_TelecoIR_Cmde Cmde)
 {
+	int TabIdx;
 	RmDv_TelecoIR_BitStart=0;
 	Timer_Enable_IT_Callback(RmDv_TelecoIR_Timer_Bit); /* permet d'activer le flag d'attente
 	 	 	 	 	 	 	 	 	 	 	 	 	 	 RmDv_TelecoIR_BitStart */
@@ -83,9 +84,21 @@ void RmDv_TelecoIR_SetCmde(RmDv_TelecoIR_Cmde Cmde)
 	RmDv_TelecoIR_IndexOctet=0;
 	RmDv_TelecoIR_IndexBit=1<<7; /* préparation sur bit de poids fort */
 
+	switch(Cmde)
+	{
+	case _Chaud_18_VanBas_FanAuto:TabIdx=0;break;
+	case _Chaud_19_VanBas_FanAuto:TabIdx=1;break;
+	case _Chaud_20_VanBas_FanAuto:TabIdx=2;break;
+	case _Chaud_21_VanBas_FanAuto:TabIdx=3;break;
+	case _Chaud_22_VanBas_FanAuto:TabIdx=4;break;
+	case _Chaud_23_VanBas_FanAuto:TabIdx=5;break;
+	default : TabIdx=0;
+	}
+
 	/***************************************************************
 			 Gestion de la cmde Stop
 	***************************************************************/
+
 
 	if (Cmde==_Stop)
 	{
@@ -132,7 +145,7 @@ void RmDv_TelecoIR_SetCmde(RmDv_TelecoIR_Cmde Cmde)
 				{
 					while(RmDv_TelecoIR_BitStart==0); /* Attente 430µs, début du bit, tps réel*/
 					RmDv_TelecoIR_BitStart=0;
-					RmDv_TelecoIR_CurrentByte= RmDv_TelecoIR_TabCode[Cmde][RmDv_TelecoIR_IndexOctet];
+					RmDv_TelecoIR_CurrentByte= RmDv_TelecoIR_TabCode[TabIdx][RmDv_TelecoIR_IndexOctet];
 					if ((RmDv_TelecoIR_CurrentByte&RmDv_TelecoIR_IndexBit)==RmDv_TelecoIR_IndexBit)
 					{
 						Timer_SetOutputMode(RmDv_TelecoIR_Timer_PWM,PWM); // Timer_EnablePWMChan(RmDv_TelecoIR_Timer_PWM,2);

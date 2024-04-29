@@ -465,7 +465,7 @@
         <Ww>
           <count>2</count>
           <WinNumber>2</WinNumber>
-          <ItemText>Mode</ItemText>
+          <ItemText>Mode,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

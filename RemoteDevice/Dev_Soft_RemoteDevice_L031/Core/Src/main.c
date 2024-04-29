@@ -57,7 +57,7 @@ int main(void)
 	// !!! revoir la prio si utilisé en watchdog. En IT simple, prio à 2 pour pas bloquer
 	// le systick
 	//	StartLPTM;
-	StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
+	//<<<<<>>>>/StartLPTMOneShot; /* Démarrage Timing Wdog LPTIM1*/
 
 
 /***************************************************************
@@ -72,7 +72,8 @@ int main(void)
 	  		Run code Standby
 ***************************************************************/
 	Main_StandByWkUpPgm();
-
+	//<<<<<>>>>/
+	while(1);/////////////////
 
 	/* Lancement WUT et sleep */
 	LowPower_L031_GoToStdbySleep();

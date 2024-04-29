@@ -115,4 +115,8 @@ void InfoLCD_MemStampStrInit(void);
   **/
 int InfoLCD_AddTimeStampToMem(TimeStampTypedef* TimeStamp, char ID);
 
+
+/* Test IR */
+RmDv_TelecoIR_Cmde InfoLCD_PrintNewSet(TerminalMode Mode);
+
 #endif 
