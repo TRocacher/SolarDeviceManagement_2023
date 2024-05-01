@@ -158,3 +158,26 @@ void LowPower_L031_DisableBKP(void)
 	//déverrouiller après backup domain reset
 	LL_RTC_EnableWriteProtection(RTC);
 }
+
+
+
+int LowPower_L031_Is_WkupStdBy_NotPinRst(void)
+{
+	int WkupStdBy;
+	/* test flag SBF*/
+	if 	(((PWR->CSR&PWR_CSR_SBF)==PWR_CSR_SBF) && ((RCC->CSR&RCC_CSR_PINRSTF)==0))
+	{
+		/* wkup from stdby*/
+		PWR->CR|=PWR_CR_CSBF;	 /* Effacement du flag indiquant que l'état précédent étair StdBy*/
+		WkupStdBy = 1;
+	}
+	else
+	{
+		/*wkup from bp rst*/
+		RCC->CSR|=RCC_CSR_RMVF; /* PINRST repasse à 0 pour pouvoir retomber dans MainTask au prochaine débordement RTC */
+		WkupStdBy = 0;
+	}
+
+	return WkupStdBy;
+
+}

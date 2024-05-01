@@ -15,6 +15,7 @@
 int Mode;
 
 void Transaction_RmDv(char ID);
+void ReceiveReset_RmDv(char ID);
 void Transaction_HMI(void);
 
 void Init_RmDvDataPtrTab(void);
@@ -41,6 +42,8 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 *****************************************************************************************************************/
 void UserBP(void);
 void OneSec_Callback(void);
+char OnSecITEnalble;				/* Flag qui autorise l'affichage périodique 1 sec 
+														utile en phase de reset RmDv lorsque la SGw indique la version*/
 
 RmDv_TelecoIR_Cmde NewTempSet = _Stop;		/* nouveau set de température à envoyer à remettre en local après test*/
 
@@ -62,7 +65,7 @@ int main (void)
 	/* Config UserBP*/
 	NVIC_Ext_IT (GPIOC, 13, FALLING_EGDE, INPUT_FLOATING, 14, UserBP);
 	HourStamp_1sec_CallbackAssociation(OneSec_Callback);
-	
+	OnSecITEnalble=1; /* validation affichage périodique 1 sec*/
 while(1)
 	{
 		/* Un message HMI est arrivé ? */
@@ -74,7 +77,8 @@ while(1)
 		if (FSKStack_IsNewMssg()==1) /* arrivée d'un ordre de l'un des 5 RmDv*/
 		{
 			RmDv_ID=FSKStack_GetSrcAdress();
-			Transaction_RmDv(RmDv_ID);	    /* Lancement routine associée ...*/			
+			if (FSKStack_IsBroadcast()==1)	ReceiveReset_RmDv(RmDv_ID);
+			else 	Transaction_RmDv(RmDv_ID);	    /* Lancement routine associée ...*/			
 		}
 		
 	}
@@ -83,6 +87,9 @@ while(1)
 
 void OneSec_Callback(void)
 {
+	if( OnSecITEnalble==1)
+	{
+	
 	/* Affichage LCD toutes les secondes*/
 	switch(Mode)
 	{
@@ -100,6 +107,7 @@ void OneSec_Callback(void)
 		case Ext_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
 		default : NewTempSet = InfoLCD_PrintNewSet(Mode);break;  /*les autres cas sont des temp set*/
 		//default:break;
+	}
 	}
 }
 
@@ -218,6 +226,25 @@ void Transaction_RmDv(char ID)
 	}
 	
 }
+
+
+/******************************************************************************************************************
+	 RmDv en phase de reset
+*****************************************************************************************************************/
+
+void ReceiveReset_RmDv(char ID)
+{
+	char Revision[10];
+	OnSecITEnalble=0;	/* blocage affichage courant 1sec*/
+	/*récupération du message*/
+	FSKStack_GetNewMssg (Revision, 8); 
+	/*Affichage info */
+	InfoLCD_PrintRevision(Revision,8,ID);
+	/* attente 5 sec*/
+	Delay_x_ms(5000);
+	OnSecITEnalble=1;	/* libération affichage courant 1sec*/
+}
+
 
 /******************************************************************************************************************
 		TRANSACTIONS HMI

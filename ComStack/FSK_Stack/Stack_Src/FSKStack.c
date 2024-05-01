@@ -11,7 +11,10 @@
  *  "réseau" identifié par une préampbule ##### démarrant toute trame.
  *  
  *  Lire pdf associé "LaPile_FSK_COM_STACK_UG_Light.pdf"
- *
+ * 
+ *			!! New 01/05/24 !! : indication spécifique broadcast pour pouvoir lire 
+	*				l'identifieur du RmDv avec son numéro de révision lors d'un reset BP ou pile RmDv
+	* 		ligne 648
 * =================================================================================*/
 
 
@@ -92,6 +95,7 @@ struct PhyUART_Mssg_type
 	char MACLenStrReceived;
 	char MACNewStrReceived;									// passe à 1 	près remplissage de MACStrReceived
 	char MACSrcAdress;
+	char Broadcast;													/* Ajout 01/05/24 pour identifier si Broadcast ou non*/
 	// ---< Fin Ajout MAC >-----//
 	char StrToSend[StringLenMax];
 	char LenStrToSend;
@@ -193,6 +197,12 @@ char FSKStack_IsNewMssg(void)
 	return (PhyUART_Mssg.MACNewStrReceived);
 }
 
+char FSKStack_IsBroadcast(void)
+{
+	return (PhyUART_Mssg.Broadcast);
+}
+
+
 
 /*------------------------------------------------------
    int FSKStack_GetNewMssg (char * AdrString, int Len)
@@ -209,6 +219,7 @@ int FSKStack_GetNewMssg (char * AdrString, int Len)
 	
 	// remise à 0 du flag de réception
 	PhyUART_Mssg.MACNewStrReceived=0;
+	PhyUART_Mssg.Broadcast=0;	/* 01/05/24 Ajout Broadcast*/
 	PhyUART_Mssg.NewStrReceived=0;
 	if (Len< PhyUART_Mssg.MACLenStrReceived) 
 	{
@@ -643,7 +654,10 @@ switch (PhyUART_FSM_State)
 				else if (i==1) // filtrage @Destination
 				{
 					if (((unsigned char)InComingMssg[i]==PhyUART_Mssg.My)||((unsigned char)InComingMssg[i]==255)) PhyUART_Mssg.MACMatch=1;
-					// NB -1 = 0xFF, broadcast
+					/* New 01/05/24 : indication spécifique broadcast pour pouvoir lire 
+					l'identifieur du RmDv avec son numéro de révision lors d'un reset BP ou pile RmDv*/
+					if ((unsigned char)InComingMssg[i]==255) PhyUART_Mssg.Broadcast=1;
+					
 				}
 				else if (PhyUART_Mssg.MACMatch==1) // sampling de MACstring
 				{
@@ -870,12 +884,14 @@ void FSKStack_Reset_Restart_KeepMy()
 	PhyUART_Mssg.LenStrReceived=0;
 	PhyUART_Mssg.NewStrReceived=0;
 	PhyUART_Mssg.MACMatch=0;
+	PhyUART_Mssg.Broadcast=0;
 	for (i=0;i<StringLenMax-4;i++)
 	{
 		PhyUART_Mssg.MACStrReceived[i]=0;
 	}
 	PhyUART_Mssg.MACLenStrReceived=0;
 	PhyUART_Mssg.MACNewStrReceived=0;
+	PhyUART_Mssg.Broadcast=0;
 	PhyUART_Mssg.MACSrcAdress=0;
 	for (i=0;i<StringLenMax;i++)
 	{

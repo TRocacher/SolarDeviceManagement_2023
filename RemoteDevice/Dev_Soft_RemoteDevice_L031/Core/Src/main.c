@@ -56,6 +56,7 @@ int main(void)
 	RmDv_ErrorWDG_LPTIMConf(PlantageTimeOut,prio_WDG, LPTIM1_User_Callback);
 	// !!! revoir la prio si utilisé en watchdog. En IT simple, prio à 2 pour pas bloquer
 	// le systick
+
 	StartLPTM;
 
 
@@ -71,7 +72,14 @@ int main(void)
 /***************************************************************
 	  		Run code Standby
 ***************************************************************/
-	Main_StandByWkUpPgm();
+	if  (LowPower_L031_Is_WkupStdBy_NotPinRst()==1)
+	{
+		Main_StandByWkUpPgm();
+	}
+	else /* user has pushed Reset but...*/
+	{
+		FactoryReset_StandByWkUpPgm();
+	}
 
 
 	/* Lancement WUT et sleep */

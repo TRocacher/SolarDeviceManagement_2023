@@ -39,4 +39,7 @@ void LowPower_L031_GoToStdbySleep(void);
 void LowPower_L031_EnableBKP(void);
 void LowPower_L031_DisableBKP(void);
 
+/* fonction de détection origine reser*/
+int LowPower_L031_Is_WkupStdBy_NotPinRst(void);
+
 #endif /* INC_RMDV_LOWPOWER_H_ */

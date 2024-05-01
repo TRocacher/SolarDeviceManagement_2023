@@ -31,6 +31,8 @@ typedef enum {
 
 RmDv_WkUp_CurrentState StandByWkUpPgm_GetCurrentState(void);
 void Main_StandByWkUpPgm(void);
+void FactoryReset_StandByWkUpPgm(void);
+
 
 void DevPgmWup(void);
 

@@ -194,4 +194,22 @@ void Main_StandByWkUpPgm(void)
 }
 
 
+void FactoryReset_StandByWkUpPgm(void)
+{
+/* Activation électronique + init soft pile*/
+	RmDv_EnableBoost;
+	Delay_x_ms(50); /* attendre 50ms pour que le ADT7410 se réveille*/
+	/* Initialisation du système de gestion des timeout via systick */
+	TimeManag_TimeOutInit();
+	/* Initialisation de la pile FSK */
+	FSKStack_Init(My_);
 
+/* Emission simple du numéro de révision*/
+	FSKStack_SendNewMssg (BroadCast,Revision, 8);
+	/* attente messg parti : 8 octets, disons 15.
+	 * un octet 10bits à 100µs/bit donne 1ms/octets.
+	 * Attente 15ms*/
+	Delay_x_ms(15);
+/* sleep for 10 sec */
+	LowPower_L031_WUTConf(10);
+}

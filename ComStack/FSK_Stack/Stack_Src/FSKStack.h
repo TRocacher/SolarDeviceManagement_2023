@@ -33,6 +33,8 @@ void FSKStack_Reset_Restart_KeepMy(void);
 
 char FSKStack_IsNewMssg(void);
 
+char FSKStack_IsBroadcast(void);
+
 int FSKStack_GetNewMssg (char * AdrString, int Len); 
 
 char FSKStack_GetSrcAdress(void);

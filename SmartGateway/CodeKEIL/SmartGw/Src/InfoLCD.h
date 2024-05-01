@@ -90,7 +90,13 @@ void InfoLCD_PrintHour(char * PtrLineUpStr,TimeStampTypedef* TimeStamp);
 
 
 
-
+/**
+* @brief  Affiche sur le LCD l'ID du RmDv ainsi que sa vession logicielle
+  * @Note
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_PrintRevision(char * RevisionStr,int Len, char ID);
 
 
 /*----------------------------------------------

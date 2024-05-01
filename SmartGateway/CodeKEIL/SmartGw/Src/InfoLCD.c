@@ -56,7 +56,8 @@ void InfoLCD_Init(void)
 	MyLCD_Init ();
 	MyLCD_Clear();
 	MyLCD_Set_cursor(0, 0);
-	MyLCD_Print(" LCD Ready...");
+	MyLCD_Print("SGw : ");
+	MyLCD_Print(RevisionSoft);
 	MyLCD_Set_cursor(0, 1);
 	MyLCD_Print("Push BP to scroll...");
 	
@@ -239,7 +240,27 @@ void InfoLCD_PrintRmDv_Stamp(int ID)
 }
 
 
-
+/**
+* @brief  Affiche sur le LCD l'ID du RmDv ainsi que sa vession logicielle
+  * @Note
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_PrintRevision(char * RevisionStr,int Len, char ID)
+{
+	char IDStr[2];
+	
+	IDStr[0] =ConvQuartetToAscii(ID>>4); /* dizaine*/
+	IDStr[1] =ConvQuartetToAscii(ID&0x0F); /* unité*/	
+	
+	MyLCD_Clear();
+	MyLCD_ClearLineUp();
+	MyLCD_Print("RmDv ID:");
+	MyLCD_Print_n(IDStr,2);
+	MyLCD_ClearLineDown();
+	MyLCD_Print("Soft.: ");
+	MyLCD_Print_n(RevisionStr,Len);
+}
 
 /*----------------------------------------------
 	MAINTENANCE , DEPANNAGE TRASMISSION
