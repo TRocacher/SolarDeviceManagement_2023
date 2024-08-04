@@ -389,11 +389,6 @@
               <FilePath>.\Src\InfoLCD.c</FilePath>
             </File>
             <File>
-              <FileName>SmartGwMain_4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\SmartGwMain_4.c</FilePath>
-            </File>
-            <File>
               <FileName>AlgoClim.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\AlgoClim.c</FilePath>
@@ -407,6 +402,11 @@
               <FileName>Debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\Debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>SmartGwMain_1_00.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\SmartGwMain_1_00.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -906,11 +906,6 @@
               <FilePath>.\Src\InfoLCD.c</FilePath>
             </File>
             <File>
-              <FileName>SmartGwMain_4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\SmartGwMain_4.c</FilePath>
-            </File>
-            <File>
               <FileName>AlgoClim.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\AlgoClim.c</FilePath>
@@ -924,6 +919,11 @@
               <FileName>Debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\Debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>SmartGwMain_1_00.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\SmartGwMain_1_00.c</FilePath>
             </File>
           </Files>
         </Group>

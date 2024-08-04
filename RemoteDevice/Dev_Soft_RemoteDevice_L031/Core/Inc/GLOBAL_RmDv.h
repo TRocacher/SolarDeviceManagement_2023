@@ -1,8 +1,10 @@
 /*
  * GLOBAL_RmDv..h
- *
- *  Created on: 28 févr. 2024
- *      Author: trocache
+ *   Created on: August 4, 2024
+ *   Author: trocache
+ *   Tool : CubeIDE 1.12.1,
+ *   Target : STM32L031
+ *   Revision : 1.00
  */
 
 #ifndef INC_GLOBAL_RMDV_H_

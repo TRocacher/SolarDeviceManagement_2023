@@ -1,3 +1,15 @@
+/* =================================================================================
+* ==================    SmartGwMain_xx.c	     =================================
+ *
+ *   Created on: 04/08/24
+ *   Author: T.Rocacher
+ *   Tool : KEIL V5.34
+ *   Target : STM32F103RTB6
+ *   Dépendance : _
+ *   Revision : 1.00
+ *  ------------------------------------------------------------------------------
+ *  Donne les constantes nécessaires à l'ensemble des échanges (haut niveau)
+* =================================================================================*/
 
 #include "FSKStack.h"
 #include "GLOBAL_SMARTGATEWAY.h"
