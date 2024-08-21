@@ -51,12 +51,12 @@ typedef struct
 {
 	/*réception*/
 	float Temperature;
-	char LastTempSet;
+	RmDv_TelecoIR_Cmde LastTempSet;
 	RmDv_WarningCode Status;
 	RmDv_WkUp_CurrentState PrevState;
 	
 	/*émission*/
-	char NewTempSet;
+	RmDv_TelecoIR_Cmde NewTempSet;
 	Delay_Typedef Delay;
 	
 	/* variable d'état */
@@ -97,8 +97,7 @@ void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID);
 
 
 /**
-  * @brief  Met à jour le NowStamp après avoir mémorisé l'actuel dans l'ancien
-						Previous <- Now et Now <- Date
+  * @brief  Met à jour le champ StampNow du RmDvData spécifié
   * @Note
   * @param  RmDvData : pointeur sur la structure à mettre à jour, 
 
@@ -115,7 +114,7 @@ void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData);
   * @param  
   * @retval 
   **/
-void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,char lastSet,char newSet, \
+void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,RmDv_TelecoIR_Cmde lastSet,RmDv_TelecoIR_Cmde newSet, \
 										RmDv_WarningCode status, RmDv_WkUp_CurrentState PrevState);
 
 
@@ -127,5 +126,14 @@ void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,char lastSet,char new
   **/
 int RmDvData_GenerateNextTimeInterval(RmDvDataTypedef* RmDvData);
 
+
+/**
+  * @brief  calcule de manière brute la prochaine date cible à partir de Now.
+  * @Note   ajoute 5seconde pour le RmDv n°1, 10sec pour ne n°2 etc... pour éviter
+						les collisions.
+  * @param  l'ID du RmDv, l'@ du Stamp A qui est la date à partir de laquelle le calcul est fait
+  * @retval  l @ du stamp cible
+  **/
+void RmDvData_CalculateStampTarget(int ID,TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp );
 
 #endif 

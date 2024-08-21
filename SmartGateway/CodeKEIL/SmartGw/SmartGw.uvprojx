@@ -408,6 +408,11 @@
               <FileType>1</FileType>
               <FilePath>.\Src\SmartGwMain_1_00.c</FilePath>
             </File>
+            <File>
+              <FileName>HMI_RmDv_Algo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\HMI_RmDv_Algo.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -924,6 +929,11 @@
               <FileName>SmartGwMain_1_00.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\SmartGwMain_1_00.c</FilePath>
+            </File>
+            <File>
+              <FileName>HMI_RmDv_Algo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\HMI_RmDv_Algo.c</FilePath>
             </File>
           </Files>
         </Group>

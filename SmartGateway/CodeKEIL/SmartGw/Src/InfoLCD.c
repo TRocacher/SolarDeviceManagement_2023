@@ -75,6 +75,8 @@ void InfoLCD_Init(void)
 	TabPtrStr_StatusMssg[Status_Error_TempI2C]=Error_TempI2C;
 	TabPtrStr_StatusMssg[Status_Error_NewTempSetNotReceived]=Error_NewSetNotRec;
 	TabPtrStr_StatusMssg[Status_NoStatusReceived]=Error_StatusNotRec;
+	/* Init Tableau Stamp string : Pour débuggage*/
+	InfoLCD_MemStampStrInit();
 }
 
 
@@ -359,7 +361,7 @@ int InfoLCD_AddTimeStampToMem(TimeStampTypedef* TimeStamp, char ID)
 /* Test IR */
 RmDv_TelecoIR_Cmde InfoLCD_PrintNewSet(TerminalMode Mode)
 {
-	RmDv_TelecoIR_Cmde CmdeClim;
+	RmDv_TelecoIR_Cmde CmdeClim = _Stop;
 	MyLCD_Clear();
 	MyLCD_ClearLineUp();
 	MyLCD_Print("Temp. Set :");

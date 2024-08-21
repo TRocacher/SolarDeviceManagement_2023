@@ -41,24 +41,24 @@ void MainFcts_SystemStart(void)
 
 
 /**
-* @brief  MainFcts_SetTime
-					Mets à l'heure le système (pour l'instant arbitraire)
-					Lance aussi la progression de l'index tps réel pour pointer les fuseaux hooraires
-					Initialise la table des fuseaux horaires
+* @brief  MainFcts_SetDefaultTime
+					Mets à l'heure le système arbitraire 
 * @note :_
 * @retval :_
 **/
 
 
-void MainFcts_SetTime(void)
+void MainFcts_SetArbitraryTime(void)
 {
 	TimeStampTypedef LocalStamp;
 	LocalStamp.Year=2024;
-	LocalStamp.Month=4;
-	LocalStamp.Day=14;
-	LocalStamp.Hour=20;
-	LocalStamp.Min=05;	
+	LocalStamp.Month=1;
+	LocalStamp.Day=1;
+	LocalStamp.Hour=12;
+	LocalStamp.Min=00;	
 	LocalStamp.Sec=0;
 	
 	TimeStamp_SetClock(&LocalStamp);
 }
+
+

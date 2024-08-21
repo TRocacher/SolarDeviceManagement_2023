@@ -1,0 +1,17 @@
+Modifier SysML et autre pdf :
+
+
+
+ 
+
+
+
+
+i
+
+
+
+Reprendre fonctionnalité LCD. 
+
+
+Ajout documents pdf, notamment la gestion du temps. SGw avancée, ajout algo HMI mode prog. Ajout message d'aide LCD lors de plantage while(1)

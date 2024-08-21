@@ -18,58 +18,9 @@
 
 
 
-
-
 /* ===============================================
-          la structure d'échange MACPhyUART 
+          les structures de données DataFromHMI
 ================================================== */
-
-/* ----  types structurés intermédiaires ....  ---- */
-
-/* Mode automatique */
-typedef struct 
-{
-	float TempMinExt;							/* 32 bits*/
-	float PowExcessStart;					/* 32 bits*/
-	float PowExcessStop;					/* 32 bits*/
-	char ClimPrio[4];							/* 32 bits*/
-	short int TempMinHC;					/* 16 bits*/
-	short int TempMinHP;					/* 16 bits*/	
-}DFH_AutoModeDataTypedef; 			/* Total 20 bytes*/
-
-/* Mode program */
-typedef struct 
-{
-	char Temperature_6h[4];					/* Total 24 bytes*/
-	char Temperature_8h[4];
-	char Temperature_10h[4];	
-	char Temperature_15h[4];	
-	char Temperature_18h[4];
-	char Temperature_23h[4];		
-}DFH_ProgramModeDataTypedef;
-
-
-/* Mode Hollidays */
-typedef struct 
-{
-	char Mode;	/* */
-	char TempHG_bleu;
-	char TempHG_blanc;
-	char TempHG_rouge;
-	TimeStampTypedef ArrivalDate;	/* 12 bytes*/	
-}DFH_HollidaysModeDataTypedef;  /* Total 16 bytes*/
-
-/* Power data & Option  */
-typedef struct 
-{
-	float PowExcess;							/* 32 bits*/
-	float PowL1_Home;							/* 32 bits*/
-	float PowInverter;						/* 32 bits*/
-	char  ReapeatBeep;						/* 8 bits*/
-	char  PrioVE;									/* 8 bits*/
-	char  CoupureNuit;						/* 8 bits*/
-	char  CouleurTempo;						/* 8 bits*/
-}DFH_PowDataOptTypedef;					/* Total 16 bytes*/
 
 
 
@@ -84,60 +35,67 @@ struct
 	DFH_PowDataOptTypedef OptPowData;						/* Total 16 bytes*/
 																				/* TOTAL 92 bytes*/
 
-}DFH_CentralData, test;														
+}DFH_CentralData;														
 
 
 
 
 
-void Test(void)
+void DFH_Init_CentralData(void)
 {
-//	int i;
+	int i;
 	
-	test.LastHMITimeStamp.Sec=01;
-	test.LastHMITimeStamp.Min=02;
-	test.LastHMITimeStamp.Hour=03;
-	test.LastHMITimeStamp.Day=4;
-	test.LastHMITimeStamp.Month=5;
-	test.LastHMITimeStamp.Year=2024;
+	/*TimeStampTypedef LastHMITimeStamp = 1 Jan 2024, 12h00 00sec*/
+	DFH_CentralData.LastHMITimeStamp.Sec=0;
+	DFH_CentralData.LastHMITimeStamp.Min=0;
+	DFH_CentralData.LastHMITimeStamp.Hour=12;
+	DFH_CentralData.LastHMITimeStamp.Day=1;
+	DFH_CentralData.LastHMITimeStamp.Month=1;
+	DFH_CentralData.LastHMITimeStamp.Year=2024;
 	
-	test.Mode=HMI_Mode_Auto;
+	DFH_CentralData.Mode=HMI_Mode_Program;
 	
-	test.Auto.TempMinExt=3.14159;
-	test.Auto.PowExcessStart=3.14159;
-	test.Auto.PowExcessStop=3.14159;
-	test.Auto.ClimPrio[0]=4;
-	test.Auto.ClimPrio[1]=3;
-	test.Auto.ClimPrio[2]=2;
-	test.Auto.ClimPrio[3]=1;
-	test.Auto.TempMinHC=01;
-	test.Auto.TempMinHP=02;
+	DFH_CentralData.Auto.TempMinExt=10.0;
+	DFH_CentralData.Auto.PowExcessStart=500.0;
+	DFH_CentralData.Auto.PowExcessStop=200.0;
+	DFH_CentralData.Auto.ClimPrio[0]=4;
+	DFH_CentralData.Auto.ClimPrio[1]=3;
+	DFH_CentralData.Auto.ClimPrio[2]=2;
+	DFH_CentralData.Auto.ClimPrio[3]=1;
+	DFH_CentralData.Auto.TempMinHC=18;
+	DFH_CentralData.Auto.TempMinHP=18;
 	
-//	for (i=0;i<24;i++)
-//	{
-//		test.Program.TempPerHour[i]=i;
-//	}
+	/* All temp = 17*/
+	for (i=0;i<3;i++)
+	{
+		DFH_CentralData.Program.Temperature_6h[i]=0;
+		DFH_CentralData.Program.Temperature_8h[i]=0;
+		DFH_CentralData.Program.Temperature_10h[i]=0;
+		DFH_CentralData.Program.Temperature_15h[i]=0;
+		DFH_CentralData.Program.Temperature_18h[i]=0;
+		DFH_CentralData.Program.Temperature_23h[i]=0;
+	}
 	
-	//test.Forced.Temp=15;
+	DFH_CentralData.Hollidays.Mode=HMI_Mode_Program;
+	DFH_CentralData.Hollidays.TempHG_bleu=0;
+	DFH_CentralData.Hollidays.TempHG_blanc=0;
+	DFH_CentralData.Hollidays.TempHG_rouge=0;
+	DFH_CentralData.Hollidays.ArrivalDate.Sec=00;
+	DFH_CentralData.Hollidays.ArrivalDate.Min=00;
+	DFH_CentralData.Hollidays.ArrivalDate.Hour=12;
+	DFH_CentralData.Hollidays.ArrivalDate.Day=2;
+	DFH_CentralData.Hollidays.ArrivalDate.Month=1;
+	DFH_CentralData.Hollidays.ArrivalDate.Year=2024;
 	
-	//test.Hollidays.Temp_ArrRedWhiteBlue=0x00332211;
-	test.Hollidays.ArrivalDate.Sec=01;
-	test.Hollidays.ArrivalDate.Min=02;
-	test.Hollidays.ArrivalDate.Hour=03;
-	test.Hollidays.ArrivalDate.Day=4;
-	test.Hollidays.ArrivalDate.Month=5;
-	test.Hollidays.ArrivalDate.Year=2024;
 	
-	test.OptPowData.PowExcess=3.14159;
-	test.OptPowData.PowL1_Home=3.14159;
-	test.OptPowData.PowInverter=3.14159;
-//	test.OptPowData.Option[0]=9;
-//	test.OptPowData.Option[1]=8;
-//	test.OptPowData.Option[2]=7;
-//	test.OptPowData.Option[3]=6;
-	
-	DFH_Update_All((char*)&test, 96);
-	
+	DFH_CentralData.OptPowData.PowExcess=1000.0;
+	DFH_CentralData.OptPowData.PowL1_Home=100.0;
+	DFH_CentralData.OptPowData.PowInverter=1000.0;
+	DFH_CentralData.OptPowData.ReapeatBeep=0;
+	DFH_CentralData.OptPowData.PrioVE=0;
+	DFH_CentralData.OptPowData.CoupureNuit=0;
+	DFH_CentralData.OptPowData.CouleurTempo=1;
+		
 }
 
 
@@ -149,39 +107,90 @@ float TempMinExt;				/* 32 bits*/
 	char TempMinHP;					/* 8 bits*/	
 
 
-/* ===============================================
-          Les fonctions du module...
-================================================== */
 
 
-/**
-  * @brief  
-  * @Note
-  * @param  
-  * @retval 
-  **/
-char DFH_ExtractReqCode(char * AdrString)
-{
-	return (*AdrString);
-	
-}
-
-
-
+/*====================================================================================
+============== Fonctions de lecture des champs de la variable Central Data    ========
+======================================================================================*/
 
 /**
-  * @brief  
+  * @brief  Renvoie l'adresse du TimeStamp de la CentralData
   * @Note
   * @param  
-  * @retval 
+  * @retval @ variable
   **/
-TimeStampTypedef* DFH_ReadStampFromCentralData(void)
+TimeStampTypedef* DFH_GetCentralData_Stamp(void)
 {
 	return (&DFH_CentralData.LastHMITimeStamp);
 	
 }
 
+/**
+  * @brief  Renvoie l'adresse du Mode de la CentralData
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_HMIMode* DFH_GetCentralData_Mode(void)
+{
+	return (&DFH_CentralData.Mode);
+	
+}
 
+/**
+  * @brief  Renvoie les paramètres du mode Auto
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_AutoModeDataTypedef* DFH_GetCentralData_AutoParam(void)
+{
+	return (&DFH_CentralData.Auto);
+	
+}
+
+
+/**
+  * @brief  Renvoie les paramètres du mode Programmation
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_ProgramModeDataTypedef* DFH_GetCentralData_ProgParam(void)
+{
+	return (&DFH_CentralData.Program);
+	
+}
+
+
+/**
+  * @brief  Renvoie les paramètres du mode Holliday
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_HollidaysModeDataTypedef* DFH_GetCentralData_HollidayParam(void)
+{
+	return (&DFH_CentralData.Hollidays);
+	
+}
+
+/**
+  * @brief  Renvoie les données d'option et de puissance
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_PowDataOptTypedef* DFH_GetCentralData_OptPowerData(void)
+{
+	return (&DFH_CentralData.OptPowData);
+	
+}
+
+/*====================================================================================
+============== Fonctions de mise à jour des champs de la variable Central Data    ====
+==============  par la HMI (recopie de la châine reçue via UART)                  ====
+======================================================================================*/
 
 /**
   * @brief  
@@ -286,35 +295,35 @@ void DFH_UpdateModeAuto(char * AdrString)
 	
 	*/
 	
-	int i;
-	char * PtrChar, * PtrParam;
-	TimeStampTypedef * PtrTime;
-	
-	/* Time stamp fill*/
-	PtrTime=&(DFH_CentralData.LastHMITimeStamp);
-	PtrChar=(char *)PtrTime;
-	PtrParam=AdrString+OFFSET_AUTO_Stamp;
-	for (i=0;i<12;i++)
-	{
-		*PtrChar=*PtrParam;
-		PtrChar++;
-		PtrParam++;
-	}
-	/* Mode/TempMinHC/TempMinHP   */	
-	DFH_CentralData.Mode=*(AdrString+OFFSET_AUTO_Mode);
-	DFH_CentralData.Auto.TempMinHC=*(AdrString+OFFSET_AUTO_TempMinHC);
-	DFH_CentralData.Auto.TempMinHP=*(AdrString+OFFSET_AUTO_TempMinHP);
-	
-	/* Time stamp fill*/
-	PtrTime=&(DFH_CentralData.LastHMITimeStamp);
-	PtrChar=(char *)PtrTime;
-	PtrParam=AdrString+OFFSET_AUTO_Stamp;
-	for (i=0;i<12;i++)
-	{
-		*PtrChar=*PtrParam;
-		PtrChar++;
-		PtrParam++;
-	}
+//	int i;
+//	char * PtrChar, * PtrParam;
+//	TimeStampTypedef * PtrTime;
+//	
+//	/* Time stamp fill*/
+//	PtrTime=&(DFH_CentralData.LastHMITimeStamp);
+//	PtrChar=(char *)PtrTime;
+//	PtrParam=AdrString+OFFSET_AUTO_Stamp;
+//	for (i=0;i<12;i++)
+//	{
+//		*PtrChar=*PtrParam;
+//		PtrChar++;
+//		PtrParam++;
+//	}
+//	/* Mode/TempMinHC/TempMinHP   */	
+//	DFH_CentralData.Mode=*(AdrString+OFFSET_AUTO_Mode);
+//	DFH_CentralData.Auto.TempMinHC=*(AdrString+OFFSET_AUTO_TempMinHC);
+//	DFH_CentralData.Auto.TempMinHP=*(AdrString+OFFSET_AUTO_TempMinHP);
+//	
+//	/* Time stamp fill*/
+//	PtrTime=&(DFH_CentralData.LastHMITimeStamp);
+//	PtrChar=(char *)PtrTime;
+//	PtrParam=AdrString+OFFSET_AUTO_Stamp;
+//	for (i=0;i<12;i++)
+//	{
+//		*PtrChar=*PtrParam;
+//		PtrChar++;
+//		PtrParam++;
+//	}
 	
 }
 

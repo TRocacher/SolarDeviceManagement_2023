@@ -106,7 +106,7 @@ void TimerStamp_Start(void);
   * @brief  Renvoie l'horodatage réel via le pointeur d'entrée
   * @retval void
   **/
-void TimeStamp_GetClock(TimeStampTypedef * LocalStamp);
+void TimeStamp_GetClock(TimeStampTypedef* LocalStamp);
 
 
 /**
@@ -120,6 +120,31 @@ TimeStampTypedef * TimeStamp_GetClockStampAdr(void);
   * @param pointeur sur le stamp contenant l'heure voulue
   **/
 void TimeStamp_SetClock(TimeStampTypedef * Stamp);
+
+
+/**
+  * @brief  Lit la variable globale ClockUpdated
+	*					
+  **/
+char TimeStamp_GetClockUpdated_Flag(void);
+
+
+/**
+  * @brief  Mets la variable globale ClockUpdated à 0
+	*					
+  **/
+void TimeStamp_ClearClockUpdated_Flag(void);
+
+
+/**
+  * @brief  Mets la variable globale ClockUpdated à 1
+	*					
+  **/
+void TimeStamp_SetClockUpdated_Flag(void);
+
+
+
+
 
 
 /**
@@ -145,7 +170,7 @@ int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB );
 
 
 /**
-  * @brief  Private Incrémente de 1 seconde le timestamp donné en argument
+  * @brief  Public Incrémente de 1 jour le timestamp donné en argument
 	* @param  pointeur sur la variable timestamp à incrémenter
   **/
 void TimeStamp_DayInc(TimeStampTypedef * Ptr);

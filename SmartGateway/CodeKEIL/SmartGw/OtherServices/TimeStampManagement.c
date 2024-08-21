@@ -12,7 +12,9 @@ void (*PtrFct)(void)=0;
 /*---------------------------------
  Variable pricipale TimeStampClock
 ----------------------------------*/
-TimeStampTypedef TimeStampClock={0,0,0,1,1,2024}; 
+TimeStampTypedef TimeStampClock; 
+char TimeStampClockUpdated;		/* indique que l'horloge système a été mise à jour*/
+int TimeStampDeltaStamp; 			/* Donne l'écart Stamp SGw - Stamp HMI */
 
 
 /*---------------------------------
@@ -33,6 +35,34 @@ int TimeStamp_GetDayAbsolute(TimeStampTypedef * Ptr);
 ----------------------------------*/
 
 /**
+  * @brief  Lit la variable globale ClockUpdated
+	*					
+  **/
+char TimeStamp_GetClockUpdated_Flag(void)
+{
+	return TimeStampClockUpdated;
+}
+
+/**
+  * @brief  Mets la variable globale ClockUpdated à 0
+	*					
+  **/
+void TimeStamp_ClearClockUpdated_Flag(void)
+{
+	TimeStampClockUpdated=0;
+}
+
+/**
+  * @brief  Mets la variable globale ClockUpdated à 1
+	*					
+  **/
+void TimeStamp_SetClockUpdated_Flag(void)
+{
+	TimeStampClockUpdated=1;
+}
+
+
+/**
   * @brief  Initialise TIMER_TimeStamp à une seconde et le lance.
 	*					associe le callback
   **/
@@ -42,6 +72,16 @@ void TimerStamp_Start(void)
 	Timer_Set_Period(TIMER_TimeStamp, 10000-1,7200-1 ); // période 1 sec 
 	//Timer_Set_Period(TIMER_TimeStamp, 100-1, 7200-1 ); // période 10m sec, cad 30mn = 18 secondes réel
 	Timer_IT_Enable( TIMER_TimeStamp, 0, TimeStamp_Update);
+	/* initialisation de clock arbitraire	TimeStampClock={0,0,0,1,1,2024}; */
+	TimeStampClock.Sec=0;
+	TimeStampClock.Min=0;
+	TimeStampClock.Hour=12;
+	TimeStampClock.Day=1;
+	TimeStampClock.Month=1;
+	TimeStampClock.Year=2024;
+	/* Flag d'attente HMI pour mise à l'heure à 0*/
+	TimeStampClockUpdated=0;
+	TimeStampDeltaStamp=0;
 }
 
 /**

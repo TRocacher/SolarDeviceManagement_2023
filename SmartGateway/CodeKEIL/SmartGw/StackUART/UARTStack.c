@@ -67,6 +67,7 @@ _TimeOut,  : si le timer est arrivé à échéance et sur la chaîne est incomplète
 
 
 #include "UARTStack.h"
+#include "MyLCD.h" /* Pour debug ...*/
 
 char HMISting[120]; // régler en fct de la châine max !!
 int char_pos;
@@ -138,9 +139,14 @@ void HMI_UART_Callback(void)
 		 char_pos++;
 	}
   else
-	{
-		while(1); /* PLANTAGE */
-	}
+		{
+			MyLCD_Clear();
+			MyLCD_Set_cursor(0, 0);
+			MyLCD_Print("Plantage Fct :");
+			MyLCD_Set_cursor(0, 1);
+			MyLCD_Print("HMI_UART_Callback");
+			while(1); 
+		}	
 		
 
 	

@@ -30,6 +30,57 @@ typedef enum {
 }DFH_HMIMode;
 
 
+/* ----  types structurés intermédiaires pour la var HMI_CentralData  ---- */
+
+/* Mode automatique */
+typedef struct 
+{
+	float TempMinExt;							/* 32 bits*/
+	float PowExcessStart;					/* 32 bits*/
+	float PowExcessStop;					/* 32 bits*/
+	char ClimPrio[4];							/* 32 bits*/
+	short int TempMinHC;					/* 16 bits*/
+	short int TempMinHP;					/* 16 bits*/	
+}DFH_AutoModeDataTypedef; 			/* Total 20 bytes*/
+
+/* Mode program */
+typedef struct 
+{
+	char Temperature_6h[4];					/* Total 24 bytes*/
+	char Temperature_8h[4];
+	char Temperature_10h[4];	
+	char Temperature_15h[4];	
+	char Temperature_18h[4];
+	char Temperature_23h[4];		
+}DFH_ProgramModeDataTypedef;
+
+
+/* Mode Hollidays */
+typedef struct 
+{
+	char Mode;	/* */
+	char TempHG_bleu;
+	char TempHG_blanc;
+	char TempHG_rouge;
+	TimeStampTypedef ArrivalDate;	/* 12 bytes*/	
+}DFH_HollidaysModeDataTypedef;  /* Total 16 bytes*/
+
+/* Power data & Option  */
+typedef struct 
+{
+	float PowExcess;							/* 32 bits*/
+	float PowL1_Home;							/* 32 bits*/
+	float PowInverter;						/* 32 bits*/
+	char  ReapeatBeep;						/* 8 bits*/
+	char  PrioVE;									/* 8 bits*/
+	char  CoupureNuit;						/* 8 bits*/
+	char  CouleurTempo;						/* 8 bits*/
+}DFH_PowDataOptTypedef;					/* Total 16 bytes*/
+
+
+
+
+
 /* Code des trames émises par la HMI */
 #define HMICode_UpdateAll
 #define HMICode_UpdateTime
@@ -41,8 +92,13 @@ typedef enum {
 #define HMICode_UpdatePowerOption
 
 
-
-void Test(void);
+/**
+  * @brief   initialise la variable en attendant la première réception IHM...
+  * @Note		 Voir le source ou le pdf SGw pour voir les valeurs d'init
+  * @param  
+  * @retval 
+  **/
+void DFH_Init_CentralData(void);
 
 /**
   * @brief  
@@ -110,13 +166,67 @@ void DFH_UpdateModeHollidays(char * AdrString, int Len);
 void DFH_UpdateModeOff(void); /* System inactif mais dt les RmDv continuent à transmettre 1 fois par 24h*/
 
 
+
+
+/*====================================================================================
+============== Fonctions de lecture des champs de la variable Central Data    ========
+======================================================================================*/
+
+
 /**
-  * @brief  
+  * @brief  Renvoie l'adresse du TimeStamp de la CentralData
   * @Note
   * @param  
-  * @retval 
+  * @retval @ variable
   **/
-TimeStampTypedef* DFH_ReadStampFromCentralData(void);
+TimeStampTypedef* DFH_GetCentralData_Stamp(void);
+
+
+/**
+  * @brief  Renvoie l'adresse du Mode de la CentralData
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_HMIMode* DFH_GetCentralData_Mode(void);
+
+
+/**
+  * @brief  Renvoie les paramètres du mode Auto
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_AutoModeDataTypedef* DFH_GetCentralData_AutoParam(void);
+
+
+/**
+  * @brief  Renvoie les paramètres du mode Programmation
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_ProgramModeDataTypedef* DFH_GetCentralData_ProgParam(void);
+
+
+
+/**
+  * @brief  Renvoie les paramètres du mode Holliday
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_HollidaysModeDataTypedef* DFH_GetCentralData_HollidayParam(void);
+
+
+/**
+  * @brief  Renvoie les données d'option et de puissance
+  * @Note
+  * @param  
+  * @retval @ variable
+  **/
+DFH_PowDataOptTypedef* DFH_GetCentralData_OptPowerData(void);
+
 
 
 #endif 

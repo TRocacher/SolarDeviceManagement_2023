@@ -28,14 +28,14 @@ void MainFcts_SystemStart(void);
 
 
 /**
-* @brief  MainFcts_SetTime
+* @brief  MainFcts_SetArbitraryTime
 					Mets à l'heure le système (pour l'instant arbitraire)
 					Lance aussi la progression de l'index tps réel pour pointer les fuseaux hooraires
 					Initialise la table des fuseaux horaires
 * @note :_
 * @retval :_
 **/
-void MainFcts_SetTime(void);
+void MainFcts_SetArbitraryTime(void);
 
 
 

@@ -17,7 +17,7 @@
 #include "DataFromRmDv.h"
 #include "TimeStampManagement.h"
 #include "GLOBAL_SMARTGATEWAY.h"
-
+#include "MyLCD.h" /* Pour debug ...*/
 
 /* Proto fcts privées*/
 void RmDvData_CalculateStampTarget(int ID,TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp );
@@ -29,7 +29,7 @@ void RmDvData_CalculateStampTarget(int ID,TimeStampTypedef* PtrA, TimeStampTyped
  DEFINITIONS DES VARIABLES RMDVDATA
 ----------------------------------*/
 RmDvDataTypedef RmDvData_Salon, RmDvData_SaManger,\
-								RmDvData__Entree, RmDvData_Couloir, RmDvData_Ext;
+								RmDvData_Entree, RmDvData_Couloir, RmDvData_Ext;
 
 
 
@@ -48,10 +48,17 @@ RmDvDataTypedef* RmDvData_GetObjectAdress( int ID)
 	RmDvDataTypedef* Adr;
 	if (ID == ID_Clim_Salon) Adr = &RmDvData_Salon;
 	else if (ID == ID_Clim_SaManger) Adr = &RmDvData_SaManger;
-	else if (ID == ID_Clim_Entree) Adr = &RmDvData__Entree;
+	else if (ID == ID_Clim_Entree) Adr = &RmDvData_Entree;
 	else if (ID == ID_Clim_Couloir) Adr = &RmDvData_Couloir;	
 	else if (ID == ID_Ext) Adr = &RmDvData_Ext;
-	else while(1); ///// plantage
+	else 
+	{
+		MyLCD_Set_cursor(0, 0);
+		MyLCD_Print("Plantage Fct :");
+		MyLCD_Set_cursor(0, 1);
+		MyLCD_Print("RmDvData_GetObjectAdress");
+		while(1); // provisoire...
+	}	
 	return Adr;
 }
 
@@ -68,8 +75,8 @@ RmDvDataTypedef* RmDvData_GetObjectAdress( int ID)
 void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID)
 {
 	RmDvData->ID = ID;
-	RmDvData->LastTempSet=0;
-	RmDvData->NewTempSet=0;
+	RmDvData->LastTempSet=_Stop;
+	RmDvData->NewTempSet=_Stop;
 	RmDvData->ReadyToRead = 0;
 	RmDvData->Status = Status_NoWarning;
 	RmDvData->Temperature = 0.0;
@@ -112,8 +119,8 @@ void RmDvData_StampReceivedData(RmDvDataTypedef* RmDvData)
 						NewReceivedData : pointeur sur les données fraîches
   * @retval 
   **/
-void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,char lastSet,char newSet, \
-										RmDv_WarningCode status, RmDv_WkUp_CurrentState PrevState)
+void RmDvData_Update(RmDvDataTypedef* RmDvData, float Temp,RmDv_TelecoIR_Cmde lastSet, \
+										RmDv_TelecoIR_Cmde newSet, RmDv_WarningCode status, RmDv_WkUp_CurrentState PrevState)
 /* Mets à jour les données du RmDv en question*/
 {
 	RmDvData->NewTempSet = newSet;
@@ -203,13 +210,12 @@ int RmDvData_GenerateNextTimeInterval(RmDvDataTypedef* RmDvData)
 ----------------------------------*/
 
 /**
-  * @brief  
-  * @Note
-  * @param  
-  * @retval 
+  * @brief  calcule de manière brute la prochaine date cible à partir de Now.
+  * @Note   ajoute 5seconde pour le RmDv n°1, 10sec pour ne n°2 etc... pour éviter
+						les collisions.
+  * @param  l'ID du RmDv, l'@ du Stamp A qui est la date à partir de laquelle le calcul est fait
+  * @retval  l @ du stamp cible
   **/
-
-
 void RmDvData_CalculateStampTarget(int ID,TimeStampTypedef* PtrA, TimeStampTypedef* TargetStamp )
 {
 

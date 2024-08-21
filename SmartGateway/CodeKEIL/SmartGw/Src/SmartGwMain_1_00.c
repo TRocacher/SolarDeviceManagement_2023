@@ -13,7 +13,7 @@
 
 #include "FSKStack.h"
 #include "GLOBAL_SMARTGATEWAY.h"
-#include "RmDv_SGw_Protocol.h"
+//#include "RmDv_SGw_Protocol.h"
 #include "TimeManagement.h"
 
 #include "InfoLCD.h"
@@ -23,6 +23,7 @@
 #include "DataFromRmDv.h"
 
 #include "MainFcts.h"
+#include "HMI_RmDv_Algo.h"
 
 int Mode;
 
@@ -47,6 +48,7 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 
 
 
+
 /******************************************************************************************************************
 
 	MAIN PROGRAM
@@ -57,23 +59,20 @@ void OneSec_Callback(void);
 char OnSecITEnalble;				/* Flag qui autorise l'affichage périodique 1 sec 
 														utile en phase de reset RmDv lorsque la SGw indique la version*/
 
-RmDv_TelecoIR_Cmde NewTempSet = _Stop;		/* nouveau set de température à envoyer à remettre en local après test*/
-
-
 int main (void)
 {
 
 	/* Lancement du système (pile FSK, UART, Timeout) */
 	MainFcts_SystemStart();
 	/* Mise à l'heure du système (set time et init fuseaux horaire et IdxTps réel */
-	MainFcts_SetTime();
+	MainFcts_SetArbitraryTime();
+	/* init DFH_CentralData en attendant Mssg HMI*/
+	DFH_Init_CentralData();
 	/*Initialisation des pointeurs sur les RmDv et
 	  Initialisation de la table de pointeurs Tab_RmDvData*/
 	Init_RmDvDataPtrTab();
 	/* Initialisation du module d'affichage LCD*/
 	InfoLCD_Init();
-	/* Init Tableau Stamp string*/
-	InfoLCD_MemStampStrInit();
 	/* Config UserBP*/
 	NVIC_Ext_IT (GPIOC, 13, FALLING_EGDE, INPUT_FLOATING, 14, UserBP);
 	HourStamp_1sec_CallbackAssociation(OneSec_Callback);
@@ -116,8 +115,8 @@ void OneSec_Callback(void)
 		case Couloir_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Couloir);break;
 		case Couloir_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Couloir);break;
 		case Ext_1:InfoLCD_PrintRmDv_Stamp(ID_Ext);break;
-		case Ext_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
-		default : NewTempSet = InfoLCD_PrintNewSet(Mode);break;  /*les autres cas sont des temp set*/
+		default:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
+		//default : NewTempSet = InfoLCD_PrintNewSet((TerminalMode)Mode);break;  /*les autres cas sont des temp set*/
 		//default:break;
 	}
 	}
@@ -136,7 +135,7 @@ void Transaction_RmDv(char ID)
 	int L;											/* Longueur du string */
 	float TemperatureMesuree;		/* Température mesurée au niveau du RmDv*/
 	RmDv_TelecoIR_Cmde lastTempSet;						/* dernière consigne reçu par le RmDv lors de la précédente requête */
-//	char NewTempSet;						/* nouveau set de température à envoyer*/
+	RmDv_TelecoIR_Cmde NewTempSet = _Stop;
 
 	char Success;								/* indicateur de succès de l'échange global */
 	RmDv_WarningCode Status;		/* statut final de l'échange */
@@ -172,9 +171,22 @@ void Transaction_RmDv(char ID)
 		/* Réponse vers le RmDv */
 		
 		/*-----------------------------------------------------------
-		Calcul nouvelle consigne nouveau délai, corrigé (stamp transaction inclu)
+		Calcul nouvelle consigle et nouveau délai, corrigé (stamp transaction inclu)
 		------------------------------------------------------------*/
-		CorrInterval_ToSend=RmDvData_GenerateNextTimeInterval(PtrRmDvData);
+		if (TimeStamp_GetClockUpdated_Flag()==1) /* L'horloge a été intialisée par l'HMI*/
+		{
+			CorrInterval_ToSend=RmDvData_GenerateNextTimeInterval(PtrRmDvData);
+			NewTempSet=HMIRmDvAlgo_ComputeTempCmde(ID); /* se fait en fonction du mode*/
+		}
+		else /* L'horloge n'est pas encore à jour, on demande un arrêt clim 
+			et un nouveau réveil dans 5mn */
+		{
+			CorrInterval_ToSend = 5*60; /* NB dans ce cas, le délai n'est pas corrigé*/ 
+			NewTempSet = _Stop;
+		}
+		
+
+
 				
 		/*-----------------------------------------------------------
 		Envoie nouvelle consigne et nouveau délai
@@ -279,7 +291,11 @@ void Transaction_HMI(void)
 		/* Mise à jour Central Data*/
 		DFH_Update_All(PtrOnString,L);
 		/* lecture du pointeur Stamp de Central Data */
-		PtrTimeStamp=DFH_ReadStampFromCentralData();
+		PtrTimeStamp=DFH_GetCentralData_Stamp();
+		/* Mise à l'heure si l'écart entre le stamp local et le stamp HMI sont éloignées de plus de 5 secondes*/
+		... a faire...
+		
+		
 		/* Affichage LCD de l'heure*/
 		InfoLCD_PrintHour("Heure HMI",PtrTimeStamp);	
 	}
