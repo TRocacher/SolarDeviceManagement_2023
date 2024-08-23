@@ -50,6 +50,8 @@ void MainFcts_SystemStart(void)
 
 void MainFcts_SetArbitraryTime(void)
 {
+
+	
 	TimeStampTypedef LocalStamp;
 	LocalStamp.Year=2024;
 	LocalStamp.Month=1;
@@ -59,6 +61,9 @@ void MainFcts_SetArbitraryTime(void)
 	LocalStamp.Sec=0;
 	
 	TimeStamp_SetClock(&LocalStamp);
+	/* Flag d'attente HMI pour mise à l'heure à 0*/
+	TimeStamp_ClearClockUpdated_Flag();
+	TimeStamp_SetTimeStampDeltaStamp(0);
 }
 
 

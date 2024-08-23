@@ -73,8 +73,10 @@ int main (void)
 	Init_RmDvDataPtrTab();
 	/* Initialisation du module d'affichage LCD*/
 	InfoLCD_Init();
-	/* Config UserBP*/
+	/* Config PC13 Tamp */
 	NVIC_Ext_IT (GPIOC, 13, FALLING_EGDE, INPUT_FLOATING, 14, UserBP);
+	/* Config PA0 WakeUp */
+	NVIC_Ext_IT (GPIOA, 0, FALLING_EGDE, INPUT_FLOATING, 14, UserBP);
 	HourStamp_1sec_CallbackAssociation(OneSec_Callback);
 	OnSecITEnalble=1; /* validation affichage périodique 1 sec*/
 while(1)
@@ -265,7 +267,7 @@ void ReceiveReset_RmDv(char ID)
 	/*Affichage info */
 	InfoLCD_PrintRevision(Revision,8,ID);
 	/* attente 5 sec*/
-	Delay_x_ms(5000);
+	Delay_x_ms(2000);
 	OnSecITEnalble=1;	/* libération affichage courant 1sec*/
 }
 
@@ -280,8 +282,8 @@ UARTStack_ErrorType MyError;		/* Variable indiquant une erreur de la pile UARTSt
 
 void Transaction_HMI(void)
 {
-	int L;
-	TimeStampTypedef * PtrTimeStamp;
+	int L, DeltaStamp;
+	TimeStampTypedef * PtrTimeStampHMI, *PtrTimeStampLocal;
 	
 	MyError=UARTStack_GetErrorStatus();
 	if( MyError == _NoError) 
@@ -290,14 +292,20 @@ void Transaction_HMI(void)
 		L=UARTStack_GetLen();
 		/* Mise à jour Central Data*/
 		DFH_Update_All(PtrOnString,L);
-		/* lecture du pointeur Stamp de Central Data */
-		PtrTimeStamp=DFH_GetCentralData_Stamp();
 		/* Mise à l'heure si l'écart entre le stamp local et le stamp HMI sont éloignées de plus de 5 secondes*/
-		... a faire...
-		
-		
+		PtrTimeStampHMI=DFH_GetCentralData_Stamp(); 		/* obtention du pointeur Stamp de Central Data */
+		PtrTimeStampLocal=TimeStamp_GetClockStampAdr();	/* Obtention du pointeur clock */
+		DeltaStamp =TimeStamp_substract(PtrTimeStampLocal,PtrTimeStampHMI ); /* Local - HMI stamps*/
+		TimeStamp_SetTimeStampDeltaStamp(DeltaStamp);
+		/* mise à jour conditionnel du flag de mise à l'heure système local*/
+		if (DeltaStamp>=5 || DeltaStamp<=-5) /* condition de mise à l'heure*/
+		{
+			TimeStamp_SetClock(PtrTimeStampHMI);
+			TimeStamp_SetClockUpdated_Flag();
+		}
+			
 		/* Affichage LCD de l'heure*/
-		InfoLCD_PrintHour("Heure HMI",PtrTimeStamp);	
+		InfoLCD_PrintHour("Heure HMI",PtrTimeStampHMI);	
 	}
 	
 }

@@ -143,6 +143,25 @@ void TimeStamp_ClearClockUpdated_Flag(void);
 void TimeStamp_SetClockUpdated_Flag(void);
 
 
+/**
+  * @brief  Lit la variable globale TimeStampDeltaStamp
+	qui donne l'écart Stamp SGw - Stamp HMI 
+	*					
+  **/
+int TimeStamp_GetTimeStampDeltaStamp(void);
+
+
+/**
+  * @brief  écrit la variable globale TimeStampDeltaStamp
+	qui donne l'écart Stamp SGw - Stamp HMI 
+	*					
+  **/
+void TimeStamp_SetTimeStampDeltaStamp(int delta);
+
+
+
+
+
 
 
 

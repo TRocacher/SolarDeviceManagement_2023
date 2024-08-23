@@ -33,7 +33,6 @@ int TimeStamp_GetDayAbsolute(TimeStampTypedef * Ptr);
 /*---------------------------------
  FONCTIONS PUBLIQUES
 ----------------------------------*/
-
 /**
   * @brief  Lit la variable globale ClockUpdated
 	*					
@@ -41,6 +40,29 @@ int TimeStamp_GetDayAbsolute(TimeStampTypedef * Ptr);
 char TimeStamp_GetClockUpdated_Flag(void)
 {
 	return TimeStampClockUpdated;
+}
+
+
+
+/**
+  * @brief  Lit la variable globale TimeStampDeltaStamp
+	qui donne l'écart Stamp SGw - Stamp HMI 
+	*					
+  **/
+int TimeStamp_GetTimeStampDeltaStamp(void)
+{
+	return TimeStampDeltaStamp;
+}
+
+
+/**
+  * @brief  écrit la variable globale TimeStampDeltaStamp
+	qui donne l'écart Stamp SGw - Stamp HMI 
+	*					
+  **/
+void TimeStamp_SetTimeStampDeltaStamp(int delta)
+{
+	TimeStampDeltaStamp=delta;
 }
 
 /**
@@ -62,6 +84,10 @@ void TimeStamp_SetClockUpdated_Flag(void)
 }
 
 
+
+
+
+
 /**
   * @brief  Initialise TIMER_TimeStamp à une seconde et le lance.
 	*					associe le callback
@@ -72,16 +98,7 @@ void TimerStamp_Start(void)
 	Timer_Set_Period(TIMER_TimeStamp, 10000-1,7200-1 ); // période 1 sec 
 	//Timer_Set_Period(TIMER_TimeStamp, 100-1, 7200-1 ); // période 10m sec, cad 30mn = 18 secondes réel
 	Timer_IT_Enable( TIMER_TimeStamp, 0, TimeStamp_Update);
-	/* initialisation de clock arbitraire	TimeStampClock={0,0,0,1,1,2024}; */
-	TimeStampClock.Sec=0;
-	TimeStampClock.Min=0;
-	TimeStampClock.Hour=12;
-	TimeStampClock.Day=1;
-	TimeStampClock.Month=1;
-	TimeStampClock.Year=2024;
-	/* Flag d'attente HMI pour mise à l'heure à 0*/
-	TimeStampClockUpdated=0;
-	TimeStampDeltaStamp=0;
+
 }
 
 /**

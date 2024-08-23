@@ -1,17 +1,25 @@
-Modifier SysML et autre pdf :
+Version 1.02, HMI et RmDv fonctionnent en mode programmation. Revoir HMI pour périodiser requête UART
+, Poursuivre LCD.
 
 
 
- 
+!!! pb latence RmDv qd HMI fonctionne : qd perte de connection onduleur ! sinon OK
+!!! attention l'HMI n'envoie pas des mise à jour régulière il faut forcer . Donc HMI à  revoir 
+à ce niveau
+
+ajouter sysML ds timeStampManagement
 
 
+int TimeStamp_GetTimeStampDeltaStamp(void)
 
-
-i
-
+void TimeStamp_SetTimeStampDeltaStamp(int delta)
 
 
 Reprendre fonctionnalité LCD. 
 
 
-Ajout documents pdf, notamment la gestion du temps. SGw avancée, ajout algo HMI mode prog. Ajout message d'aide LCD lors de plantage while(1)
+
+Préciser explication globale dans RmDv notamment, qu'est ce qui est communiqué
+par exemple, les RmDv ne travaillent que sur 24h et reçoivent uniquement des durée, pas de date 
+embarquée.
+Détailler start up et scénario à la con.
