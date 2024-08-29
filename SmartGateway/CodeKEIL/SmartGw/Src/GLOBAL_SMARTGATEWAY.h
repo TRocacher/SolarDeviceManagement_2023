@@ -17,8 +17,9 @@
 * =================================================================================*/
 
 
-#define RevisionSoft	"Rev 1.01"
-/* Ajout de l'ensemble HMI + RmDv*/
+#define RevisionSoft	"Rev 1.02"
+/* 1.01 Ajout de l'ensemble HMI + RmDv*/
+/* 1.02 Ajout fonctionnalité LCD + fonctionnalité "no beep" en cours de dév.
 
 
 
@@ -40,8 +41,9 @@
 /*--  Les timeout  --*/
 #define Chrono_FSKStack Chrono_1 /* file FSKStack.c (timeout Wait for header, FSM)*/
 #define Chrono_WaitTransactionEnd Chrono_2 /* file SmartGwMain (timeout d'attente seconde requête)*/
-#define Chrono_Debounce Chrono_3 /* permet de gérer l'antirebond*/
-
+#define Chrono_Debounce_BpDwn Chrono_3 /* permet de gérer l'antirebond sur le BP Down */
+#define Chrono_Debounce_BpRight Chrono_4 /* permet de gérer l'antirebond sur le BP Right */
+#define Chrono_TimeOutMenuLCD Chrono_5 /* permet un retour à l'écran principal au bout de n sec*/
 /* message max = req info =
  *  |MssgReq_SendInfo 		| Temperature (float) | LastTempSet (char) |
  *  soit 6 caractères. 
@@ -82,40 +84,11 @@ typedef enum {
 	_Chaud_21_VanBas_FanAuto = 0xC4,
 	_Chaud_22_VanBas_FanAuto = 0xC5,
 	_Chaud_23_VanBas_FanAuto = 0xC6,
+	_NoCommandToSend = 0xC7,
 	_Stop = 0xC0,
 }RmDv_TelecoIR_Cmde;
 
 
-/*============================================================================
- *
- * 		Les modes d'affichage LCD
- *
-============================================================================*/
-
-/* Type d'affichage ...*/
-typedef enum {
-	Temperature=0,
-	HeureCourante=1,
-	Salon_1=2,
-	Salon_2,
-	SaM_1,
-	SaM_2,
-	Entree_1,
-	Entree_2,
-	Couloir_1,
-	Couloir_2,
-	Ext_1,
-	Ext_2,
-	Temp_18,
-	Temp_19,
-	Temp_20,
-	Temp_21,
-	Temp_22,
-	Temp_23,
-	Stop,
-}TerminalMode;
-#define ModeNb 19     /* pour le test des IR des RmDv*/
-//#define ModeNb 12
 
 
 #endif

@@ -6,7 +6,7 @@
  *   Tool : KEIL V5.34
  *   Target : STM32F103RTB6
  *   Dépendance : _
- *   Revision : 1.00
+ *   Revision : voir GLOBAL_SMARTGATEWAY.h
  *  ------------------------------------------------------------------------------
  *  Donne les constantes nécessaires à l'ensemble des échanges (haut niveau)
 * =================================================================================*/
@@ -25,7 +25,13 @@
 #include "MainFcts.h"
 #include "HMI_RmDv_Algo.h"
 
-int Mode;
+/* Gestion LCD */
+char Using_BP; /* indique que le user utilise les boutons, bloquera le screen system (heure) 
+							qui s'active par défaut toutes les secondes */
+#define TimeOut_BPUnused (30*1000) /* 30 secondes */
+Screen Scr_Idx;	/* Indexe identifiant de manière univoque un affichage LCD*/
+int Scr_ID;			/* ID du RmDv dans un subsreenLCD associé au RmDv*/
+
 
 void Transaction_RmDv(char ID);
 void ReceiveReset_RmDv(char ID);
@@ -55,13 +61,17 @@ RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers 
 		
 *****************************************************************************************************************/
 void UserBP(void);
+
+void UserBP_Dwn(void);
+void UserBP_Right(void);
+
 void OneSec_Callback(void);
 char OnSecITEnalble;				/* Flag qui autorise l'affichage périodique 1 sec 
 														utile en phase de reset RmDv lorsque la SGw indique la version*/
 
 int main (void)
 {
-
+	Using_BP=0; /* Le user n'utilise pas les boutons*/
 	/* Lancement du système (pile FSK, UART, Timeout) */
 	MainFcts_SystemStart();
 	/* Mise à l'heure du système (set time et init fuseaux horaire et IdxTps réel */
@@ -71,12 +81,15 @@ int main (void)
 	/*Initialisation des pointeurs sur les RmDv et
 	  Initialisation de la table de pointeurs Tab_RmDvData*/
 	Init_RmDvDataPtrTab();
+	/* Initialisation de l'affichage, cad des Idx*/
+	Scr_Idx = Screen_Start;
+	Scr_ID=ID_Clim_Salon;
 	/* Initialisation du module d'affichage LCD*/
 	InfoLCD_Init();
 	/* Config PC13 Tamp */
-	NVIC_Ext_IT (GPIOC, 13, FALLING_EGDE, INPUT_FLOATING, 14, UserBP);
+	NVIC_Ext_IT (GPIOC, 13, FALLING_EGDE, INPUT_FLOATING, 14, UserBP_Dwn);
 	/* Config PA0 WakeUp */
-	NVIC_Ext_IT (GPIOA, 0, FALLING_EGDE, INPUT_FLOATING, 14, UserBP);
+	NVIC_Ext_IT (GPIOA, 0, FALLING_EGDE, INPUT_FLOATING, 14, UserBP_Right);
 	HourStamp_1sec_CallbackAssociation(OneSec_Callback);
 	OnSecITEnalble=1; /* validation affichage périodique 1 sec*/
 while(1)
@@ -98,29 +111,44 @@ while(1)
 }
 
 
+/* ==============================================
+			Call back 1 seconde  
+=================================================*/
 void OneSec_Callback(void)
 {
 	if( OnSecITEnalble==1)
 	{
-	
-	/* Affichage LCD toutes les secondes*/
-	switch(Mode)
-	{
-		case Temperature:InfoLCD_Print5Temp();break;
-		case HeureCourante:InfoLCD_PrintHour("Heure systeme:",TimeStamp_GetClockStampAdr());break;
-		case Salon_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Salon);break;
-		case Salon_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Salon);break;
-		case SaM_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_SaManger);break;
-		case SaM_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_SaManger);break;
-		case Entree_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Entree);break;
-		case Entree_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Entree);break;
-		case Couloir_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Couloir);break;
-		case Couloir_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Couloir);break;
-		case Ext_1:InfoLCD_PrintRmDv_Stamp(ID_Ext);break;
-		default:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
-		//default : NewTempSet = InfoLCD_PrintNewSet((TerminalMode)Mode);break;  /*les autres cas sont des temp set*/
-		//default:break;
-	}
+		/* Affichage LCD toutes les secondes*/
+		if (Scr_Idx==Screen_Start)	
+		{
+			InfoLCD_ScreenStart();
+			Delay_x_ms(2000);	/* attente 2 sec*/
+			Scr_Idx=Screen_WaitForHMI;
+		}
+		else if (Scr_Idx==Screen_WaitForHMI)	
+		{
+			InfoLCD_Screen_WaitForHMI();
+			if (TimeStamp_GetClockUpdated_Flag()==1)	Scr_Idx=Screen_HowToUse;	
+		}
+		else if (Scr_Idx==Screen_HowToUse)	
+		{
+			InfoLCD_Screen_HowToUse();
+			Delay_x_ms(2000);	/* attente 2 sec*/	
+			Scr_Idx=Screen_System;
+		}
+		else 
+		{
+			/* Affichage du screen système si BP non utilisé*/
+			if ((Using_BP==0)|| (Scr_Idx==Screen_System))
+			{
+				InfoLCD_ScreenSystem();
+			}
+		}
+		/* Remise à 0 flag Using_BP si timeout avéré*/
+		if (TimeManag_GetTimeOutStatus(Chrono_TimeOutMenuLCD)==1)
+		{
+			Using_BP=0;
+		}
 	}
 }
 
@@ -187,8 +215,24 @@ void Transaction_RmDv(char ID)
 			NewTempSet = _Stop;
 		}
 		
-
-
+		/* New , Gestion du beep : 
+		- si le beep n'est pas demandé :
+				- si l'ancienne consigne est égale à la nouvelle 
+						la nouvelle consigne devient "_NoCommandToSend" 
+						le champ LastTempSetBeforeNoCommand reçoit l'ancienne commande*/
+		/* avant tout, on recale LastTempSet à sa valeur d'origine si NoCommand
+		ainsi on se retrouve dans une situation "normale"*/
+		if (lastTempSet==_NoCommandToSend) lastTempSet=PtrRmDvData->LastTempSetBeforeNoCommand;
+			
+		if (DFH_GetCentralData_OptPowerData()->ReapeatBeep==0)
+		{
+			if (NewTempSet==lastTempSet) /*il ne faut pas répéter la commande*/
+			{
+				NewTempSet=_NoCommandToSend;
+				PtrRmDvData->LastTempSetBeforeNoCommand=lastTempSet;				
+			}
+		}
+		
 				
 		/*-----------------------------------------------------------
 		Envoie nouvelle consigne et nouveau délai
@@ -217,7 +261,7 @@ void Transaction_RmDv(char ID)
 					/* si req info, renvoie la valeur */
 					if (Code == MssgReq_SendInfo)
 					{
-						RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,lastTempSet, CorrInterval_ToSend);
+						RmDv_SGw_FSKP_SendMssgAns_SendInfo(ID,NewTempSet, CorrInterval_ToSend);
 					}
 					/* si req Status récupération status + renvoie ack*/
 					if (Code == MssgReq_SendStatus)
@@ -232,9 +276,7 @@ void Transaction_RmDv(char ID)
 			}
 	
 		}
-		
-
-		
+				
 		/*  mettre à jour la variable de donnée RmDv en f*/
 		if (Success==0) /* si échec (le RmDv n'a pas pu donner son statut*/
 		{
@@ -243,11 +285,6 @@ void Transaction_RmDv(char ID)
 		
 		/* Mise à jour de la variable RmDv */
 		RmDvData_Update(PtrRmDvData, TemperatureMesuree,lastTempSet,NewTempSet,Status,PrevState);
-		
-	
-		/* Affichage LCD*/
-		//InfoLCD_Status_LastTempSet(Status,lastTempSet);
-
 		
 	}
 	
@@ -261,12 +298,13 @@ void Transaction_RmDv(char ID)
 void ReceiveReset_RmDv(char ID)
 {
 	char Revision[10];
+	RmDvData_Reset(ID); /* reinit RmDvData associé*/
 	OnSecITEnalble=0;	/* blocage affichage courant 1sec*/
 	/*récupération du message*/
 	FSKStack_GetNewMssg (Revision, 8); 
 	/*Affichage info */
 	InfoLCD_PrintRevision(Revision,8,ID);
-	/* attente 5 sec*/
+	/* attente 2 sec*/
 	Delay_x_ms(2000);
 	OnSecITEnalble=1;	/* libération affichage courant 1sec*/
 }
@@ -303,9 +341,6 @@ void Transaction_HMI(void)
 			TimeStamp_SetClock(PtrTimeStampHMI);
 			TimeStamp_SetClockUpdated_Flag();
 		}
-			
-		/* Affichage LCD de l'heure*/
-		InfoLCD_PrintHour("Heure HMI",PtrTimeStampHMI);	
 	}
 	
 }
@@ -315,45 +350,159 @@ void Transaction_HMI(void)
 		Choix Menu à afficher
 *****************************************************************************************************************/
 #define DebounceLaps_ms 200
-int BebounceFstOccu;
-void UserBP(void)
+int DebounceFstOccu_BP_Dwn;
+
+void UserBP_Dwn(void)
 {
 	Clear_Flag_IT_Ext_5_15(13);
+	/* Principe de l'antirebond
+		Le timeout est indépendant de l'interruption BP.
+		Lors de la toute première IT, il y a timeout. Ainsi, la variable
+		DebounceFstOccu passe à 1. Mais également, le timeout est relancé.
+	  
+		Cela permet alors d'enchaîner sur l'algo voulu. 
+		A la fin de cet Algo, la variable DebounceFstOccu passe à 0 empêchant
+		ainsi une nouvelle exécution de l'algo si une IT se déclenche trop vite (rebond).
+	
+		Un nouvel algo ne pourra s'exécuter qu'à échéance du timeout. La constante
+		DebounceLaps_ms est fixée à 200ms
+	*/
+	
+	/* Blocage menu système par défaut (qui donne l'heure, pendant TimeOut_BPUnused */
+	TimeManag_TimeOutStart(Chrono_TimeOutMenuLCD , TimeOut_BPUnused);
+	Using_BP=1;
+	
 	/*démarrage tempo pour antirebond si pas déjà lancé*/
-	if (TimeManag_GetTimeOutStatus(Chrono_Debounce)==1)
+	if (TimeManag_GetTimeOutStatus(Chrono_Debounce_BpDwn)==1)
 	{
-		TimeManag_TimeOutStart(Chrono_Debounce ,DebounceLaps_ms); // lancement TimeOut
-		BebounceFstOccu=1;
+		TimeManag_TimeOutStart(Chrono_Debounce_BpDwn ,DebounceLaps_ms); // lancement TimeOut
+		DebounceFstOccu_BP_Dwn=1;
 	}
 	
 		
-	if (BebounceFstOccu==1)  /* uniquement lorsque le timout a été lancé ...*/
+	if (DebounceFstOccu_BP_Dwn==1)  /* uniquement lorsque le timout a été lancé ...*/
 	{
-		Mode=(Mode+1)%ModeNb;	
-		
+		if (Scr_Idx == Screen_System) Scr_Idx=Screen_AllTemperatures;
+		else if (Scr_Idx == Screen_AllTemperatures)  {Scr_Idx=Screen_RmDvSalon;Scr_ID=ID_Clim_Salon;}
+		else if (Scr_Idx == Screen_RmDvSalon)  {Scr_Idx=Screen_RmDvSaM;Scr_ID=ID_Clim_SaManger;}
+		else if (Scr_Idx == Screen_RmDvSaM)  {Scr_Idx=Screen_RmDvEntree;Scr_ID=ID_Clim_Entree;}
+		else if (Scr_Idx == Screen_RmDvEntree)  {Scr_Idx=Screen_RmDvCouloir;Scr_ID=ID_Clim_Couloir;}
+		else if (Scr_Idx == Screen_RmDvCouloir)  {Scr_Idx=Screen_RmDvExt;Scr_ID=ID_Ext;}
+		else if (Scr_Idx == Screen_RmDvExt)  Scr_Idx=Screen_System;
 		/* Affichage par anticipation sur le callback 1 sec pour plus de réactivité*/
 		/* Affichage LCD toutes les secondes*/
-		switch(Mode)
+		
+		
+		switch(Scr_Idx) 
 		{
-		case Temperature:InfoLCD_Print5Temp();break;
-		case HeureCourante:InfoLCD_PrintHour("Heure systeme:",TimeStamp_GetClockStampAdr());break;
-		case Salon_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Salon);break;
-		case Salon_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Salon);break;
-		case SaM_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_SaManger);break;
-		case SaM_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_SaManger);break;
-		case Entree_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Entree);break;
-		case Entree_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Entree);break;
-		case Couloir_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Couloir);break;
-		case Couloir_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Couloir);break;
-		case Ext_1:InfoLCD_PrintRmDv_Stamp(ID_Ext);break;
-		case Ext_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
-		default:break;
+			case Screen_System:InfoLCD_ScreenSystem();break;
+			case Screen_AllTemperatures:InfoLCD_ScreenAllTemp();break;
+			case Screen_RmDvSalon:InfoLCD_ScreenRmDvID(Scr_ID);break;
+			case Screen_RmDvSaM:InfoLCD_ScreenRmDvID(Scr_ID);break;
+			case Screen_RmDvEntree:InfoLCD_ScreenRmDvID(Scr_ID);break;
+			case Screen_RmDvCouloir:InfoLCD_ScreenRmDvID(Scr_ID);break;
+			case Screen_RmDvExt:InfoLCD_ScreenRmDvID(Scr_ID);break;
+			
+			default: Scr_Idx=Screen_System;break;
+//		case HeureCourante:InfoLCD_PrintHour("Heure systeme:",TimeStamp_GetClockStampAdr());break;
+//		case Salon_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Salon);break;
+//		case Salon_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Salon);break;
+//		case SaM_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_SaManger);break;
+//		case SaM_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_SaManger);break;
+//		case Entree_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Entree);break;
+//		case Entree_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Entree);break;
+//		case Couloir_1:InfoLCD_PrintRmDv_Stamp(ID_Clim_Couloir);break;
+//		case Couloir_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Clim_Couloir);break;
+//		case Ext_1:InfoLCD_PrintRmDv_Stamp(ID_Ext);break;
+//		case Ext_2:InfoLCD_PrintRmDv_StatFactNewSet(ID_Ext);break;	
+  
 		}
-		BebounceFstOccu=0; /* ce n'est plus la première fois, le bloc ne se relance pas
+		DebounceFstOccu_BP_Dwn=0; /* ce n'est plus la première fois, le bloc ne se relance pas
 		sauf si un timeout survient ...*/
 	}
 
 }
+
+
+
+int DebounceFstOccu_BP_Right;
+
+void UserBP_Right(void)
+{
+	/* flag IT automatiquement mise à 0 pas besoin de le faire*/
+	/*démarrage tempo pour antirebond si pas déjà lancé*/
+	
+	/* Blocage menu système par défaut (qui donne l'heure, pendant TimeOut_BPUnused */
+	TimeManag_TimeOutStart(Chrono_TimeOutMenuLCD , TimeOut_BPUnused);
+	Using_BP=1;
+	
+	if (TimeManag_GetTimeOutStatus(Chrono_Debounce_BpRight)==1)
+	{
+		TimeManag_TimeOutStart(Chrono_Debounce_BpRight ,DebounceLaps_ms); // lancement TimeOut
+		DebounceFstOccu_BP_Right=1;
+	}
+	
+		
+	if (DebounceFstOccu_BP_Right==1)  /* uniquement lorsque le timout a été lancé ...*/
+	{
+		/* sous menu système ...
+			SubScr_SysMode,	SubScr_SysHMIStamp,	SubScr_SysPowInverter,	SubScr_SysTotalPower,	SubScr_SysDeltaStamp,
+		*/
+		if (Scr_Idx == Screen_System) Scr_Idx=SubScr_SysMode;
+		else if (Scr_Idx == SubScr_SysMode)  Scr_Idx=SubScr_SysHMIStamp;
+		else if (Scr_Idx == SubScr_SysHMIStamp)  Scr_Idx=SubScr_SysPowInverter;
+		else if (Scr_Idx == SubScr_SysPowInverter)  Scr_Idx=SubScr_SysPowerExcess;
+		else if (Scr_Idx == SubScr_SysPowerExcess)  Scr_Idx=SubScr_SysDeltaStamp;
+		else if (Scr_Idx == SubScr_SysDeltaStamp)  Scr_Idx=Screen_System;
+		
+		/* sous menu RmDv...
+				SubScr_RmDv_LastStamp,	SubScr_RmDv_Temperature,SubScr_RmDv_Status,
+				SubScr_RmDv_NextInterval,	SubScr_RmDv_DelayFactor,		*/	
+		if ((Scr_Idx == Screen_RmDvSalon) ||(Scr_Idx == Screen_RmDvSaM) || \
+			(Scr_Idx == Screen_RmDvEntree)||(Scr_Idx == Screen_RmDvCouloir) || \
+			(Scr_Idx ==Screen_RmDvExt ))
+		{
+			Scr_Idx=SubScr_RmDv_LastStamp;
+		}
+		else if (Scr_Idx == SubScr_RmDv_LastStamp)  Scr_Idx=SubScr_RmDv_Temperature;
+		else if (Scr_Idx == SubScr_RmDv_Temperature)  Scr_Idx=SubScr_RmDv_Status;
+		else if (Scr_Idx == SubScr_RmDv_Status)  Scr_Idx=SubScr_RmDv_NextInterval;
+		else if (Scr_Idx == SubScr_RmDv_NextInterval)  Scr_Idx=SubScr_RmDv_DelayFactor;
+		else if (Scr_Idx == SubScr_RmDv_DelayFactor)
+		{
+			if (Scr_ID==ID_Clim_Salon) Scr_Idx=Screen_RmDvSalon;
+			else if (Scr_ID==ID_Clim_SaManger) Scr_Idx=Screen_RmDvSaM;
+			else if (Scr_ID==ID_Clim_Entree) Scr_Idx=Screen_RmDvEntree;
+			else if (Scr_ID==ID_Clim_Couloir) Scr_Idx=Screen_RmDvCouloir;
+			else if (Scr_ID==ID_Ext) Scr_Idx=Screen_RmDvExt;
+		}
+		
+		/* Affichage en fonction de l'index d'écran défini précédemment*/
+		switch(Scr_Idx) 
+		{
+			/* Sous menu system*/
+			case Screen_System:InfoLCD_ScreenSystem();break;
+			case SubScr_SysMode:InfoLCD_SubScreenSysMode();break;
+			case SubScr_SysHMIStamp:InfoLCD_SubScreenSysHMIStamp();break;
+			case SubScr_SysPowInverter:InfoLCD_SubScreenSysPowerInverter();break;
+			case SubScr_SysPowerExcess:InfoLCD_SubScreenSysPowerExcess();break;
+			case SubScr_SysDeltaStamp:InfoLCD_SubScreenSysDeltaStamp();break;
+			/* RmDv*/
+			case SubScr_RmDv_LastStamp:InfoLCD_SubScreenRmDvLastStamp(Scr_ID);break;
+			case SubScr_RmDv_Temperature:InfoLCD_SubScreenRmDvTemp(Scr_ID);break;
+			case SubScr_RmDv_Status:InfoLCD_SubScreenRmDvStatus(Scr_ID);break;
+			case SubScr_RmDv_NextInterval:InfoLCD_SubScreenRmDvNextInterval(Scr_ID);break;
+			case SubScr_RmDv_DelayFactor:InfoLCD_SubScreenRmDvDelayFactor(Scr_ID);break;
+			default: InfoLCD_ScreenRmDvID(Scr_ID);break;
+			
+		}			
+		
+			
+		DebounceFstOccu_BP_Right=0; /* ce n'est plus la première fois, le bloc ne se relance pas
+		sauf si un timeout survient ...*/
+	}
+}
+
 
 
 /******************************************************************************************************************
@@ -367,16 +516,11 @@ void Init_RmDvDataPtrTab(void)
 {
 	
 	/* initisation des "objets" data clim */
-	pClimSalon = RmDvData_GetObjectAdress(ID_Clim_Salon);
-	RmDvData_Reset(pClimSalon, ID_Clim_Salon);
-	pClimSaM = RmDvData_GetObjectAdress(ID_Clim_SaManger);
-	RmDvData_Reset(pClimSaM, ID_Clim_SaManger);
-	pClimEntree = RmDvData_GetObjectAdress(ID_Clim_Entree);
-	RmDvData_Reset(pClimEntree, ID_Clim_Entree);
-	pClimCouloir = RmDvData_GetObjectAdress(ID_Clim_Couloir);
-	RmDvData_Reset(pClimCouloir, ID_Clim_Couloir);
-	pRmDvExt = RmDvData_GetObjectAdress(ID_Ext);
-	RmDvData_Reset(pRmDvExt, ID_Ext);
+	RmDvData_Reset(ID_Clim_Salon);
+	RmDvData_Reset(ID_Clim_SaManger);
+	RmDvData_Reset(ID_Clim_Entree);
+	RmDvData_Reset(ID_Clim_Couloir);
+	RmDvData_Reset(ID_Ext);
 	
 	/* rangement des pointeur ds un tableau pour appel via ID...*/
 	Tab_RmDvData[0]= pClimSalon;

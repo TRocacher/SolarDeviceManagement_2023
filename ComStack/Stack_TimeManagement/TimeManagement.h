@@ -12,8 +12,9 @@ typedef enum {
 	Chrono_3,
 	Chrono_4,
 	Chrono_5,
+	Chrono_6, /* 28/08/24:    */ 
 }TimeBaseName;
-#define TimeBaseName_Nb 5
+#define TimeBaseName_Nb 6 /* 28/08/24:   5 */
 
 void Delay_x_ms(int x);
 

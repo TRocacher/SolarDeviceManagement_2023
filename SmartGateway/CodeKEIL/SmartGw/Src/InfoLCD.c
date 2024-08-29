@@ -14,8 +14,14 @@
 
 #include "InfoLCD.h"
 #include "StringFct.h"
+#include "DataFromHMI.h"
 
-
+/*==================================================================================
+						Attributs du module
+===================================================================================*/
+					
+						
+		
 
 
 /* Message en dur pour test LCD*/
@@ -78,6 +84,504 @@ void InfoLCD_Init(void)
 	/* Init Tableau Stamp string : Pour débuggage*/
 	InfoLCD_MemStampStrInit();
 }
+
+	
+
+
+/*  ========= LES FONCTIONS D'AFFICHAGE ===========*/ 
+/**
+	* @brief  Affiche l'écran de démarrage
+	* @Note		Exemple : 
+											SGw : Rev x.yz
+											
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_ScreenStart(void)
+{
+	/* Clear first line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("SGw :");
+	MyLCD_Print(RevisionSoft);
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+}
+
+/**
+	* @brief  Affiche l'écran d'attente connexion HMI
+	* @Note		Exemple : 
+											Waiting for HMI
+											...
+											
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_Screen_WaitForHMI(void)
+{
+	/* Clear first line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("Waiting for HMI");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	MyLCD_Print("...");
+}
+
+
+/**
+	* @brief  Affiche l'écran how to use
+	* @Note		Exemple : 
+											Push V main menu
+											Push > sub-menu
+											
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_Screen_HowToUse(void)
+{
+	/* Clear first line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("Push V main menu");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	MyLCD_Print("Push > sub-menu");
+}
+
+/**
+	* @brief  Affiche heure système format xx:xx:xx
+	* @Note		Exemple : 
+											| System Clock :
+											10:34:56
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_ScreenSystem(void)
+{
+	char LCD_Mssg[20];
+	char * PtrChar;	
+	TimeStampTypedef* TimeStamp;
+	
+	/* Clear first line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("|>System clock :");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	
+	// Conversion exploitable pour LCD
+	TimeStamp=TimeStamp_GetClockStampAdr();
+	PtrChar=LCD_Mssg;
+	StringFct_Int2Str_99(TimeStamp->Hour,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';
+	PtrChar++;
+	StringFct_Int2Str_99(TimeStamp->Min,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';			
+	PtrChar++;
+	StringFct_Int2Str_99(TimeStamp->Sec,PtrChar);
+	PtrChar=PtrChar+2;
+			
+	/* Affichage LCD*/		
+	MyLCD_Print_n (LCD_Mssg,8); 
+}
+	
+
+/**
+* @brief  : Affichage des 5 températures
+						Récupère les 5 températures via les 5 variables RmDv_Data
+						du module DataFromRmDv.c
+* @Note : Exemple :
+					| XX.X XX.X XX.X
+					XX.X XX.X
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_ScreenAllTemp(void)
+{
+	RmDvDataTypedef* PtrStamp;
+	float LocalTemp;
+	char FloatString[5][10];
+	int i;
+	
+	/* Conversion String des 5 temperatures*/
+	for (i=0;i<5;i++)
+	{
+		PtrStamp=RmDvData_GetObjectAdress(ID_Clim_Salon+i); /* 0xD1 à 0xD5*/
+		LocalTemp=PtrStamp->Temperature;
+		StringFct_Float2Str(LocalTemp,&FloatString[i][0], 3, 1);
+		FloatString[i][5]=' '; /* insertion espace */
+	}
+	MyLCD_ClearLineUp();
+	MyLCD_Print("|");
+	MyLCD_Print_n(&FloatString[0][0],5); /* +xx.x (avec espace à la fin)*/
+	MyLCD_Print_n(&FloatString[1][0],5); /* xx.x (avec espace à la fin)*/
+	MyLCD_Print_n(&FloatString[2][0],5); /* xx.x (avec espace à la fin)*/
+	MyLCD_ClearLineDown();
+	MyLCD_Print_n(&FloatString[3][0],5); /* xx.x (avec espace à la fin)*/
+	MyLCD_Print_n(&FloatString[4][0],5); /* xx.x (avec espace à la fin)*/
+}
+
+
+/**
+	* @brief  : Affichage le ID du RmDv en question
+	* @Note		Exemple : 
+											|> Salon ID :
+											0xD1
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_ScreenRmDvID(int ID)
+{
+	char MyStringInt[10];
+	StringFct_Int2Str(ID,MyStringInt);
+	
+	
+	/* Clear first line */
+	MyLCD_ClearLineUp();
+	switch(ID)
+	{
+		case ID_Clim_Salon:MyLCD_Print("|>Clim Salon :");break;
+		case ID_Clim_SaManger:MyLCD_Print("|>Clim SaM:");break;
+		case ID_Clim_Entree:MyLCD_Print("|>Clim Entree :");break;
+		case ID_Clim_Couloir:MyLCD_Print("|>Clim Couloir :");break;
+		case ID_Ext:MyLCD_Print("|>Capteur Ext :");break;
+		default: while(1);/////// bug
+	}
+	/* Clear second line */
+	MyLCD_ClearLineDown();	
+	MyLCD_Print("ID :");
+	MyLCD_Print(MyStringInt);
+}
+
+
+/**
+	* @brief  : Affichage le Mode du RmDv en question
+	* @Note		Exemple : 
+											> Mode :
+											Programmation
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_SubScreenSysMode(void)
+{
+	DFH_HMIMode* ModePtr;
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Mode :");
+	/* second line */
+	MyLCD_ClearLineDown();
+	ModePtr= DFH_GetCentralData_Mode();
+	if (*ModePtr == HMI_Mode_Off) MyLCD_Print(" Off");
+	else if (*ModePtr == HMI_Mode_Auto) MyLCD_Print(" Auto");	
+	else if (*ModePtr == HMI_Mode_Program) MyLCD_Print(" Program");	
+	else MyLCD_Print(" Holliday");	
+}
+
+
+
+/**
+	* @brief  : Affichage de l'heure de la dernière requête HMI
+	* @Note		Exemple : 
+											> Last HMI stamp
+											10:34:00
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_SubScreenSysHMIStamp(void)
+{
+	TimeStampTypedef* HMIStampPtr;
+	char LCD_Mssg[20];
+	char * PtrChar;	
+	
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Last HMI stamp");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	HMIStampPtr=DFH_GetCentralData_Stamp();
+	
+	// Conversion exploitable pour LCD
+	PtrChar=LCD_Mssg;
+	StringFct_Int2Str_99(HMIStampPtr->Hour,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';
+	PtrChar++;
+	StringFct_Int2Str_99(HMIStampPtr->Min,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';			
+	PtrChar++;
+	StringFct_Int2Str_99(HMIStampPtr->Sec,PtrChar);
+	PtrChar=PtrChar+2;
+			
+	/* Affichage LCD*/		
+	MyLCD_Print_n (LCD_Mssg,8); // +1 pour ne pas afficher le nbre de bytes
+}
+
+
+
+/**
+	* @brief  : Affichage de la puissance onduleur
+	* @Note		Exemple : 
+											> Power Inverter
+											1234.3 W
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_SubScreenSysPowerInverter(void)
+{
+	DFH_PowDataOptTypedef* PwOptPtr;
+	float Power;
+	char LCD_Mssg[20];
+	
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Power Inverter");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	
+	PwOptPtr= DFH_GetCentralData_OptPowerData();
+	Power=PwOptPtr->PowInverter;
+	if ( Power<0) MyLCD_Print("Inverter StdBy...");
+	else
+	{
+		StringFct_Float2Str(Power,LCD_Mssg, 5, 1);
+		MyLCD_Print(LCD_Mssg);
+		MyLCD_Print(" W");
+	}
+	
+}
+
+
+
+/**
+	* @brief  : Affichage de la puissance en excès, disponible
+	* @Note		Exemple : 
+											> Power Excess :
+											1234.3 W
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_SubScreenSysPowerExcess(void)
+{
+	DFH_PowDataOptTypedef* PwOptPtr;
+	float Power;
+	char LCD_Mssg[20];
+	
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Power Excess :");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	
+	PwOptPtr= DFH_GetCentralData_OptPowerData();
+	Power=PwOptPtr->PowExcess;
+	StringFct_Float2Str(Power,LCD_Mssg, 5, 1);
+	MyLCD_Print(LCD_Mssg);
+	MyLCD_Print(" W");
+
+}
+
+
+/**
+	* @brief  : Affichage de l'écart en secondes entre
+							le stamp système et le stamp HMI
+	* @Note		Exemple : 
+											> Delta Stamp 
+											HMI/SGw : -5 s
+  * @param  
+  * @retval 
+  **/
+void InfoLCD_SubScreenSysDeltaStamp(void)
+{
+	char LCD_Mssg[20];
+	int Delta;
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Delta Stamp");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	MyLCD_Print("HMI/SGw : ");
+	Delta=TimeStamp_GetTimeStampDeltaStamp();
+	
+	if (Delta>=0) StringFct_Int2Str_99(Delta,LCD_Mssg);
+	else StringFct_Int2Str_99(-Delta,LCD_Mssg);MyLCD_Print("-");
+	
+	MyLCD_Print_n(LCD_Mssg,2);
+	MyLCD_Print(" s");
+}
+
+
+
+/**
+	* @brief  : Affichage de l'heure de la dernière requête du RmDv considéré
+	* @Note		Exemple : 
+											> Last stamp
+											10:34:00
+  * @param  ID du RmDv
+  * @retval 
+  **/
+void InfoLCD_SubScreenRmDvLastStamp(int ID)
+{
+
+	char LCD_Mssg[20];
+	char * PtrChar;	
+	RmDvDataTypedef* RmDvDataAdr; 
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Last stamp");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	RmDvDataAdr=RmDvData_GetObjectAdress(ID);
+	// Conversion exploitable pour LCD
+	PtrChar=LCD_Mssg;
+	StringFct_Int2Str_99(RmDvDataAdr->Delay.StampNow.Hour,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';
+	PtrChar++;
+	StringFct_Int2Str_99(RmDvDataAdr->Delay.StampNow.Min,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';			
+	PtrChar++;
+	StringFct_Int2Str_99(RmDvDataAdr->Delay.StampNow.Sec,PtrChar);
+	PtrChar=PtrChar+2;
+			
+	/* Affichage LCD*/		
+	MyLCD_Print_n (LCD_Mssg,8); 
+}
+
+
+
+/**
+	* @brief  : Affichage de la température de la dernière requête du RmDv considéré
+	* @Note		Exemple : 
+											> Temperature :
+											21°C
+  * @param  ID du RmDv
+  * @retval 
+  **/
+void InfoLCD_SubScreenRmDvTemp(int ID)
+{
+	RmDvDataTypedef* PtrStamp;
+	float LocalTemp;
+	char FloatString[10];
+
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Temperature :");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	PtrStamp=RmDvData_GetObjectAdress(ID); 
+	LocalTemp=PtrStamp->Temperature;
+	StringFct_Float2Str(LocalTemp,&FloatString[0], 3, 1);
+	MyLCD_Print_n(&FloatString[0],5); /* +xx.x (avec espace à la fin)*/
+	MyLCD_Print(" °C"); /* xx.x (avec espace à la fin)*/
+}
+
+
+
+/**
+	* @brief  : Affichage du statut de la dernière requête du RmDv considéré
+	* @Note		Exemple : 
+											> Status :
+											No Warning
+  * @param  ID du RmDv
+  * @retval 
+  **/
+void InfoLCD_SubScreenRmDvStatus(int ID)
+{
+	RmDv_WarningCode LocalStatus;
+	RmDvDataTypedef* PtrRmDvData;
+	PtrRmDvData = RmDvData_GetObjectAdress(ID);
+	LocalStatus = PtrRmDvData->Status;
+	
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Status :");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	
+	/* Print Status */		
+	MyLCD_Print(TabPtrStr_StatusMssg[LocalStatus]);
+	}
+
+
+/**
+	* @brief  : Affichage du prochain intervalle programmé lors
+						de la dernière requête du RmDv considéré
+	* @Note		Exemple : 
+											> Next interval:
+											00:34:03
+  * @param  ID du RmDv
+  * @retval 
+  **/
+void InfoLCD_SubScreenRmDvNextInterval(int ID)
+{
+
+	char LCD_Mssg[20];
+	char * PtrChar;	
+	RmDvDataTypedef* RmDvDataAdr; 
+	int DelaySec;
+	int Hour,Min,Sec,Rest;
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Next interval:");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	RmDvDataAdr=RmDvData_GetObjectAdress(ID);
+	// Conversion exploitable pour LCD
+	PtrChar=LCD_Mssg;
+	
+	DelaySec=RmDvDataAdr->Delay.TimeIntervalTheoNow;
+	/*conversion heure, min sec*/
+	Hour=DelaySec/3600;
+	Rest=DelaySec-Hour*3600; 
+	Min=Rest/60;
+	Sec=Rest-Min*60;
+	
+	StringFct_Int2Str_99(Hour,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';
+	PtrChar++;
+	StringFct_Int2Str_99(Min,PtrChar);
+	PtrChar=PtrChar+2;
+	*PtrChar=':';			
+	PtrChar++;
+	StringFct_Int2Str_99(Sec,PtrChar);
+	PtrChar=PtrChar+2;
+			
+	/* Affichage LCD*/		
+	MyLCD_Print_n (LCD_Mssg,8); 
+}
+
+
+/**
+	* @brief  : Affichage facteur de correction de délai lors
+						de la dernière requête du RmDv considéré
+	* @Note		Exemple : 
+											> Delay Factor :
+											1.24
+  * @param  ID du RmDv
+  * @retval 
+  **/
+void InfoLCD_SubScreenRmDvDelayFactor(int ID)
+{
+	float LocalFactor;
+	char LCD_Mssg[20];
+		
+	RmDvDataTypedef* PtrRmDvData;
+	PtrRmDvData = RmDvData_GetObjectAdress(ID);
+	LocalFactor = PtrRmDvData->Delay.TimeExpansionFactor;
+	/* First line */
+	MyLCD_ClearLineUp();
+	MyLCD_Print("> Delay Factor :");
+	/* Clear second line */
+	MyLCD_ClearLineDown();
+	StringFct_Float2Str(LocalFactor,LCD_Mssg, 3, 2);
+	MyLCD_Print_n(LCD_Mssg,4);
+}
+
+
+
+/// a trier
 
 
 /**

@@ -1,25 +1,43 @@
-Version 1.02, HMI et RmDv fonctionnent en mode programmation. Revoir HMI pour périodiser requête UART
-, Poursuivre LCD.
+Version 1.01, HMI et RmDv fonctionnent en mode programmation. Revoir HMI pour périodiser requête UART
+, Poursuivre LCD
+
+TEST :
+pb mise à l'heure pas assez dynamique, il manque 2 ou 3 sec entre HMI et sys... a creuser
 
 
+initialiser le RmDvData lors d'une nouvelle connexion RmDv FAIT
+
+Ajouter no comand pour no beep OK à tester A TESTER
+
+faire le tri dans infoLCD A FAIRE
+faire une fonction qui gère l'affichage time, inutilement répété dans InfoLCd.c A FAIRE
+
+LCD gestion RmDv à finir + SysML + doc HMI ou Sgw A FAIRE
+
+
+HMI préévoir un bouton qui commute en fullscreen en cas de plantage A FAIRE
+HMI retourner l'écran A FAIRE
 
 !!! pb latence RmDv qd HMI fonctionne : qd perte de connection onduleur ! sinon OK
 !!! attention l'HMI n'envoie pas des mise à jour régulière il faut forcer . Donc HMI à  revoir 
 à ce niveau
 
-ajouter sysML ds timeStampManagement
+ajouter sysML ds timeStampManagement 
 
 
 int TimeStamp_GetTimeStampDeltaStamp(void)
 
 void TimeStamp_SetTimeStampDeltaStamp(int delta)
 
+Ajouter dépendance #include "DataFromHMI.h" pour infolCD
 
-Reprendre fonctionnalité LCD. 
+Dans string.h, modifier les ...2string en ajoutant 0 à la fin de la chaine EN COURS VERIFIER
+
+Reprendre fonctionnalité LCD FAIT
 
 
 
 Préciser explication globale dans RmDv notamment, qu'est ce qui est communiqué
 par exemple, les RmDv ne travaillent que sur 24h et reçoivent uniquement des durée, pas de date 
 embarquée.
-Détailler start up et scénario à la con.
+

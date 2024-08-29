@@ -52,6 +52,8 @@ typedef struct
 	/*réception*/
 	float Temperature;
 	RmDv_TelecoIR_Cmde LastTempSet;
+	RmDv_TelecoIR_Cmde LastTempSetBeforeNoCommand; /* New : Mémorisation de la dernière cmde de temp
+																									avant l'envoi d'un NoCommandToSend*/
 	RmDv_WarningCode Status;
 	RmDv_WkUp_CurrentState PrevState;
 	
@@ -88,11 +90,10 @@ RmDvDataTypedef* RmDvData_GetObjectAdress( int ID);
   * @brief  Met à 0 les variables de chaque objet. Fixe son ID ,
 						fixe le set temp sur stop , et le status sur nowarning
   * @Note
-  * @param  RmDvData : pointeur sur la structure à mettre à 0, 
-						ID : l'ID de la clim
+  * @param  ID : l'ID de la clim
   * @retval 
   **/
-void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID);
+void RmDvData_Reset( char ID);
 
 
 

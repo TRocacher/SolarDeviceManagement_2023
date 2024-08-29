@@ -68,30 +68,32 @@ RmDvDataTypedef* RmDvData_GetObjectAdress( int ID)
   * @brief  Met à 0 les variables de chaque objet. Fixe son ID ,
 						fixe le set temp sur stop , et le status sur nowarning
   * @Note
-  * @param  RmDvData : pointeur sur la structure à mettre à 0, 
-						ID : l'ID de la clim
+  * @param  ID : l'ID de la clim
   * @retval 
   **/
-void RmDvData_Reset(RmDvDataTypedef* RmDvData, char ID)
+void RmDvData_Reset(char ID)
 {
-	RmDvData->ID = ID;
-	RmDvData->LastTempSet=_Stop;
-	RmDvData->NewTempSet=_Stop;
-	RmDvData->ReadyToRead = 0;
-	RmDvData->Status = Status_NoWarning;
-	RmDvData->Temperature = 0.0;
+	RmDvDataTypedef* RmDvDataPtr;
+	RmDvDataPtr=RmDvData_GetObjectAdress(ID);
+	RmDvDataPtr->ID = ID;
+	RmDvDataPtr->LastTempSet=_Stop;
+	RmDvDataPtr->NewTempSet=_Stop;
+	RmDvDataPtr->LastTempSetBeforeNoCommand=_Stop; /*New*/
+	RmDvDataPtr->ReadyToRead = 0;
+	RmDvDataPtr->Status = Status_NoWarning;
+	RmDvDataPtr->Temperature = 0.0;
 	
 	/* Pour RTC Adjust*/
-	TimeStamp_ResetStamp(&RmDvData->Delay.StampNow);
-	TimeStamp_ResetStamp(&RmDvData->Delay.StampPrevious);
-	TimeStamp_ResetStamp(&RmDvData->Delay.StampNextTarget);
+	TimeStamp_ResetStamp(&RmDvDataPtr->Delay.StampNow);
+	TimeStamp_ResetStamp(&RmDvDataPtr->Delay.StampPrevious);
+	TimeStamp_ResetStamp(&RmDvDataPtr->Delay.StampNextTarget);
 	
-	RmDvData->Delay.TimeExpansionFactor=1.0;
+	RmDvDataPtr->Delay.TimeExpansionFactor=1.0;
 	
-	RmDvData->Delay.TimeIntervalCorNow=0;
-	RmDvData->Delay.TimeIntervalCorPrevious = 0;
-	RmDvData->Delay.TimeIntervalMeasPrevious = 0;	
-	RmDvData->Delay.TimeIntervalTheoNow =0;
+	RmDvDataPtr->Delay.TimeIntervalCorNow=0;
+	RmDvDataPtr->Delay.TimeIntervalCorPrevious = 0;
+	RmDvDataPtr->Delay.TimeIntervalMeasPrevious = 0;	
+	RmDvDataPtr->Delay.TimeIntervalTheoNow =0;
 				
 }
 

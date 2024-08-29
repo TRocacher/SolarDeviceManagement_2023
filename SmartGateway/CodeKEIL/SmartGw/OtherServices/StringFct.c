@@ -26,6 +26,7 @@ void StringFct_Int2Str_99(int Value,char * DigitTab)
 	R=Value-Q*10;
 	*DigitTab=Q+0x30;
 	*(DigitTab+1)=R+0x30;
+	*(DigitTab+2)=0; /* Null */
 }
 
 
@@ -50,7 +51,7 @@ void StringFct_Int2Str(int Value,char * DigitTab)
 	
 
 	*(DigitTab+4)=R+0x30;
-	
+	*(DigitTab+5)=0; /* Null */
 }
 
 char StringFct_Float2Str(float Value,char * DigitTab, int DigitNb, int Frac)
