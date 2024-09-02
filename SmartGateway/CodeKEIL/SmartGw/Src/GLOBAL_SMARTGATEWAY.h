@@ -17,9 +17,9 @@
 * =================================================================================*/
 
 
-#define RevisionSoft	"Rev 1.02"
+#define RevisionSoft	"Rev 1.03"
 /* 1.01 Ajout de l'ensemble HMI + RmDv*/
-/* 1.02 Ajout fonctionnalité LCD + fonctionnalité "no beep" en cours de dév.
+/* 1.02 Ajout fonctionnalité LCD + fonctionnalité "no beep" en cours de dév.*/
 
 
 

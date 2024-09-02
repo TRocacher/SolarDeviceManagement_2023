@@ -1,0 +1,11 @@
+SmGw :
+Rev 1.02 : 
+Rev 1.03 : Validation mode beep/nobeep sur un seul RmDv (vers 1.00)
+Le mode programmation est OK sur les premiers tests.
+
+
+RmDv :
+Rev 1.00 : Tout fonctionne correctement, reste à bloquer la cmde IR en cas de non commande
+(mode no beep).
+
+HMI :

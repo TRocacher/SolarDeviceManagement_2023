@@ -201,7 +201,7 @@ void Transaction_RmDv(char ID)
 		/* Réponse vers le RmDv */
 		
 		/*-----------------------------------------------------------
-		Calcul nouvelle consigle et nouveau délai, corrigé (stamp transaction inclu)
+		Calcul nouvelle consigne et nouveau délai, corrigé (stamp transaction inclu)
 		------------------------------------------------------------*/
 		if (TimeStamp_GetClockUpdated_Flag()==1) /* L'horloge a été intialisée par l'HMI*/
 		{

@@ -33,6 +33,7 @@ RmDv_TelecoIR_Cmde HMIRmDvAlgo_Temp2CmdeIR(char Temp)
 	switch(Temp)
 	{
 		case 0: LocalCmde=_Stop;break;
+		case 17:LocalCmde=_Chaud_18_VanBas_FanAuto;break; /*!! à virer provisoire pour compat HMI*/
 		case 18: LocalCmde=_Chaud_18_VanBas_FanAuto;break;
 		case 19: LocalCmde=_Chaud_19_VanBas_FanAuto;break;
 		case 20: LocalCmde=_Chaud_20_VanBas_FanAuto;break;

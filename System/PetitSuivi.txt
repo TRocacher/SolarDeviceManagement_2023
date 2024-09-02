@@ -4,6 +4,11 @@ Version 1.01, HMI et RmDv fonctionnent en mode programmation. Revoir HMI pour p�
 TEST :
 pb mise à l'heure pas assez dynamique, il manque 2 ou 3 sec entre HMI et sys... a creuser
 
+pb d'impression LCD factor, il reste à 1.00...mais je l'ai eu vu à 1.05
+
+RmDv corriger le no cmde ... 
+
+Faire un txt de release de tous les 3 soft.
 
 initialiser le RmDvData lors d'une nouvelle connexion RmDv FAIT
 
