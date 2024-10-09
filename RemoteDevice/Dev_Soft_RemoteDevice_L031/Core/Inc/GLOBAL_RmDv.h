@@ -4,7 +4,9 @@
  *   Author: trocache
  *   Tool : CubeIDE 1.12.1,
  *   Target : STM32L031
- *   Revision : 1.00
+ *   Revision : 1.01
+ Rev 1.01 : la commande IR ne s'active plus si NoCmde est reçu
+
  */
 
 #ifndef INC_GLOBAL_RMDV_H_
@@ -59,7 +61,7 @@
  *
 ============================================================================*/
 
-#define Revision	"Rev 1.00"
+#define Revision	"Rev 1.01"
 
 /*============================================================================
  *

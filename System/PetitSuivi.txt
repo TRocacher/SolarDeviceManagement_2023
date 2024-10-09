@@ -1,18 +1,17 @@
-Version 1.01, HMI et RmDv fonctionnent en mode programmation. Revoir HMI pour périodiser requête UART
-, Poursuivre LCD
+Tester et commiter ces deux versions tout est codé et flashé (salon)
+Version 1.04 SGw 
+Version 1.01 RmDv, tester et faire un commit
 
 TEST :
 pb mise à l'heure pas assez dynamique, il manque 2 ou 3 sec entre HMI et sys... a creuser
+comprend pas... 115000 Bds ? pb de timing dans la boucle 1 sec ? délay ?
 
-pb d'impression LCD factor, il reste à 1.00...mais je l'ai eu vu à 1.05
 
 RmDv corriger le no cmde ... 
 
 Faire un txt de release de tous les 3 soft.
 
-initialiser le RmDvData lors d'une nouvelle connexion RmDv FAIT
 
-Ajouter no comand pour no beep OK à tester A TESTER
 
 faire le tri dans infoLCD A FAIRE
 faire une fonction qui gère l'affichage time, inutilement répété dans InfoLCd.c A FAIRE
@@ -22,6 +21,7 @@ LCD gestion RmDv à finir + SysML + doc HMI ou Sgw A FAIRE
 
 HMI préévoir un bouton qui commute en fullscreen en cas de plantage A FAIRE
 HMI retourner l'écran A FAIRE
+HMI repréciser les heures, ce ne sont pas les même sur SGw et HMI (param prog)
 
 !!! pb latence RmDv qd HMI fonctionne : qd perte de connection onduleur ! sinon OK
 !!! attention l'HMI n'envoie pas des mise à jour régulière il faut forcer . Donc HMI à  revoir 
@@ -35,11 +35,6 @@ int TimeStamp_GetTimeStampDeltaStamp(void)
 void TimeStamp_SetTimeStampDeltaStamp(int delta)
 
 Ajouter dépendance #include "DataFromHMI.h" pour infolCD
-
-Dans string.h, modifier les ...2string en ajoutant 0 à la fin de la chaine EN COURS VERIFIER
-
-Reprendre fonctionnalité LCD FAIT
-
 
 
 Préciser explication globale dans RmDv notamment, qu'est ce qui est communiqué

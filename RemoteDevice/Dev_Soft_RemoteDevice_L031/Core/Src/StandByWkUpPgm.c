@@ -140,9 +140,14 @@ void Main_StandByWkUpPgm(void)
 			LowPower_L031_DisableBKP();
 
 			/* Initialisation télécommande IR et émission effective */
-			RmDv_TelecoIR_Init();
-			RmDv_TelecoIR_SetCmde(ReceivedTempSet);
-			RmDv_TelecoIR_DeInit();
+			if (ReceivedTempSet!=_NoCommandToSend) /* Mise à jour clim que si la commande
+			 	 	 	 	 	 	 	 	 	 	 n'est pas NoCommandToSend*/
+			{
+				RmDv_TelecoIR_Init();
+				RmDv_TelecoIR_SetCmde(ReceivedTempSet);
+				RmDv_TelecoIR_DeInit();
+			}
+
 		}
 		else /* Requête info a échoué, on ne va pas plus loin ...*/
 		{

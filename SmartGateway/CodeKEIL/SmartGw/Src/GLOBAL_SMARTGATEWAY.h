@@ -17,10 +17,12 @@
 * =================================================================================*/
 
 
-#define RevisionSoft	"Rev 1.03"
+#define RevisionSoft	"Rev 1.04"
 /* 1.01 Ajout de l'ensemble HMI + RmDv*/
 /* 1.02 Ajout fonctionnalité LCD + fonctionnalité "no beep" en cours de dév.*/
-
+/* Rev 1.03 : Validation mode beep/nobeep sur un seul RmDv (vers 1.00)
+Le mode programmation est OK sur les premiers tests.*/
+/*Rev 1.04 : quelques bug d'affichage LCD fixé, InfoLCD nettoyé (faire le .h)*/
 
 
 /*============================================================================

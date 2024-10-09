@@ -19,6 +19,7 @@ typedef enum {
 	_Chaud_21_VanBas_FanAuto = 0xC4,
 	_Chaud_22_VanBas_FanAuto = 0xC5,
 	_Chaud_23_VanBas_FanAuto = 0xC6,
+	_NoCommandToSend = 0xC7,
 	_Stop = 0xC0,
 }RmDv_TelecoIR_Cmde;
 

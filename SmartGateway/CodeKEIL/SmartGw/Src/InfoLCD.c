@@ -463,6 +463,9 @@ void InfoLCD_SubScreenRmDvTemp(int ID)
 	RmDvDataTypedef* PtrStamp;
 	float LocalTemp;
 	char FloatString[10];
+	char deg;
+	
+	deg=0xDF;
 
 	/* First line */
 	MyLCD_ClearLineUp();
@@ -473,7 +476,10 @@ void InfoLCD_SubScreenRmDvTemp(int ID)
 	LocalTemp=PtrStamp->Temperature;
 	StringFct_Float2Str(LocalTemp,&FloatString[0], 3, 1);
 	MyLCD_Print_n(&FloatString[0],5); /* +xx.x (avec espace à la fin)*/
-	MyLCD_Print(" °C"); /* xx.x (avec espace à la fin)*/
+	//MyLCD_Print(" °C"); 
+	MyLCD_Print(" ");
+	MyLCD_Print(&deg);
+	MyLCD_Print("C");
 }
 
 
@@ -576,68 +582,13 @@ void InfoLCD_SubScreenRmDvDelayFactor(int ID)
 	/* Clear second line */
 	MyLCD_ClearLineDown();
 	StringFct_Float2Str(LocalFactor,LCD_Mssg, 3, 2);
-	MyLCD_Print_n(LCD_Mssg,4);
+	MyLCD_Print(LCD_Mssg);
 }
 
 
 
 /// a trier
 
-
-/**
-  * @brief  
-  * @Note
-  * @param  
-  * @retval 
-  **/
-void InfoLCD_Status_LastTempSet( RmDv_WarningCode Status,char LastTempSet)
-{
-		/* Clear First line */
-		MyLCD_ClearLineUp();
-		/* Print Status */		
-		MyLCD_Print(TabPtrStr_StatusMssg[Status]);
-		/* Clear second line */
-		MyLCD_ClearLineDown();
-		/* Print LastTempSet*/
-		StringFct_Int2Str_99(LastTempSet,LCD_Str);
-		MyLCD_Print_n (LCD_Str,5);
-}	
-
-
-
-/**
-* @brief  : Affichage des 5 températures
-						Récupère les 5 températures via les 5 variables RmDv_Data
-						du module DataFromRmDv.c
-* @Note : Format :
-					XX.X XX.X XX.X
-					XX.X XX.X
-  * @param  
-  * @retval 
-  **/
-void InfoLCD_Print5Temp(void)
-{
-	RmDvDataTypedef* PtrStamp;
-	float LocalTemp;
-	char FloatString[5][10];
-	int i;
-	
-	/* Conversion String des 5 temperatures*/
-	for (i=0;i<5;i++)
-	{
-		PtrStamp=RmDvData_GetObjectAdress(ID_Clim_Salon+i); /* 0xD1 à 0xD5*/
-		LocalTemp=PtrStamp->Temperature;
-		StringFct_Float2Str(LocalTemp,&FloatString[i][0], 3, 1);
-		FloatString[i][5]=' '; /* insertion espace */
-	}
-	MyLCD_ClearLineUp();
-	MyLCD_Print_n(&FloatString[0][0],5); /* +xx.x (avec espace à la fin)*/
-	MyLCD_Print_n(&FloatString[1][0],5); /* xx.x (avec espace à la fin)*/
-	MyLCD_Print_n(&FloatString[2][0],5); /* xx.x (avec espace à la fin)*/
-	MyLCD_ClearLineDown();
-	MyLCD_Print_n(&FloatString[3][0],5); /* xx.x (avec espace à la fin)*/
-	MyLCD_Print_n(&FloatString[4][0],5); /* xx.x (avec espace à la fin)*/
-}
 
 
 
@@ -679,71 +630,6 @@ void InfoLCD_PrintHour(char * PtrLineUpStr,TimeStampTypedef* TimeStamp)
 	
 
 
-/**
-* @brief  : Affichage du Stamp ID, seconde partie (Status, Factor, NewSet)
-
-* @Note : Format :
-					"xxxxx" (statut)
-					x.xx ; Set: yy
-  * @param  
-  * @retval 
-  **/
-void InfoLCD_PrintRmDv_StatFactNewSet(int ID)
-{
-	RmDv_WarningCode LocalStatus;
-	float LocalFactor;
-	char LocalNewTempSet;
-	
-	char LCD_Sentence[20];
-		
-	RmDvDataTypedef* PtrRmDvData;
-	PtrRmDvData = RmDvData_GetObjectAdress(ID);
-	LocalStatus = PtrRmDvData->Status;
-	LocalFactor = PtrRmDvData->Delay.TimeExpansionFactor;
-	LocalNewTempSet = PtrRmDvData->NewTempSet;
-	
-	
-	/* Clear First line */
-	MyLCD_ClearLineUp();
-	/* Print Status */		
-	MyLCD_Print(TabPtrStr_StatusMssg[LocalStatus]);
-	/* Clear second line */
-	MyLCD_ClearLineDown();
-	/* Print Factor*/
-	MyLCD_Print("Fac:");
-	StringFct_Float2Str(LocalFactor,LCD_Sentence, 3, 2);
-	LCD_Sentence[5]=';';
-	MyLCD_Print_n(LCD_Sentence,5);
-	
-	/* Print LastTempSet*/
-	MyLCD_Print(" Set:");
-	StringFct_Int2Str_99(LocalNewTempSet,LCD_Sentence);
-	MyLCD_Print_n (LCD_Sentence,2);
-	
-
-}
-
-
-/**
-* @brief  : Affichage du Stamp ID
-
-* @Note : Format :
-					"Salon Stamp"
-					hh::mn:ss
-  * @param  
-  * @retval 
-  **/
-char ID_StrName[5][16]={"Stamp Salon","Stamp SaM","Stamp Entree","Stamp Couloir", "Stamp Ext"};
-void InfoLCD_PrintRmDv_Stamp(int ID)
-{
-	int Idx;
-	RmDvDataTypedef* PtrRmDvData;
-	
-	Idx = ID-ID_Clim_Salon;
-	MyLCD_ClearLineDown();
-	PtrRmDvData = RmDvData_GetObjectAdress(ID);
-	InfoLCD_PrintHour(&ID_StrName[Idx][0],&PtrRmDvData->Delay.StampNow);
-}
 
 
 /**
