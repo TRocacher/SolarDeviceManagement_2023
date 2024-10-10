@@ -92,12 +92,12 @@ void TimeStamp_SetClockUpdated_Flag(void)
   * @brief  Initialise TIMER_TimeStamp à une seconde et le lance.
 	*					associe le callback
   **/
-void TimerStamp_Start(void)
+void TimerStamp_Start(int Prio)
 {
 	Timer_CkEnable(TIMER_TimeStamp);
 	Timer_Set_Period(TIMER_TimeStamp, 10000-1,7200-1 ); // période 1 sec 
 	//Timer_Set_Period(TIMER_TimeStamp, 100-1, 7200-1 ); // période 10m sec, cad 30mn = 18 secondes réel
-	Timer_IT_Enable( TIMER_TimeStamp, 0, TimeStamp_Update);
+	Timer_IT_Enable( TIMER_TimeStamp, Prio, TimeStamp_Update);
 
 }
 
@@ -148,7 +148,7 @@ void TimeStamp_SetClock(TimeStampTypedef * Stamp)
 	TimeStampClock.Hour=Stamp->Hour;
 	TimeStampClock.Min=Stamp->Min;
 	TimeStampClock.Sec=Stamp->Sec;
-	TimerStamp_Start();
+	TimerStamp_Start(Prio_TimeStamp);
 }
 
 

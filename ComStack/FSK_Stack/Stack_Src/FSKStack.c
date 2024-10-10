@@ -514,7 +514,7 @@ switch (PhyUART_FSM_State)
 		{
 			PhyUART_Mssg.Status=SendingMssg;
 			USART_FSK_SetTransmAntenna();
-			Delay_x_ms(4);
+			TimeManag_Delay_x_ms(5);
 			USART_FSK_Print((char*)Preambule,4);	// Voir avec l'expérience si on peut diminuer le nbre.
 			USART_FSK_Print(Phy_UART_TransmFrame,(Phy_UART_TransmFrameLen+5)); // envoie le corps
 			USART_FSK_SetReceiveAntenna();  // remise du module en réception

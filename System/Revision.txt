@@ -28,13 +28,24 @@ L277 : checksum, élimination UART_Stack_Sum=Longueur;  (long non initialisée..
 - MyI2C.c
 L180 déclaration buffer en volatile global (lecture bidon nécessaire)
 
+--------------------------------------------------------
+Rev 2.01 : 
+- Délay en boucle for abandonné pour TimeManag_Delay_x_ms() qui utilise
+me systick. Précis à 100µs (le quantum).
+Tous les appels à l'ancien délai sont remplacés par le nouveau
+- FSKStack
+L517 délai de 4 ms rallongé à 5ms (pas forcément utile...)
+
+
 
 *******************************************************
 RmDv :
+--------------------------------------------------------
 Rev 1.00 : Tout fonctionne correctement, reste à bloquer la cmde IR en cas de non commande
 (mode no beep).
+--------------------------------------------------------
 Rev 1.01 : commited la commande IR ne doit plus s'activer si NoCmde est reçu
 
 
-
+*******************************************************
 HMI :

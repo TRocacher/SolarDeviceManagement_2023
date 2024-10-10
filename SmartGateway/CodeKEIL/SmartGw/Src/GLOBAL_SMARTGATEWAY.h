@@ -11,13 +11,13 @@
  *   Tool : KEIL V5.34
  *   Target : STM32F103RTB6
  *   Dépendance : _
- *   Revision : 2.00 Voir Fichier révision .txt. Passage compilateur C V6
+ *   Revision : 2.01 Voir Fichier révision .txt. 
  *  ------------------------------------------------------------------------------
  *  Donne les constantes nécessaires à l'ensemble des échanges (haut niveau)
 * =================================================================================*/
 
 
-#define RevisionSoft	"Rev 2.00"
+#define RevisionSoft	"Rev 2.01"
 /* 1.01 Ajout de l'ensemble HMI + RmDv*/
 /* 1.02 Ajout fonctionnalité LCD + fonctionnalité "no beep" en cours de dév.*/
 /* Rev 1.03 : Validation mode beep/nobeep sur un seul RmDv (vers 1.00)
@@ -68,7 +68,8 @@ Le mode programmation est OK sur les premiers tests.*/
 ============================================================================*/
 
 #define Prio_FSKStack_SystickTimeOut 0
-#define Prio_FSKStack_UART_CD 0
+#define Prio_TimeStamp 1
+#define Prio_FSKStack_UART_CD 2
 #define Prio_FSKStack_UART_Rec (Prio_FSKStack_UART_CD+1)
 #define Prio_FSKStack_TimerFSM (Prio_FSKStack_UART_Rec+1)
 

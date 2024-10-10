@@ -97,8 +97,9 @@ typedef struct
 /**
   * @brief  Initialise TIMER_TimeStamp à une seconde et le lance.
 	*					associe le callback
+	* @param Priorité IT du timer associé
   **/
-void TimerStamp_Start(void);
+void TimerStamp_Start(int Prio);
 
 
 

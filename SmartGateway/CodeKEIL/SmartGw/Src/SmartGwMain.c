@@ -122,7 +122,7 @@ void OneSec_Callback(void)
 		if (Scr_Idx==Screen_Start)	
 		{
 			InfoLCD_ScreenStart();
-			Delay_x_ms(2000);	/* attente 2 sec*/
+			TimeManag_Delay_x_ms(2000);	/* attente 2 sec*/
 			Scr_Idx=Screen_WaitForHMI;
 		}
 		else if (Scr_Idx==Screen_WaitForHMI)	
@@ -133,7 +133,7 @@ void OneSec_Callback(void)
 		else if (Scr_Idx==Screen_HowToUse)	
 		{
 			InfoLCD_Screen_HowToUse();
-			Delay_x_ms(2000);	/* attente 2 sec*/	
+			TimeManag_Delay_x_ms(2000);	/* attente 2 sec*/	
 			Scr_Idx=Screen_System;
 		}
 		else 
@@ -316,7 +316,7 @@ void ReceiveReset_RmDv(char ID)
 	/*Affichage info */
 	InfoLCD_PrintRevision(Revision,8,ID);
 	/* attente 2 sec*/
-	Delay_x_ms(2000);
+	TimeManag_Delay_x_ms(2000);
 	OnSecITEnalble=1;	/* libération affichage courant 1sec*/
 }
 
