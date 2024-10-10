@@ -24,7 +24,7 @@ typedef enum {
 	WakeUpMssgToUC=3,
 	ClimUpdate=4,
 	RTCAdjust=5,
-	WarningMssg=6,
+	WarningMssg=6,  /* etat final, qui envoie les warnings au SmGw (y compris no error)*/
 }RmDv_WkUp_CurrentState;
 
 

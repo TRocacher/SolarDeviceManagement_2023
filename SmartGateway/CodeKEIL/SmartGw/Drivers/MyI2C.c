@@ -177,10 +177,9 @@ void MyI2C_Init(I2C_TypeDef * I2Cx, char IT_Prio_I2CErr, void (*ITErr_function) 
              voir définition	MyI2C_RecSendData_Typedef				
   * @retval None
   */
-
+volatile int I2C_buffer; /* lecture bidon */
 void MyI2C_PutString(I2C_TypeDef * I2Cx, char PteurAdress, MyI2C_RecSendData_Typedef * DataToSend)
 {
-	int buffer;
 	char * Ptr_Data;
 	int Cpt_Byte;
 	
@@ -198,15 +197,15 @@ void MyI2C_PutString(I2C_TypeDef * I2Cx, char PteurAdress, MyI2C_RecSendData_Typ
 	I2Cx->CR1 |= I2C_CR1_START; //Start condition (see RM008 p 759)
 	//-------------EV5  (le start s'est bien passé)  BUSY, MSL and SB flag -------------
 	while(!(I2Cx->SR1 & I2C_SR1_SB )){};	//Wait for SB flag	
-	buffer = I2Cx->SR1; // Dummy read 
+	I2C_buffer = I2Cx->SR1; // Dummy read 
 	
   // Slave Adress Emission		
 	I2Cx->DR=DataToSend->SlaveAdress7bits<<1; // insertion Write bit
 		
 	//-------------EV6   BUSY, MSL, ADDR, TXE and TRA flags  ---------------------------
 	while (!(I2Cx->SR1 & I2C_SR1_ADDR)) {};//Wait for ADDR
-	buffer = I2Cx->SR1;  // Dummy read to clear ADDR
-	buffer = I2Cx->SR2;  // Dummy read to clear ADDR
+	I2C_buffer = I2Cx->SR1;  // Dummy read to clear ADDR
+	I2C_buffer = I2Cx->SR2;  // Dummy read to clear ADDR
 	//============== Fin phase Addressage ==============================================
 		
   //============== Emission @ pteur interne ==========================================
@@ -261,7 +260,6 @@ void MyI2C_GetString(I2C_TypeDef * I2Cx, char PteurAdress, MyI2C_RecSendData_Typ
 
 	char * Ptr_Data;
 	int Cpt_Byte;
-	int buffer;
 	Ptr_Data=DataToReceive->Ptr_Data;
 
 
@@ -277,15 +275,15 @@ void MyI2C_GetString(I2C_TypeDef * I2Cx, char PteurAdress, MyI2C_RecSendData_Typ
 	I2Cx->CR1 |= I2C_CR1_START; //Start condition (see RM008 p 759)
 	//-------------EV5  (le start s'est bien passé)  BUSY, MSL and SB flag -------------
 	while(!(I2Cx->SR1 & I2C_SR1_SB )){};	//Wait for SB flag	
-	buffer = I2Cx->SR1; // Dummy read 
+	I2C_buffer = I2Cx->SR1; // Dummy read 
 		
   // Slave Adress Emission
 	I2Cx->DR=(DataToReceive->SlaveAdress7bits)<<1; // insertion Write bit
 	
 	//-------------EV6   BUSY, MSL, ADDR, TXE and TRA flags  ---------------------------
 	while (!(I2Cx->SR1 & I2C_SR1_ADDR)) {};//Wait for ADDR
-	buffer = I2Cx->SR1;  // Dummy read to clear ADDR
-	buffer = I2Cx->SR2;  // Dummy read to clear ADDR
+	I2C_buffer = I2Cx->SR1;  // Dummy read to clear ADDR
+	I2C_buffer = I2Cx->SR2;  // Dummy read to clear ADDR
   //============== Fin phase Addressage ==============================================
 	
 		
@@ -308,15 +306,15 @@ void MyI2C_GetString(I2C_TypeDef * I2Cx, char PteurAdress, MyI2C_RecSendData_Typ
 	I2Cx->CR1 |= I2C_CR1_START; //Start condition (see RM008 p 759)
 	//-------------EV5  (le start s'est bien passé)  BUSY, MSL and SB flag -------------
 	while(!(I2Cx->SR1 & I2C_SR1_SB )){};	//Wait for SB flag	
-	buffer = I2Cx->SR1; // Dummy read
+	I2C_buffer = I2Cx->SR1; // Dummy read
 		
   // Slave Adress for reception
 	I2Cx->DR=((DataToReceive->SlaveAdress7bits<<1)|1); // insertion bit 0 = 1, @impaire, lecture
 		
 	//-------------EV6   BUSY, MSL, ADDR, TXE and TRA flags  ----------------------------
 	while (!(I2Cx->SR1 & I2C_SR1_ADDR)) {};//Wait for ADDR
-	buffer = I2Cx->SR1;  // Dummy read to clear ADDR
-	buffer = I2Cx->SR2;  // Dummy read to clear ADDR
+	I2C_buffer = I2Cx->SR1;  // Dummy read to clear ADDR
+	I2C_buffer = I2Cx->SR2;  // Dummy read to clear ADDR
   //============== Fin phase Addressage ===============================================
 
 		

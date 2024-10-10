@@ -177,7 +177,7 @@ else if	(NumeroIT < 64)
 
 void NVIC_Prio_IT(char NumeroIT, char Prio)
 {	
-NVIC->IP[(int)NumeroIT]=Prio<<4;	
+NVIC->IPR[(int)NumeroIT]=Prio<<4;	
 }
 	  
 
@@ -208,10 +208,9 @@ if (Port_IO_Init(Port, Broche, 'i', Techno)==0 )
 // Aiguiller la broche vers EXTi avec i = broche (i ème IT externe)
 	if (Port==GPIOA) Valeur_EXTI=0;
 	else if (Port==GPIOB) Valeur_EXTI=1;
-	else if (Port==GPIOC) Valeur_EXTI=2;
+	else  Valeur_EXTI=2; /* portC*/
 
 	Reg_Num=Broche/4; // broche entre 0 et 3 donne 0, entre 4 et 7 donne 1...
-	Reg_Num=Reg_Num;
 	Position_Dans_Reg=Broche%4; // exemple Broche = 5, Position_Dans_Reg=1
 	// a ce stade, Position_Dans_Reg vaut 0,1,2 ou 3
 	Position_Dans_Reg=Position_Dans_Reg*4;

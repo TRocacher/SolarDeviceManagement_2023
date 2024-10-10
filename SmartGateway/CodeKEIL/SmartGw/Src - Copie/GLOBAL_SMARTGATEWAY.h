@@ -11,13 +11,13 @@
  *   Tool : KEIL V5.34
  *   Target : STM32F103RTB6
  *   Dépendance : _
- *   Revision : 2.00 Voir Fichier révision .txt. Passage compilateur C V6
+ *   Revision : 1.00
  *  ------------------------------------------------------------------------------
  *  Donne les constantes nécessaires à l'ensemble des échanges (haut niveau)
 * =================================================================================*/
 
 
-#define RevisionSoft	"Rev 2.00"
+#define RevisionSoft	"Rev 1.04"
 /* 1.01 Ajout de l'ensemble HMI + RmDv*/
 /* 1.02 Ajout fonctionnalité LCD + fonctionnalité "no beep" en cours de dév.*/
 /* Rev 1.03 : Validation mode beep/nobeep sur un seul RmDv (vers 1.00)

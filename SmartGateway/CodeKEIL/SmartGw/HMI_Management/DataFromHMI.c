@@ -251,8 +251,8 @@ void DFH_Update_All(char * AdrString, int Long)
 #define OFFSET_AUTO_PowL1_Home (OFFSET_AUTO_PowExcess +4)
 
 
-void DFH_UpdateModeAuto(char * AdrString)
-{
+//void DFH_UpdateModeAuto(char * AdrString)
+//{
 	/*  Champs de données devant être mis à jour :
 	struct 
 	{
@@ -325,7 +325,7 @@ void DFH_UpdateModeAuto(char * AdrString)
 //		PtrParam++;
 //	}
 	
-}
+//}
 
 /**
   * @brief  

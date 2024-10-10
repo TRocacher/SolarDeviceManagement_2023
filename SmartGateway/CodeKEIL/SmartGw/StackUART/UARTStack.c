@@ -274,7 +274,8 @@ void UARTStack_SendNewMssg (char * AdrString, int Len)
 	char UART_Stack_Sum_Char;
 	
 	Ptr=AdrString;
-	UART_Stack_Sum=Longueur;  /* inclusion de la longueur dans le checksum*/
+	//UART_Stack_Sum=Longueur;  /* inclusion de la longueur dans le checksum*/
+	UART_Stack_Sum=0;
 	for (i=0;i<Len;i++) 
 	{
 		UART_Stack_Sum=UART_Stack_Sum+*(Ptr +i);

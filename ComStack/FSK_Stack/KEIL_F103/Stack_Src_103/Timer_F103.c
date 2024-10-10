@@ -9,7 +9,7 @@
 //**************************************************************************************************************
 //**************************************************************************************************************
 
-int Cpt_100us;
+volatile int Cpt_100us;
 
 void SystickStart(void)
 {
@@ -100,7 +100,7 @@ if (Prio > 15)	Prio=15; // saturation prio par précaution
 if (Timer==TIM1)
 	{
 	Ptr_TIM1=IT_function;
-	NVIC->IP[25]=Prio<<4;
+	NVIC->IPR[25]=Prio<<4;
 	// validation d'IT au niveau NVIC
 	NVIC->ISER[0] = (NVIC->ISER[0])|(1<<25);
 	}
@@ -108,21 +108,21 @@ if (Timer==TIM1)
 if (Timer==TIM2)
 	{
 	Ptr_TIM2=IT_function;
-	NVIC->IP[28]=Prio<<4;
+	NVIC->IPR[28]=Prio<<4;
 	// validation d'IT au niveau NVIC
 	NVIC->ISER[0] = (NVIC->ISER[0])|(1<<28);
 	}
 if (Timer==TIM3)
 	{
 	Ptr_TIM3=IT_function;
-	NVIC->IP[29]=Prio<<4;
+	NVIC->IPR[29]=Prio<<4;
 	// validation d'IT au niveau NVIC
 	NVIC->ISER[0] = (NVIC->ISER[0])|(1<<29);
 	}
 if (Timer==TIM4)
 	{
 	Ptr_TIM4=IT_function;
-	NVIC->IP[30]=Prio<<4;
+	NVIC->IPR[30]=Prio<<4;
 	// validation d'IT au niveau NVIC
 	NVIC->ISER[0] = (NVIC->ISER[0])|(1<<30);
 	}

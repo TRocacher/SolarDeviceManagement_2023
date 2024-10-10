@@ -1,13 +1,40 @@
 SmGw :
+--------------------------------------------------------
 Rev 1.02 : 
+--------------------------------------------------------
 Rev 1.03 : Validation mode beep/nobeep sur un seul RmDv (vers 1.00)
 Le mode programmation est OK sur les premiers tests.
+--------------------------------------------------------
 Rev 1.04 : To be commited quelques bug d'affichage LCD fixé, InfoLCD nettoyer (faire le .h)
 
+========================================================
+--------------------------------------------------------
+Rev 2.00 : passage compilo V6
+- Timer_F103 : changement IPR vers IP (changement .h)
+- Timer_F103 : déclaration compteur Systick en volatile (Cpt_100us)
 
+- GPIO_F103 : 
+L211 else à la place de else if pour tout explorer
+L214 élimination Reg_Num=Reg_Num;
+changement IPR vers IP (changement .h)
+- USARTStack.c
+L277 : checksum, élimination UART_Stack_Sum=Longueur;  (long non initialisée...) par 
+			UART_Stack_Sum=0;
+		
+- MyLCD.c : modif type dans une indice de boucle : i devient unsigned int et non plus int
+- FSKStack.c : modif type volatile PhyUART_Mssg, il s'agit de la grosse structure de réception
+- SmartGwMain_1_00.c renommée SmartGwMain.c
+- SmartGwMain.c : L253 : initialisation variable PrevState car état indéfini par la suite
+- MyI2C.c
+L180 déclaration buffer en volatile global (lecture bidon nécessaire)
+
+
+*******************************************************
 RmDv :
 Rev 1.00 : Tout fonctionne correctement, reste à bloquer la cmde IR en cas de non commande
 (mode no beep).
-Rev 1.01 : To be commited la commande IR ne doit plus s'activer si NoCmde est reçu
+Rev 1.01 : commited la commande IR ne doit plus s'activer si NoCmde est reçu
+
+
 
 HMI :

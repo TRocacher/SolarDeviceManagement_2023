@@ -243,7 +243,18 @@ void Transaction_RmDv(char ID)
 		/* Bloquage dans un timout avec polling info/status
 		ici on peut encore recevoir soit une info (redondance), ou un status ce qui est attendu ! */
 		
+		//TEST
+		if (TimeManag_GetTimeOutStatus(Chrono_WaitTransactionEnd)==0)
+		{
+			Success=1;
+		}
+		//
 		
+		PrevState=WarningMssg; /*valeur par défaut en cas d'échec réception
+		Rem : la non réception est confirmée par le chps Status qui
+		vaut alors Status_NoStatusReceived 
+		Cette init de PrevState est faite pour ne pas rester non affectée
+		dans l'algo qui suit*/
 		Success=0; /*Echec par défaut...*/
 		while(TimeManag_GetTimeOutStatus(Chrono_WaitTransactionEnd)==0)
 		{

@@ -16,8 +16,8 @@
         <TargetCommonOption>
           <Device>STM32F103R8</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F1xx_DFP.2.3.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F1xx_DFP.2.4.1</PackID>
+          <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x00005000) IROM(0x08000000,0x00010000) CPUTYPE("Cortex-M3") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -186,6 +186,7 @@
             <RvdsVP>0</RvdsVP>
             <RvdsMve>0</RvdsMve>
             <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -384,14 +385,9 @@
           <GroupName>src</GroupName>
           <Files>
             <File>
-              <FileName>InfoLCD.c</FileName>
+              <FileName>SmartGwMain.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\InfoLCD.c</FilePath>
-            </File>
-            <File>
-              <FileName>AlgoClim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\AlgoClim.c</FilePath>
+              <FilePath>.\Src\SmartGwMain.c</FilePath>
             </File>
             <File>
               <FileName>MainFcts.c</FileName>
@@ -399,14 +395,14 @@
               <FilePath>.\Src\MainFcts.c</FilePath>
             </File>
             <File>
+              <FileName>InfoLCD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\InfoLCD.c</FilePath>
+            </File>
+            <File>
               <FileName>Debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\Debug.c</FilePath>
-            </File>
-            <File>
-              <FileName>SmartGwMain_1_00.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\SmartGwMain_1_00.c</FilePath>
             </File>
             <File>
               <FileName>HMI_RmDv_Algo.c</FileName>
@@ -439,11 +435,6 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>UARTStack.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\StackUART\UARTStack.c</FilePath>
-            </File>
-            <File>
               <FileName>RmDv_SGw_Protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\RmDv_SGw_Protocol.c</FilePath>
@@ -463,16 +454,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\ComStack\Stack_TimeManagement\TimeManagement.c</FilePath>
             </File>
+            <File>
+              <FileName>UARTStack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\StackUART\UARTStack.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>OtherServices</GroupName>
           <Files>
-            <File>
-              <FileName>Driver_DS1307.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Service_RTC_DS1307\Driver_DS1307.c</FilePath>
-            </File>
             <File>
               <FileName>MyLCD.c</FileName>
               <FileType>1</FileType>
@@ -532,14 +523,14 @@
       <TargetName>Reel</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pCCUsed>6220000::V6.22::ARMCLANG</pCCUsed>
+      <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F103R8</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F1xx_DFP.2.3.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F1xx_DFP.2.4.1</PackID>
+          <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000,0x00005000) IROM(0x08000000,0x00010000) CPUTYPE("Cortex-M3") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -708,6 +699,7 @@
             <RvdsVP>0</RvdsVP>
             <RvdsMve>0</RvdsMve>
             <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -850,7 +842,7 @@
             <uC99>0</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>3</v6Lang>
+            <v6Lang>0</v6Lang>
             <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
@@ -906,14 +898,9 @@
           <GroupName>src</GroupName>
           <Files>
             <File>
-              <FileName>InfoLCD.c</FileName>
+              <FileName>SmartGwMain.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Src\InfoLCD.c</FilePath>
-            </File>
-            <File>
-              <FileName>AlgoClim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\AlgoClim.c</FilePath>
+              <FilePath>.\Src\SmartGwMain.c</FilePath>
             </File>
             <File>
               <FileName>MainFcts.c</FileName>
@@ -921,14 +908,14 @@
               <FilePath>.\Src\MainFcts.c</FilePath>
             </File>
             <File>
+              <FileName>InfoLCD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\InfoLCD.c</FilePath>
+            </File>
+            <File>
               <FileName>Debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\Debug.c</FilePath>
-            </File>
-            <File>
-              <FileName>SmartGwMain_1_00.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Src\SmartGwMain_1_00.c</FilePath>
             </File>
             <File>
               <FileName>HMI_RmDv_Algo.c</FileName>
@@ -961,11 +948,6 @@
           <GroupName>Stack</GroupName>
           <Files>
             <File>
-              <FileName>UARTStack.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\StackUART\UARTStack.c</FilePath>
-            </File>
-            <File>
               <FileName>RmDv_SGw_Protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\ComStack\FSK_Stack\Stack_Src\RmDv_SGw_Protocol.c</FilePath>
@@ -985,16 +967,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\ComStack\Stack_TimeManagement\TimeManagement.c</FilePath>
             </File>
+            <File>
+              <FileName>UARTStack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\StackUART\UARTStack.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>OtherServices</GroupName>
           <Files>
-            <File>
-              <FileName>Driver_DS1307.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Service_RTC_DS1307\Driver_DS1307.c</FilePath>
-            </File>
             <File>
               <FileName>MyLCD.c</FileName>
               <FileType>1</FileType>
@@ -1055,8 +1037,8 @@
   <RTE>
     <apis/>
     <components>
-      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.4.0" condition="ARMv6_7_8-M Device">
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.7.0"/>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="6.1.0" condition="ARMv6_7_8-M Device">
+        <package name="CMSIS" schemaVersion="1.7.36" url="https://www.keil.com/pack/" vendor="ARM" version="6.1.0"/>
         <targetInfos>
           <targetInfo name="Reel"/>
           <targetInfo name="Simu103"/>
@@ -1074,7 +1056,7 @@
       <file attr="config" category="header" name="RTE_Driver\Config\RTE_Device.h" version="1.1.2">
         <instance index="0">RTE\Device\STM32F103R8\RTE_Device.h</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="STM32F1xx CMSIS"/>
-        <package name="STM32F1xx_DFP" schemaVersion="1.4.0" url="http://www.keil.com/pack/" vendor="Keil" version="2.3.0"/>
+        <package name="STM32F1xx_DFP" schemaVersion="1.7.2" url="https://www.keil.com/pack/" vendor="Keil" version="2.4.1"/>
         <targetInfos>
           <targetInfo name="Reel"/>
           <targetInfo name="Simu103"/>
@@ -1083,7 +1065,7 @@
       <file attr="config" category="source" condition="STM32F1xx MD ARMCC" name="Device\Source\ARM\startup_stm32f10x_md.s" version="1.0.0">
         <instance index="0">RTE\Device\STM32F103R8\startup_stm32f10x_md.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="STM32F1xx CMSIS"/>
-        <package name="STM32F1xx_DFP" schemaVersion="1.4.0" url="http://www.keil.com/pack/" vendor="Keil" version="2.3.0"/>
+        <package name="STM32F1xx_DFP" schemaVersion="1.7.2" url="https://www.keil.com/pack/" vendor="Keil" version="2.4.1"/>
         <targetInfos>
           <targetInfo name="Reel"/>
           <targetInfo name="Simu103"/>
@@ -1092,7 +1074,7 @@
       <file attr="config" category="source" name="Device\Source\system_stm32f10x.c" version="1.0.0">
         <instance index="0">RTE\Device\STM32F103R8\system_stm32f10x.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="STM32F1xx CMSIS"/>
-        <package name="STM32F1xx_DFP" schemaVersion="1.4.0" url="http://www.keil.com/pack/" vendor="Keil" version="2.3.0"/>
+        <package name="STM32F1xx_DFP" schemaVersion="1.7.2" url="https://www.keil.com/pack/" vendor="Keil" version="2.4.1"/>
         <targetInfos>
           <targetInfo name="Reel"/>
           <targetInfo name="Simu103"/>

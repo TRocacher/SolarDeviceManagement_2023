@@ -102,7 +102,7 @@ struct PhyUART_Mssg_type
 	char NewStrToSend;
 	PhyUART_StatusType Status;
 	PhyUART_ErrorType Error;
-}PhyUART_Mssg;
+}volatile PhyUART_Mssg;
 
 
 #ifdef Log

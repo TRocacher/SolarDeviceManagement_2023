@@ -233,7 +233,7 @@ void lcd_putchar (char c)
 
 void MyLCD_Init (void)
 { 
-  int i;
+  unsigned int i;
   char const *p;
 
   LCD_CLOCK_EN                          /* Enable clock for peripheral        */
