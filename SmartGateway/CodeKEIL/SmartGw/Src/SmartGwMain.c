@@ -91,7 +91,11 @@ int main (void)
 	/* Config PA0 WakeUp */
 	NVIC_Ext_IT (GPIOA, 0, FALLING_EGDE, INPUT_FLOATING, 14, UserBP_Right);
 	HourStamp_1sec_CallbackAssociation(OneSec_Callback);
+
 	OnSecITEnalble=1; /* validation affichage périodique 1 sec*/
+  
+
+
 while(1)
 	{
 		/* Un message HMI est arrivé ? */
@@ -323,6 +327,8 @@ void ReceiveReset_RmDv(char ID)
 
 /******************************************************************************************************************
 		TRANSACTIONS HMI
+      - Mise à jour de la variable Central data (DFH_CentralData)
+			- Mise à jour du flag de mise à l'heure système
 *****************************************************************************************************************/
 
 

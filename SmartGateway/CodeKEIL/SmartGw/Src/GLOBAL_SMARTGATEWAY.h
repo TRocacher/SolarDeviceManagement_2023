@@ -93,6 +93,14 @@ typedef enum {
 
 
 
+/*============================================================================
+ *
+ * 		Define pour mode Auto
+ *
+============================================================================*/
+#define TemperatureOn	19
+#define TemperatureIncBoost 2
+#define PowerBoostQuantum   700  /* puissance dispo estimée pour booster un élément*/
 
 #endif
 
