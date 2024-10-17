@@ -204,7 +204,7 @@ struct
 /**
   * @brief  Fonction qui remplit tous les champs
 	de la grosse variable HMIRmDvAlgo_AutoData
-	notamment les temperature voulues (TempSet)
+	notamment les temperatures voulues (TempSet)
 	Cette fonction est appelée normalement par l'IT
 	HMI.
   * @Note   
@@ -229,7 +229,7 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 	DFH_AutoModeDataTypedef* AdressCentralAutoModData; 	/* pointeur sur les données centrale du mode Auto*/
 	RmDvDataTypedef* RmDvPtr;														/*Ptr pour accéder aux data RmDv*/
 	DFH_PowDataOptTypedef* PowOptDataPtr;								/*Ptr pour accéder aux données de puissances et opt*/
-	float Power,PowerStart;															/* Puissance disponible, de démarrage, d'arrêt*/
+	float Power,PowerStart,PowerStop;															/* Puissance disponible, de démarrage, d'arrêt*/
 	
 	
 	/*=============================================================================
@@ -319,10 +319,11 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 		Current=HMIRmDvAlgo_AutoData.CurrentTemp[i];
 		TokenNb=0;
 		/* deux if =clim qui était éteintes*/
-		if ((Prog==0) && (Current == TemperatureOn)) TokenNb++;
-		if ((Prog==0) && (Current == (TemperatureOn+TemperatureIncBoost))) TokenNb++;
+		if ((Prog==0) && (Current == TemperatureOn)) TokenNb=TokenNb+1;
+		if ((Prog==0) && (Current == (TemperatureOn+TemperatureIncBoost))) TokenNb=TokenNb+2;
 		/* if suivant = clim qui était en service en mode prog*/
-		if ((Prog!=0) && ((Current - Prog)==TemperatureIncBoost)) TokenNb++;
+		if ((Prog!=0) && ((Current - Prog)==TemperatureIncBoost)) TokenNb=TokenNb+1;
+		
 		HMIRmDvAlgo_AutoData.CurrentBoost[i]=TokenNb;
 		HMIRmDvAlgo_AutoData.CurrentBoostTokenNb+=TokenNb;
 	}
@@ -349,19 +350,23 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 	--------------------------------*/
 	PowOptDataPtr=DFH_GetCentralData_OptPowerData();
 	Power=PowOptDataPtr->PowExcess;
-	//PowerStop=AdressCentralAutoModData->PowExcessStop;
+	PowerStop=AdressCentralAutoModData->PowExcessStop;
 	PowerStart= AdressCentralAutoModData->PowExcessStart;
 	/*NB : BoostNb est en réaté un Delta ! la var était disponible...*/
-	if (Power>(PowerStart+5*PowerBoostQuantum)) TokenNb=6;
-	else if (Power>(PowerStart+4*PowerBoostQuantum)) TokenNb=5;
-	else if (Power>(PowerStart+3*PowerBoostQuantum)) TokenNb=4;
-	else if (Power>(PowerStart+2*PowerBoostQuantum)) TokenNb=3;
-	else if (Power>(PowerStart+PowerBoostQuantum)) TokenNb=2;
-	else if (Power>PowerStart) TokenNb=1;
-	
-	penser au négatif !!! 
-	else TokenNb=0;
-	/*MAJ DeltaBoostNb*/
+	if (Power>(PowerStart+5*PowerBoostQuantum)) TokenNb=6;				/*[ > Pstart + 5PQ]*/
+	else if (Power>(PowerStart+4*PowerBoostQuantum)) TokenNb=5;		/*]Pstart + 4PQ ; Pstart + 5PQ]*/
+	else if (Power>(PowerStart+3*PowerBoostQuantum)) TokenNb=4;		/*]Pstart + 3PQ ; Pstart + 4PQ]*/
+	else if (Power>(PowerStart+2*PowerBoostQuantum)) TokenNb=3;   /*]Pstart + 2PQ ; Pstart + 3PQ]*/
+	else if (Power>(PowerStart+PowerBoostQuantum)) TokenNb=2;			/*]Pstart + PQ ; Pstart + 2PQ]*/
+	else if (Power>PowerStart) TokenNb=1;													/*]Pstart  ; Pstart + 1PQ]*/
+	else if (Power>PowerStop) TokenNb=0;													/*]Pstop  ; Pstart ]*/	
+	else if (Power>PowerStop-PowerBoostQuantum) TokenNb=-1;				/*]Pstop-PQ  ; Pstop ]*/
+	else if (Power>PowerStop-2*PowerBoostQuantum) TokenNb=-2;			/*]Pstop-2PQ  ; Pstop-PQ ]*/
+	else if (Power>PowerStop-3*PowerBoostQuantum) TokenNb=-3;			/*]Pstop-3PQ  ; Pstop-2PQ ]*/
+	else if (Power>PowerStop-4*PowerBoostQuantum) TokenNb=-4;			/*]Pstop-4PQ  ; Pstop-3PQ ]*/
+	else if (Power>PowerStop-5*PowerBoostQuantum) TokenNb=-5;			/*]Pstop-5PQ  ; Pstop-4PQ ]*/
+	else TokenNb=-6;																							/*] <= Pstop-5PQ ] */
+	/*MAJ DeltaBoostTokenNb*/
 	HMIRmDvAlgo_AutoData.DeltaBoostTokenNb=TokenNb;
 	i= TokenNb+HMIRmDvAlgo_AutoData.CurrentBoostTokenNb;
 	/*test satu*/
@@ -383,10 +388,10 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 	}
 	/* Init de Token au nbre voulu, avant le while*/
 	TokenNb=HMIRmDvAlgo_AutoData.DesiredBoostTokenNb;
+	ClimOffNb=4-ClimOnNb;
 	while(TokenNb>0)
 	{
 		/*Déterminer le nbre de clim off*/
-		ClimOffNb=4-ClimOnNb;
 		if (ClimOffNb>0) /* il existe des clims à l'arrêt*/
 		{
 			/*Trouver la clim de plus grande prio (valeur min !)*/
@@ -421,19 +426,20 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 				if (HMIRmDvAlgo_AutoData.Prio[j]<Min) 
 				{
 					Min=HMIRmDvAlgo_AutoData.Prio[j];
+					HMIRmDvAlgo_AutoData.Prio[j]=10; /* pour sortir cet élément du jeu
+																						lors de la prochaine boucle*/
 					IndiceDuMin=j; /*on a trouvé un min provisoire*/
 				}
 			}
-			if (Min!=5) /* une clim à l'arrêt est trouvée, 
+			if (Min!=5) /* une clim  est trouvée, 
 									celle de plus haute prio*/
 			{
-				HMIRmDvAlgo_AutoData.TempSet[IndiceDuMin]= \
-				HMIRmDvAlgo_AutoData.CurrentTemp
+				HMIRmDvAlgo_AutoData.TempSet[IndiceDuMin]+= TemperatureIncBoost;
 				TokenNb--;
 			}
 		}
 	}
-	bug ici dans la tete : quelle nouvelle Temperat ? relatif au Current ou au Prog ???!!!!
+
 	
 	
 }

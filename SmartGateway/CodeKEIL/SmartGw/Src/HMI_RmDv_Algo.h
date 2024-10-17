@@ -29,31 +29,19 @@
 RmDv_TelecoIR_Cmde HMIRmDvAlgo_ComputeTempCmde(char ID);
 
 
-
 /**
-  * @brief  Génère la consigne de température en mode Automatique
-  * @Note
-  * @param  ID : l'ID de la clim
-  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
+  * @brief  Fonction qui remplit tous les champs
+	de la grosse variable HMIRmDvAlgo_AutoData
+	notamment les temperatures voulues (TempSet)
+	Cette fonction est appelée normalement par l'IT
+	HMI.
+  * @Note   
+  * @param  _
+  * @retval _
   **/
-RmDv_TelecoIR_Cmde HMIRmDvAlgo_AutoMode(char ID);
-
-/**
-  * @brief  Génère la consigne de température en mode Programmation
-  * @Note
-  * @param  ID : l'ID de la clim
-  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
-  **/
-RmDv_TelecoIR_Cmde HMIRmDvAlgo_ProgramMode(char ID);
+void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void);
 
 
-/**
-  * @brief  Génère la consigne de température en mode vacances
-  * @Note
-  * @param  ID : l'ID de la clim
-  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
-  **/
-RmDv_TelecoIR_Cmde HMIRmDvAlgo_HollidayMode(char ID);
 
 
 /**

@@ -44,13 +44,13 @@ TimeStampTypedef TestStamp; /////!!!!!!!!!!
 
 /* les données clim (RmDDv)*/
 int RmDv_ID; 										/* l'@ source du signal FSK en cours de réception, qui est l'ID de la clim */
-RmDvDataTypedef* pClimSalon;		/* Pointeur de données du RmDv Salon */
-RmDvDataTypedef* pClimSaM;			/* Pointeur de données du RmDv Salle à manger */
-RmDvDataTypedef* pClimEntree;		/* Pointeur de données du RmDv Entrée */
-RmDvDataTypedef* pClimCouloir;	/* Pointeur de données du RmDv Couloir */
-RmDvDataTypedef* pRmDvExt;			/* Pointeur de données du RmDv situé à l'extérieur */
+//RmDvDataTypedef* pClimSalon;		/* Pointeur de données du RmDv Salon */
+//RmDvDataTypedef* pClimSaM;			/* Pointeur de données du RmDv Salle à manger */
+//RmDvDataTypedef* pClimEntree;		/* Pointeur de données du RmDv Entrée */
+//RmDvDataTypedef* pClimCouloir;	/* Pointeur de données du RmDv Couloir */
+//RmDvDataTypedef* pRmDvExt;			/* Pointeur de données du RmDv situé à l'extérieur */
 
-RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers RmDv */
+//RmDvDataTypedef* Tab_RmDvData[5];	/* tableau de Pointeurs de données des divers RmDv */
 
 
 
@@ -343,11 +343,18 @@ void Transaction_HMI(void)
 	MyError=UARTStack_GetErrorStatus();
 	if( MyError == _NoError) 
 	{
+	/*--------------------------------
+	Ecriture de HMI_CenralData...
+	--------------------------------*/
 		PtrOnString=UARTStack_GetHMIMssg();
 		L=UARTStack_GetLen();
 		/* Mise à jour Central Data*/
 		DFH_Update_All(PtrOnString,L);
-		/* Mise à l'heure si l'écart entre le stamp local et le stamp HMI sont éloignées de plus de 5 secondes*/
+	/*--------------------------------
+	Mise à l'heure si l'écart entre 
+	le stamp local et le stamp HMI sont 
+	éloignées de plus de 5 secondes
+	--------------------------------*/		
 		PtrTimeStampHMI=DFH_GetCentralData_Stamp(); 		/* obtention du pointeur Stamp de Central Data */
 		PtrTimeStampLocal=TimeStamp_GetClockStampAdr();	/* Obtention du pointeur clock */
 		DeltaStamp =TimeStamp_substract(PtrTimeStampLocal,PtrTimeStampHMI ); /* Local - HMI stamps*/
@@ -358,6 +365,13 @@ void Transaction_HMI(void)
 			TimeStamp_SetClock(PtrTimeStampHMI);
 			TimeStamp_SetClockUpdated_Flag();
 		}
+	/*--------------------------------
+	Ecriture de HMIRmDvAlgo_AutoData...
+	pour anticiper les demandes de température
+	en mode automatique
+	--------------------------------*/			
+		HMIRmDvAlgo_AutoModeDataUpdateFromHMI();
+		
 	}
 	
 }
@@ -531,19 +545,28 @@ void UserBP_Right(void)
 
 void Init_RmDvDataPtrTab(void)
 {
-	
+	RmDvDataTypedef* pClim;
 	/* initisation des "objets" data clim */
-	RmDvData_Reset(ID_Clim_Salon);
+	RmDvData_Reset(ID_Clim_Salon);	
 	RmDvData_Reset(ID_Clim_SaManger);
+	
+	/* Bricolage pour raison de test !! à enlever*/
+	pClim=RmDvData_GetObjectAdress(ID_Clim_Salon);
+	pClim->LastTempSet=_Chaud_19_VanBas_FanAuto;
+	pClim=RmDvData_GetObjectAdress(ID_Clim_SaManger);
+	pClim->LastTempSet=_Chaud_19_VanBas_FanAuto;
+	/* Fin Bricolage pour raison de test !! à enlever*/
+	
 	RmDvData_Reset(ID_Clim_Entree);
 	RmDvData_Reset(ID_Clim_Couloir);
 	RmDvData_Reset(ID_Ext);
 	
 	/* rangement des pointeur ds un tableau pour appel via ID...*/
-	Tab_RmDvData[0]= pClimSalon;
-	Tab_RmDvData[1]= pClimSaM;
-	Tab_RmDvData[2]= pClimEntree;
-	Tab_RmDvData[3]= pClimCouloir;
-	Tab_RmDvData[4]= pRmDvExt;
+//	Tab_RmDvData[0]= pClimSalon;
+//	Tab_RmDvData[1]= pClimSaM;
+//	Tab_RmDvData[2]= pClimEntree;
+//	Tab_RmDvData[3]= pClimCouloir;
+//	Tab_RmDvData[4]= pRmDvExt;
+
 }
 
