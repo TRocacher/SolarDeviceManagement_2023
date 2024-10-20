@@ -340,6 +340,7 @@ void Transaction_HMI(void)
 	int L, DeltaStamp;
 	TimeStampTypedef * PtrTimeStampHMI, *PtrTimeStampLocal;
 	
+	OnSecITEnalble=0;	/* blocage affichage courant 1sec*/
 	MyError=UARTStack_GetErrorStatus();
 	if( MyError == _NoError) 
 	{
@@ -373,7 +374,7 @@ void Transaction_HMI(void)
 		HMIRmDvAlgo_AutoModeDataUpdateFromHMI();
 		
 	}
-	
+	OnSecITEnalble=1;	/* libération affichage courant 1sec*/
 }
 
 
@@ -545,21 +546,25 @@ void UserBP_Right(void)
 
 void Init_RmDvDataPtrTab(void)
 {
-	RmDvDataTypedef* pClim;
+	//RmDvDataTypedef* pClim;
 	/* initisation des "objets" data clim */
 	RmDvData_Reset(ID_Clim_Salon);	
 	RmDvData_Reset(ID_Clim_SaManger);
-	
-	/* Bricolage pour raison de test !! à enlever*/
-	pClim=RmDvData_GetObjectAdress(ID_Clim_Salon);
-	pClim->LastTempSet=_Chaud_19_VanBas_FanAuto;
-	pClim=RmDvData_GetObjectAdress(ID_Clim_SaManger);
-	pClim->LastTempSet=_Chaud_19_VanBas_FanAuto;
-	/* Fin Bricolage pour raison de test !! à enlever*/
-	
 	RmDvData_Reset(ID_Clim_Entree);
 	RmDvData_Reset(ID_Clim_Couloir);
 	RmDvData_Reset(ID_Ext);
+	
+	/* Bricolage pour raison de test !! à enlever*/
+//	pClim=RmDvData_GetObjectAdress(ID_Clim_Salon);
+//	pClim->LastTempSet=_Chaud_21_VanBas_FanAuto;
+//	pClim=RmDvData_GetObjectAdress(ID_Clim_SaManger);
+//	pClim->LastTempSet=_Chaud_19_VanBas_FanAuto;
+//	pClim=RmDvData_GetObjectAdress(ID_Clim_Entree);
+//	pClim->LastTempSet=_Chaud_19_VanBas_FanAuto;
+//	pClim=RmDvData_GetObjectAdress(ID_Clim_Couloir);
+//	pClim->LastTempSet=_Chaud_19_VanBas_FanAuto;
+	/* Fin Bricolage pour raison de test !! à enlever*/
+
 	
 	/* rangement des pointeur ds un tableau pour appel via ID...*/
 //	Tab_RmDvData[0]= pClimSalon;

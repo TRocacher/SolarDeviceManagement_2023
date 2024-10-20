@@ -44,19 +44,4 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void);
 
 
 
-/**
-  * @brief  Convertit une température en son code commande IR correspondant
-  * @Note
-  * @param  Température : 18 à 23, 0 si arrêt
-  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
-  **/
-RmDv_TelecoIR_Cmde HMIRmDvAlgo_Temp2CmdeIR(char Temp);
-
-/**
-  * @brief  Convertit un code commande IR en sa température correspondante
-  * @Note   Si la commande est stop, la température vaut 0
-  * @param  Code commande IR
-  * @retval  Température (0 si stop)
-  **/
-char HMIRmDvAlgo_CmdeIR2Temp(RmDv_TelecoIR_Cmde Cmde);
 #endif

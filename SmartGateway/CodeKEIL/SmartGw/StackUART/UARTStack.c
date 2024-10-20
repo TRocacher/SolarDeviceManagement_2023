@@ -68,6 +68,7 @@ _TimeOut,  : si le timer est arrivé à échéance et sur la chaîne est incomplète
 
 #include "UARTStack.h"
 #include "MyLCD.h" /* Pour debug ...*/
+#include "GLOBAL_SMARTGATEWAY.h"
 
 char HMISting[120]; // régler en fct de la châine max !!
 int char_pos;
@@ -165,7 +166,7 @@ void UARTStack_Init(void)
 	HMIStringComplete=0;
 	UARTStackErrorStatus=_NoError;
 	charNbToread=0;
-	USART_Init(UART_HMI, UART_HMI_BaudRate, 0, HMI_UART_Callback); 
+	USART_Init(UART_HMI, UART_HMI_BaudRate, PrioUSARTStack, HMI_UART_Callback); 
 	USART_ReceivEnable(UART_HMI);
 	
 	Timer_CkEnable(TIM_UARTStack);

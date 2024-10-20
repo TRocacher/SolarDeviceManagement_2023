@@ -21,185 +21,30 @@
 #include "HMI_RmDv_Algo.h"
 #include "MyLCD.h" /* Pour debug ...*/
 
-/**
-  * @brief  Convertit une température en son code commande IR correspondant
-  * @Note		
-  * @param  Température : 18 à 23, 0 si arrêt
-  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
-  **/
-RmDv_TelecoIR_Cmde HMIRmDvAlgo_Temp2CmdeIR(char Temp)
-{
-	RmDv_TelecoIR_Cmde LocalCmde;
-	switch(Temp)
-	{
-		case 0: LocalCmde=_Stop;break;
-		case 17:LocalCmde=_Chaud_18_VanBas_FanAuto;break; /*!! à virer provisoire pour compat HMI*/
-		case 18: LocalCmde=_Chaud_18_VanBas_FanAuto;break;
-		case 19: LocalCmde=_Chaud_19_VanBas_FanAuto;break;
-		case 20: LocalCmde=_Chaud_20_VanBas_FanAuto;break;
-		case 21: LocalCmde=_Chaud_21_VanBas_FanAuto;break;
-		case 22: LocalCmde=_Chaud_22_VanBas_FanAuto;break;
-		case 23: LocalCmde=_Chaud_23_VanBas_FanAuto;break;
-		default:
-		{
-			MyLCD_Set_cursor(0, 0);
-			MyLCD_Print("Plantage Fct :");
-			MyLCD_Set_cursor(0, 1);
-			MyLCD_Print("HMIRmDvAlgo_Temp2CmdeIR");
-			while(1); 
-		}	
-	}
-	return LocalCmde;
-}
 
-/**
-  * @brief  Convertit un code commande IR en sa température correspondante
-	* @Note  Rev 15/10/24 ajout de _NoCommandToSend = 0xC7,
-					on renvoie 100 comme température, c'est idiot mais ça plante pas.
-  * @Note   Si la commande est stop, la température vaut 0
-  * @param  Code commande IR
-  * @retval  Température (0 si stop)
-  **/
-char HMIRmDvAlgo_CmdeIR2Temp(RmDv_TelecoIR_Cmde Cmde)
-{
-	char LocalTemp;
-	if (Cmde==_Stop) LocalTemp=0;
-	else if (Cmde==_Chaud_18_VanBas_FanAuto) LocalTemp=18;
-	else if (Cmde==_Chaud_19_VanBas_FanAuto) LocalTemp=19;
-	else if (Cmde==_Chaud_20_VanBas_FanAuto) LocalTemp=20;
-	else if (Cmde==_Chaud_21_VanBas_FanAuto) LocalTemp=21;
-	else if (Cmde==_Chaud_22_VanBas_FanAuto) LocalTemp=22;
-	else if (Cmde==_Chaud_23_VanBas_FanAuto) LocalTemp=23;
-	else if (Cmde==_NoCommandToSend ) LocalTemp=100;
-	else 
-	{
-		MyLCD_Set_cursor(0, 0);
-		MyLCD_Print("Plantage Fct :");
-		MyLCD_Set_cursor(0, 1);
-		MyLCD_Print("HMIRmDvAlgo_CmdeIR2Temp");
-		while(1); // provisoire...
-	}	
-	return LocalTemp;
-}
-
-
-
-
-
-
-/**
-  * @brief  Génère la consigne de température en mode Programmation
-  * @Note   
-  * @param  ID : l'ID de la clim
-  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
-  **/
-RmDv_TelecoIR_Cmde HMIRmDvAlgo_ProgramMode(char ID)
-{
-	TimeStampTypedef Local;
-	HourStampTypedef LocalHour, MinuteOffset;
-	short int Hour;
-	DFH_ProgramModeDataTypedef* AdressCentralData_Prog;
-	RmDv_TelecoIR_Cmde LocalCmde;
-	int ID_Idx;
-	
-	/* construction idx de 0 à 4*/
-	ID_Idx=(int)ID-(int)ID_Clim_Salon;
-	
-	/*récupérer le stamp cible*/
-	TimeStamp_GetClock(&Local);
-
-	/*récupération de l'heure lors du stamp de réception RmDv
-	en ajoutant 5mn pour être certain de tomber dans le bon intervalle
-	Il faut éviter un stamp à 5h59mn59sec qui en fait correspond à 6h et plus.
-	On ajoute donc 5mn pour être tranquille.
-	Ce stamp détermine l'intervalle et donc la température voulue*/
-	LocalHour.Sec =Local.Sec;
-	LocalHour.Min =Local.Min;
-	LocalHour.Hour =Local.Hour;
-	MinuteOffset.Sec=0;
-	MinuteOffset.Min =5;
-	MinuteOffset.Hour=0;
-	HourStampAdd(&LocalHour, &MinuteOffset ); /* Stamp + 5mn*/
-	Hour = LocalHour.Hour;										/*heure stamp qui cadre bien dans un intervalle*/
-	/* Récupération de l'@ du champ de type DFH_ProgramModeDataTypedef*/
-	AdressCentralData_Prog=DFH_GetCentralData_ProgParam();
-	
-	
-	/* Principe :
-	la donnée est constituée comme suit :
-	typedef struct 
-{
-	char Temperature_6h[4];					
-	char Temperature_8h[4];
-	char Temperature_10h[4];	
-	char Temperature_15h[4];	
-	char Temperature_18h[4];
-	char Temperature_23h[4];		
-}DFH_ProgramModeDataTypedef;
-	
-	On va donc chercher l'information température en fonction de l'heure en commençant par 
-	un if heure >= 23 h exclusif. Chaque clim est filtrée par son ID.
-	Rem : La fonction HMIRmDvAlgo_Temp2CmdeIR permet d'obtenir le code IR en fonction de la 
-	température en °C (sauf 0 qui veut dire stop)
-	
-	
-*/
-	
-	if (Hour>=23) 
-	{
-		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_23h[ID_Idx]);
-	}
-	else if (Hour>=18)
-	{
-		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_18h[ID_Idx]);
-	}
-	else if (Hour>=15)
-	{
-		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_15h[ID_Idx]);
-	}
-	else if (Hour>=10)
-	{
-		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_10h[ID_Idx]);
-	}
-	else if (Hour>=8)
-	{
-		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_8h[ID_Idx]);
-	}
-	else if (Hour>=6)
-	{
-		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_6h[ID_Idx]);
-	}
-	else 
-	{
-		MyLCD_Set_cursor(0, 0);
-		MyLCD_Print("Plantage Fct :");
-		MyLCD_Set_cursor(0, 1);
-		MyLCD_Print("HMIRmDvAlgo_ProgramMode");
-		while(1); // provisoire...
-	}	
-		
-	return LocalCmde;
-}
-
-
-
+RmDv_TelecoIR_Cmde HMIRmDvAlgo_ProgramMode(char ID);
+RmDv_TelecoIR_Cmde HMIRmDvAlgo_AutoMode(char ID);
+RmDv_TelecoIR_Cmde HMIRmDvAlgo_Temp2CmdeIR(char Temp);
+char HMIRmDvAlgo_CmdeIR2Temp(RmDv_TelecoIR_Cmde Cmde);
 
 			
 struct 
 {
-	char ProgTemp[4];				/* correspond aux température programmée sur le slot donné*/
-	char CurrentTemp[4];	 	/* correspond aux températures éffectives sur les clim*/
+	char ProgTemp[4];				/* correspond aux températures programmées sur le slot donné*/
+	char CurrentTemp[4];	 	/* correspond aux températures effectives sur les clim*/
 	char CurrentBoost[4];		/* indique les qté de Boost correspondant à chaque clim, 0, 1 ou 2*/
-	char TempSet[4];				/* les températures envisagées, à récupérer pour la prochaine commande*/
+	char TempSet[4];				/* les températures calculées, à récupérer lors des prochaines transactions RmDv*/
 	char Prio[4];						/* contient la priorité pour chaque clim*/
 	
 	int CurrentBoostTokenNb;	/*Somme de tous les jetons Boost mis en jeu en ce moment*/
 	int DeltaBoostTokenNb;		/*la qté de boost disponible en fonction de l'ensoleillement*/
-	int DesiredBoostTokenNb;			/*la qté totale voulue pour la nouvelle programmation des clims*/
-	int BoostTokenNbMax;					/*la qté maximale de Boost possible dans la slot de prog actuel*/
+	int DesiredBoostTokenNb;	/*la qté totale voulue pour la nouvelle programmation des clims*/
+	int BoostTokenNbMax;			/*la qté maximale de Boost possible dans la slot de prog actuel*/
 
 }HMIRmDvAlgo_AutoData;	
 	
+
+
 
 /**
   * @brief  Fonction qui remplit tous les champs
@@ -439,9 +284,6 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 			}
 		}
 	}
-
-	
-	
 }
 
 
@@ -460,7 +302,8 @@ RmDv_TelecoIR_Cmde HMIRmDvAlgo_ComputeTempCmde(char ID)
 	/*Lecture du Mode dans CentralData*/
 	AdressCentralData_Mode=DFH_GetCentralData_Mode();
 	if (*AdressCentralData_Mode == HMI_Mode_Program) Localcmde=HMIRmDvAlgo_ProgramMode(ID);
-	else 
+	else if (*AdressCentralData_Mode == HMI_Mode_Auto) Localcmde=HMIRmDvAlgo_AutoMode(ID);
+	else  
 	{
 		MyLCD_Set_cursor(0, 0);
 		MyLCD_Print("Plantage Fct :");
@@ -473,8 +316,184 @@ RmDv_TelecoIR_Cmde HMIRmDvAlgo_ComputeTempCmde(char ID)
 	return Localcmde;
 }
 
-
 /*---------------------------------
  FONCTIONS PRIVEE
 ----------------------------------*/
+/**
+  * @brief  Convertit une température en son code commande IR correspondant
+  * @Note		
+  * @param  Température : 18 à 23, 0 si arrêt
+  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
+  **/
+RmDv_TelecoIR_Cmde HMIRmDvAlgo_Temp2CmdeIR(char Temp)
+{
+	RmDv_TelecoIR_Cmde LocalCmde;
+	switch(Temp)
+	{
+		case 0: LocalCmde=_Stop;break;
+		case 17:LocalCmde=_Chaud_18_VanBas_FanAuto;break; /*!! à virer provisoire pour compat HMI*/
+		case 18: LocalCmde=_Chaud_18_VanBas_FanAuto;break;
+		case 19: LocalCmde=_Chaud_19_VanBas_FanAuto;break;
+		case 20: LocalCmde=_Chaud_20_VanBas_FanAuto;break;
+		case 21: LocalCmde=_Chaud_21_VanBas_FanAuto;break;
+		case 22: LocalCmde=_Chaud_22_VanBas_FanAuto;break;
+		case 23: LocalCmde=_Chaud_23_VanBas_FanAuto;break;
+		default:
+		{
+			MyLCD_Set_cursor(0, 0);
+			MyLCD_Print("Plantage Fct :");
+			MyLCD_Set_cursor(0, 1);
+			MyLCD_Print("HMIRmDvAlgo_Temp2CmdeIR");
+			while(1); 
+		}	
+	}
+	return LocalCmde;
+}
 
+/**
+  * @brief  Convertit un code commande IR en sa température correspondante
+	* @Note  Rev 15/10/24 ajout de _NoCommandToSend = 0xC7,
+					on renvoie 100 comme température, c'est idiot mais ça plante pas.
+  * @Note   Si la commande est stop, la température vaut 0
+  * @param  Code commande IR
+  * @retval  Température (0 si stop)
+  **/
+char HMIRmDvAlgo_CmdeIR2Temp(RmDv_TelecoIR_Cmde Cmde)
+{
+	char LocalTemp;
+	if (Cmde==_Stop) LocalTemp=0;
+	else if (Cmde==_Chaud_18_VanBas_FanAuto) LocalTemp=18;
+	else if (Cmde==_Chaud_19_VanBas_FanAuto) LocalTemp=19;
+	else if (Cmde==_Chaud_20_VanBas_FanAuto) LocalTemp=20;
+	else if (Cmde==_Chaud_21_VanBas_FanAuto) LocalTemp=21;
+	else if (Cmde==_Chaud_22_VanBas_FanAuto) LocalTemp=22;
+	else if (Cmde==_Chaud_23_VanBas_FanAuto) LocalTemp=23;
+	else if (Cmde==_NoCommandToSend ) LocalTemp=100;
+	else 
+	{
+		MyLCD_Set_cursor(0, 0);
+		MyLCD_Print("Plantage Fct :");
+		MyLCD_Set_cursor(0, 1);
+		MyLCD_Print("HMIRmDvAlgo_CmdeIR2Temp");
+		while(1); // provisoire...
+	}	
+	return LocalTemp;
+}
+
+
+
+
+
+/**
+  * @brief  Génère la consigne de température en mode Programmation
+  * @Note   
+  * @param  ID : l'ID de la clim
+  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
+  **/
+RmDv_TelecoIR_Cmde HMIRmDvAlgo_ProgramMode(char ID)
+{
+	TimeStampTypedef Local;
+	HourStampTypedef LocalHour, MinuteOffset;
+	short int Hour;
+	DFH_ProgramModeDataTypedef* AdressCentralData_Prog;
+	RmDv_TelecoIR_Cmde LocalCmde;
+	int ID_Idx;
+	
+	/* construction idx de 0 à 4*/
+	ID_Idx=(int)ID-(int)ID_Clim_Salon;
+	
+	/*récupérer le stamp cible*/
+	TimeStamp_GetClock(&Local);
+
+	/*récupération de l'heure lors du stamp de réception RmDv
+	en ajoutant 5mn pour être certain de tomber dans le bon intervalle
+	Il faut éviter un stamp à 5h59mn59sec qui en fait correspond à 6h et plus.
+	On ajoute donc 5mn pour être tranquille.
+	Ce stamp détermine l'intervalle et donc la température voulue*/
+	LocalHour.Sec =Local.Sec;
+	LocalHour.Min =Local.Min;
+	LocalHour.Hour =Local.Hour;
+	MinuteOffset.Sec=0;
+	MinuteOffset.Min =5;
+	MinuteOffset.Hour=0;
+	HourStampAdd(&LocalHour, &MinuteOffset ); /* Stamp + 5mn*/
+	Hour = LocalHour.Hour;										/*heure stamp qui cadre bien dans un intervalle*/
+	/* Récupération de l'@ du champ de type DFH_ProgramModeDataTypedef*/
+	AdressCentralData_Prog=DFH_GetCentralData_ProgParam();
+	
+	
+	/* Principe :
+	la donnée est constituée comme suit :
+	typedef struct 
+{
+	char Temperature_6h[4];					
+	char Temperature_8h[4];
+	char Temperature_10h[4];	
+	char Temperature_15h[4];	
+	char Temperature_18h[4];
+	char Temperature_23h[4];		
+}DFH_ProgramModeDataTypedef;
+	
+	On va donc chercher l'information température en fonction de l'heure en commençant par 
+	un if heure >= 23 h exclusif. Chaque clim est filtrée par son ID.
+	Rem : La fonction HMIRmDvAlgo_Temp2CmdeIR permet d'obtenir le code IR en fonction de la 
+	température en °C (sauf 0 qui veut dire stop)
+	
+	
+*/
+	
+	if (Hour>=23) 
+	{
+		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_23h[ID_Idx]);
+	}
+	else if (Hour>=18)
+	{
+		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_18h[ID_Idx]);
+	}
+	else if (Hour>=15)
+	{
+		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_15h[ID_Idx]);
+	}
+	else if (Hour>=10)
+	{
+		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_10h[ID_Idx]);
+	}
+	else if (Hour>=8)
+	{
+		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_8h[ID_Idx]);
+	}
+	else if (Hour>=6)
+	{
+		LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(AdressCentralData_Prog->Temperature_6h[ID_Idx]);
+	}
+	else 
+	{
+		MyLCD_Set_cursor(0, 0);
+		MyLCD_Print("Plantage Fct :");
+		MyLCD_Set_cursor(0, 1);
+		MyLCD_Print("HMIRmDvAlgo_ProgramMode");
+		while(1); // provisoire...
+	}	
+		
+	return LocalCmde;
+}
+
+
+/**
+  * @brief  Génère la consigne de température en mode automatique
+  * @Note   
+  * @param  ID : l'ID de la clim
+  * @retval  consigne clim de type RmDv_TelecoIR_Cmde
+  **/
+RmDv_TelecoIR_Cmde HMIRmDvAlgo_AutoMode(char ID)
+{
+	RmDv_TelecoIR_Cmde LocalCmde;
+	int temp;
+	int ID_Idx;
+	
+	/* construction idx de 0 à 4*/
+	ID_Idx=(int)ID-(int)ID_Clim_Salon;
+	temp=HMIRmDvAlgo_AutoData.TempSet[ID_Idx];
+	LocalCmde=HMIRmDvAlgo_Temp2CmdeIR(temp);
+	return LocalCmde;
+}

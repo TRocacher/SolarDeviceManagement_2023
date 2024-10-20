@@ -67,6 +67,7 @@ Le mode programmation est OK sur les premiers tests.*/
  *
 ============================================================================*/
 
+#define PrioUSARTStack 2								/* TimeStamp, (IT 1 sec, très courte) doit pouvoir interrompre USARTStack */
 #define Prio_FSKStack_SystickTimeOut 0
 #define Prio_TimeStamp 1
 #define Prio_FSKStack_UART_CD 2
