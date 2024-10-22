@@ -11,19 +11,13 @@
  *   Tool : KEIL V5.34
  *   Target : STM32F103RTB6
  *   Dépendance : _
- *   Revision : 2.01 Voir Fichier révision .txt. 
+ *   Revision : 2.02 Voir Fichier révision .txt. 
  *  ------------------------------------------------------------------------------
  *  Donne les constantes nécessaires à l'ensemble des échanges (haut niveau)
 * =================================================================================*/
 
 
-#define RevisionSoft	"Rev 2.01"
-/* 1.01 Ajout de l'ensemble HMI + RmDv*/
-/* 1.02 Ajout fonctionnalité LCD + fonctionnalité "no beep" en cours de dév.*/
-/* Rev 1.03 : Validation mode beep/nobeep sur un seul RmDv (vers 1.00)
-Le mode programmation est OK sur les premiers tests.*/
-/*Rev 1.04 : quelques bug d'affichage LCD fixé, InfoLCD nettoyé (faire le .h)*/
-
+#define RevisionSoft	"Rev 2.02"
 
 /*============================================================================
  *

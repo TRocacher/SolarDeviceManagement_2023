@@ -244,7 +244,15 @@ void InfoLCD_ScreenRmDvID(int ID)
 		case ID_Clim_Entree:MyLCD_Print("|>Clim Entree :");break;
 		case ID_Clim_Couloir:MyLCD_Print("|>Clim Couloir :");break;
 		case ID_Ext:MyLCD_Print("|>Capteur Ext :");break;
-		default: while(1);/////// bug
+		default: 
+		{
+			MyLCD_Set_cursor(0, 0);
+			MyLCD_Print("Plantage L247 :");
+			MyLCD_Set_cursor(0, 1);
+			MyLCD_Print("InfoLCD.c");
+			TimeStamp_DisableTimerOneSec();
+			while(1); // provisoire...
+		}
 	}
 	/* Clear second line */
 	MyLCD_ClearLineDown();	
@@ -478,7 +486,7 @@ void InfoLCD_SubScreenRmDvTemp(int ID)
 	MyLCD_Print_n(&FloatString[0],5); /* +xx.x (avec espace à la fin)*/
 	//MyLCD_Print(" °C"); 
 	MyLCD_Print(" ");
-	MyLCD_Print(&deg);
+	MyLCD_Print_n(&deg,1);
 	MyLCD_Print("C");
 }
 

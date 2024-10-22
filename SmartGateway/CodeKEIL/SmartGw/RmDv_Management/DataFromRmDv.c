@@ -54,9 +54,10 @@ RmDvDataTypedef* RmDvData_GetObjectAdress( int ID)
 	else 
 	{
 		MyLCD_Set_cursor(0, 0);
-		MyLCD_Print("Plantage Fct :");
+		MyLCD_Print("Plantage L54 :");
 		MyLCD_Set_cursor(0, 1);
-		MyLCD_Print("RmDvData_GetObjectAdress");
+		MyLCD_Print("DataFromRmDv.c");
+		TimeStamp_DisableTimerOneSec();
 		while(1); // provisoire...
 	}	
 	return Adr;

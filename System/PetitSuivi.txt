@@ -1,3 +1,7 @@
+
+
+Relire la suite.
+
 Tester et commiter ces deux versions tout est codé et flashé (salon)
 Version 1.04 SGw 
 Version 1.01 RmDv, tester et faire un commit

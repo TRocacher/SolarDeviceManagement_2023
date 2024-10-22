@@ -101,7 +101,11 @@ typedef struct
   **/
 void TimerStamp_Start(int Prio);
 
-
+/**
+* @brief  Neutralise les IT Timer 1 seconde
+  * @retval _
+  **/
+void TimeStamp_DisableTimerOneSec(void);
 
 /**
   * @brief  Renvoie l'horodatage réel via le pointeur d'entrée

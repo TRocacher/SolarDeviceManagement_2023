@@ -150,7 +150,7 @@
 #define	ID_Clim_Couloir 0xD4
 #define ID_Ext 0xD5
 /* #define  My 0xDD */
-#define My_ ID_Clim_Salon
+#define My_ ID_Clim_SaManger
 #define SGw_ 0xDD
 #define BroadCast 0xFF
 

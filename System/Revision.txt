@@ -30,14 +30,37 @@ L180 déclaration buffer en volatile global (lecture bidon nécessaire)
 
 --------------------------------------------------------
 Rev 2.01 : 
-- Délay en boucle for abandonné pour TimeManag_Delay_x_ms() qui utilise
+- TimeManagement.c/.h 
+Délay en boucle for abandonné pour TimeManag_Delay_x_ms() qui utilise
 me systick. Précis à 100µs (le quantum).
 Tous les appels à l'ancien délai sont remplacés par le nouveau
-- FSKStack
+- FSKStack.c
 L517 délai de 4 ms rallongé à 5ms (pas forcément utile...)
 
+-Global_SmartGateway.h
+L71 modif prio CD = 2 pour vraiment prioriser Systick
+Ajout Prio TimerStamp que l'on met à 1, juste après Systick
+- TimeStampManagement.C/.h 
+Modif ajout prio en argument , void TimerStamp_Start(int Prio);
 
-
+--------------------------------------------------------
+Rev 2.02 : 
+- SmartGwMain.c
+Ligne 213, ajout if not RmDvExt pour le calcul nouvelle consigne.
+-Global_SmartGateway.h
+Ligne 64 ajout #define PrioUSARTStack 2	
+L'idée est de laisser l'IT 1 sec interrompre l'IT HMI (USARTStack) pour 
+ne pas désynchroniser les clock. A priori pas d'effet notable...
+- HMI_RmDv_Algo.c
+Ligne 183, erreur entre clim on et off, != dans le if au lieu de ==
+Ligne 186, erreur ds le nbre de clim on et off, formule reprise.
+- InfoLCD.c bug affichage temp en double fixé
+Ligne 481 MyLCD_Print_n(&deg,1); (avant simple print qui venait 
+faire une lecture en overflow...
+- tous les plantage en while(1) sont maintenant accompagné d'un blocage
+de l'IT one Sec (arrêt timer) pour inhiber l'affichage et rester sur le
+message d'erreur. Maintenant le LCD sur plantage indique le nom du fichier
+et la ligne en faute.
 *******************************************************
 RmDv :
 --------------------------------------------------------

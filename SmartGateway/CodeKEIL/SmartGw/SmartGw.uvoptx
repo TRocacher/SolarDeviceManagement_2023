@@ -433,6 +433,26 @@
           <WinNumber>1</WinNumber>
           <ItemText>DFH_CentralData</ItemText>
         </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RmDvData_Salon</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RmDvData_SaManger</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RmDvData_Entree</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RmDvData_Couloir</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

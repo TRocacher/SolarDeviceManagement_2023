@@ -40,7 +40,6 @@ struct
 	int DeltaBoostTokenNb;		/*la qté de boost disponible en fonction de l'ensoleillement*/
 	int DesiredBoostTokenNb;	/*la qté totale voulue pour la nouvelle programmation des clims*/
 	int BoostTokenNbMax;			/*la qté maximale de Boost possible dans la slot de prog actuel*/
-
 }HMIRmDvAlgo_AutoData;	
 	
 
@@ -131,11 +130,13 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 	actuellement sur les clim
 	-> lecture RmDv_Data, remplissage 
 	HMIRmDvAlgo_AutoData.CurrentTemp[4]
+	NB : la valeur actuelle est la dernière envoyée
+	Donc champ NewTempSet
 	--------------------------------*/
 	for (i=0;i<4;i++)
 	{
 		RmDvPtr=RmDvData_GetObjectAdress(ID_Clim_Salon+i);
-		if (RmDvPtr->LastTempSet == _NoCommandToSend) /*on récupère la temp d'avant...*/
+		if (RmDvPtr->NewTempSet == _NoCommandToSend) /*on récupère la temp d'avant...*/
 		{
 			/*MAJ CurrentTemp*/
 			HMIRmDvAlgo_AutoData.CurrentTemp[i]= \
@@ -145,7 +146,7 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 		{
 			/*MAJ CurrentTemp*/
 			HMIRmDvAlgo_AutoData.CurrentTemp[i]= \
-			HMIRmDvAlgo_CmdeIR2Temp(RmDvPtr->LastTempSet);
+			HMIRmDvAlgo_CmdeIR2Temp(RmDvPtr->NewTempSet);
 		}
 	}
 
@@ -176,14 +177,14 @@ void HMIRmDvAlgo_AutoModeDataUpdateFromHMI(void)
 	/*--------------------------------
 	*Détermination du nombre max de boost
 	-> HMIRmDvAlgo_AutoData.BoostTokenNbMax
-	--------------------------------*/
+		--------------------------------*/
 	ClimOnNb=0;
 	for (i=0;i<4;i++)
 	{
-		if (HMIRmDvAlgo_AutoData.ProgTemp[i]==0) ClimOnNb++;
+		if (HMIRmDvAlgo_AutoData.ProgTemp[i]!=0) ClimOnNb++;
 	}
 	/*MAJ BoostTokenNbMax*/
-	HMIRmDvAlgo_AutoData.BoostTokenNbMax=2*ClimOnNb+(4-ClimOnNb);
+	HMIRmDvAlgo_AutoData.BoostTokenNbMax=1*ClimOnNb+2*(4-ClimOnNb);
 	
 	
 	/*=============================================================================
@@ -306,9 +307,10 @@ RmDv_TelecoIR_Cmde HMIRmDvAlgo_ComputeTempCmde(char ID)
 	else  
 	{
 		MyLCD_Set_cursor(0, 0);
-		MyLCD_Print("Plantage Fct :");
+		MyLCD_Print("Plantage L307 :");
 		MyLCD_Set_cursor(0, 1);
 		MyLCD_Print("HMIRmDvAlgo_ComputeTempCmde");
+		TimeStamp_DisableTimerOneSec();
 		while(1); // provisoire...
 	}		
 	
@@ -341,10 +343,11 @@ RmDv_TelecoIR_Cmde HMIRmDvAlgo_Temp2CmdeIR(char Temp)
 		default:
 		{
 			MyLCD_Set_cursor(0, 0);
-			MyLCD_Print("Plantage Fct :");
+			MyLCD_Print("Plantage L343 :");
 			MyLCD_Set_cursor(0, 1);
-			MyLCD_Print("HMIRmDvAlgo_Temp2CmdeIR");
-			while(1); 
+			MyLCD_Print("HMI_RmDv_Algo");
+			TimeStamp_DisableTimerOneSec();
+			while(1); // provisoire...
 		}	
 	}
 	return LocalCmde;
@@ -372,9 +375,10 @@ char HMIRmDvAlgo_CmdeIR2Temp(RmDv_TelecoIR_Cmde Cmde)
 	else 
 	{
 		MyLCD_Set_cursor(0, 0);
-		MyLCD_Print("Plantage Fct :");
+		MyLCD_Print("Plantage L375 :");
 		MyLCD_Set_cursor(0, 1);
-		MyLCD_Print("HMIRmDvAlgo_CmdeIR2Temp");
+		MyLCD_Print("HMI_RmDv_Algo");
+		TimeStamp_DisableTimerOneSec();
 		while(1); // provisoire...
 	}	
 	return LocalTemp;
@@ -469,9 +473,10 @@ RmDv_TelecoIR_Cmde HMIRmDvAlgo_ProgramMode(char ID)
 	else 
 	{
 		MyLCD_Set_cursor(0, 0);
-		MyLCD_Print("Plantage Fct :");
+		MyLCD_Print("Plantage L473:");
 		MyLCD_Set_cursor(0, 1);
-		MyLCD_Print("HMIRmDvAlgo_ProgramMode");
+		MyLCD_Print("HMI_RmDv_Algo");
+		TimeStamp_DisableTimerOneSec();
 		while(1); // provisoire...
 	}	
 		

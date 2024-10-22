@@ -191,6 +191,15 @@ int TimeStamp_substract(TimeStampTypedef * PtrA,TimeStampTypedef * PtrB )
 	return (TimeStamp_2_Sec(PtrA)-TimeStamp_2_Sec(PtrB));
 }
 
+/**
+* @brief  Neutralise les IT Timer 1 seconde
+  * @retval _
+  **/
+void TimeStamp_DisableTimerOneSec(void)
+{
+	TimerOff(TIMER_TimeStamp);
+}
+
 
 /* ===============================
         Fonction heure/min/sec

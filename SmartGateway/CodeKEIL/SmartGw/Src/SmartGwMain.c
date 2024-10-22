@@ -210,7 +210,11 @@ void Transaction_RmDv(char ID)
 		if (TimeStamp_GetClockUpdated_Flag()==1) /* L'horloge a été intialisée par l'HMI*/
 		{
 			CorrInterval_ToSend=RmDvData_GenerateNextTimeInterval(PtrRmDvData);
-			NewTempSet=HMIRmDvAlgo_ComputeTempCmde(ID); /* se fait en fonction du mode*/
+			if (ID!=ID_Ext) /* pour le module externe on ne donne pas de consigne !*/
+			{
+				NewTempSet=HMIRmDvAlgo_ComputeTempCmde(ID); /* se fait en fonction du mode*/
+			}
+			
 		}
 		else /* L'horloge n'est pas encore à jour, on demande un arrêt clim 
 			et un nouveau réveil dans 5mn */
